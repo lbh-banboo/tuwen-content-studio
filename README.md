@@ -1,8 +1,14 @@
 # 图文内容生产
 
+[![public-snapshot-ci](https://github.com/lbh-banboo/tuwen-content-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/lbh-banboo/tuwen-content-studio/actions/workflows/ci.yml)
+
+[MIT](LICENSE) · `Python >= 3.12` · `FastAPI` · `PostgreSQL 17 + pgvector` · `v0.1.1`
+
 面向图文内容生产全流程的 AI Native 系统 —— 后端服务与可交互前端原型，仓库标识 `tuwen-content-studio`。
 
-> **开源快照说明**：本仓库是脱敏后的单 commit 快照，不含原研发历史。
+> **English**: Tuwen Content Studio is a public source snapshot of an AI-Native image-text content workflow — FastAPI + SQLAlchemy/Alembic on PostgreSQL with pgvector, plus a build-free static demo. Research in progress, not a production-ready product.
+
+> **开源快照说明**：本仓库是脱敏后的公开源码快照，不含原研发历史与运行期数据。
 > 所有示例账号、邮箱、路径、域名均已替换为虚构值；不包含任何真实业务数据、
 > 账号登录凭证、浏览器 profile 或密钥。
 
@@ -83,7 +89,7 @@ python -m pytest
 ```bash
 cd outputs/rednote-demo
 python -m http.server 8080
-# 打开 http://localhost:8080/index.html
+# 浏览器打开本机 8080 端口的 index.html
 ```
 
 纯静态，无需构建；页面数据为 mock。
