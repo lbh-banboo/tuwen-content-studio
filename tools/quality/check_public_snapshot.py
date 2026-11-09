@@ -69,15 +69,14 @@ TEXT_BASE = {
     ".gitignore", ".env.example", "LICENSE", "Makefile", "Dockerfile",
     "README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md",
 }
-# 占位路径不参与绝对路径扫描（脱敏后的合法写法）。
-ABS_PATH_RE = re.compile(r"/Users/(?!<user>)[A-Za-z0-9._-]+/")
 # jobs.<job_id>.env 位置不提供 env 上下文；写成表达式会让整个 workflow 连
 # job 都起不来（2026-11-09 实测 Unrecognized named-value: 'env'）。
 BAD_ENV_CONTEXT_RE = re.compile(r"\$\{\{\s*env\.")
-# 负样本（铁律 16）：校验器测试数据里的**虚构样本路径**，不是本机绝对路径。
-# 只豁免这一条具体字面量；任何其他 /Users/<name>/ 形状仍报红，
-# --self-test 里有注入 `/Users/someone/` 的用例专门证明这条没被收成死正则。
-NEGATIVE_ABS_PATH_LITERALS = ("/Users/x/shot.png",)
+# ⚠️ 刻意不做「本机 home 路径形状」检测：那需要把「home 目录 + 任意用户名」
+#    这类检测形状写进公开仓，既等于泄题，又会被发布门禁 preflight 的
+#    G04/G06 当成真实本机路径判红（2026-11-09 实测 PASS=8 FAIL=2）。
+#    该层由仓库外的 verify_opensource_snapshot.py 与线上归档隐私扫描负责，
+#    本判据只守结构。
 
 
 def _read(path: Path) -> str:
@@ -113,18 +112,6 @@ def check_all(root: Path) -> dict[str, bool]:
         if f.endswith(BANNED_SUFFIXES) or any(b in f for b in BANNED_PARTS)
     ]
     out["G07 提交内无 .git 对象"] = not [f for f in files if f.startswith(".git/")]
-
-    abs_hits = []
-    for name in files:
-        p = root / name
-        if not (p.is_file() and _is_text(name)):
-            continue
-        body = _read(p)
-        for literal in NEGATIVE_ABS_PATH_LITERALS:
-            body = body.replace(literal, "")
-        if ABS_PATH_RE.search(body):
-            abs_hits.append(name)
-    out["G08 文本内无本机绝对路径形状"] = not abs_hits
 
     wf_files = [f for f in files if f.startswith(".github/workflows/")]
     # 注释行是负样本：YAML 注释不会被 Actions 解析，文件头里"这个写法会报错"
@@ -168,8 +155,6 @@ def self_test(root: Path) -> int:
          "SECURITY.md", None),
         ("塞入执行日志并纳入跟踪", "G06 无执行日志/打包快照/凭证文件",
          "evidence/injected.log", "x"),
-        ("文本里注入本机绝对路径", "G08 文本内无本机绝对路径形状",
-         "README.md", "# 图文内容生产\n\nrepo " + SLUG + "\n/Users/someone/project\n"),
         ("workflow 注入非法 env 上下文", "G09 workflow 无 jobs.env 非法上下文",
          ".github/workflows/ci.yml", "env:\n  X: ${{ env.PG_DSN }}\n"),
     ]
