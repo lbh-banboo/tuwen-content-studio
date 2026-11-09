@@ -12,6 +12,12 @@
 #   · 测试不 mock 数据库：services 起真 PG17 + pgvector，先建扩展再跑迁移
 #     （WP21 迁移刻意不代建扩展，见 20260924_1502_7a4c1e93b6d2）
 #   · 迁移、应用、测试三个 DSN 指向同一库，与本机默认口径一致（全量需在 postgres 库上跑）
+#
+# ⚠️ 2026-11-09：jobs.<job_id>.env 位置不提供 env 上下文。GitHub Actions 官方校验
+#    对 `REDNOTE_*_DATABASE_URL: ${{ env.PG_DSN }}` 报
+#    "Unrecognized named-value: 'env'"，整个 workflow 连 job 都起不来（0 job）。
+#    三道门的 DSN 一律写字面值；顶层 env 不再放 PG_DSN，避免"看起来像唯一真值
+#    来源、实际没有引用者"的假防线。改 DSN 必须同步下面 6 处。
 
 name: backend-ci
 
@@ -28,7 +34,6 @@ concurrency:
 
 env:
   PYTHON_VERSION: "3.13"
-  PG_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
   NO_PROXY: "*"
   PYTHONDONTWRITEBYTECODE: "1"
 
@@ -50,8 +55,9 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
-      REDNOTE_DATABASE_URL: ${{ env.PG_DSN }}
-      REDNOTE_TEST_DATABASE_URL: ${{ env.PG_DSN }}
+      # 字面值：jobs.<job_id>.env 不提供 env 上下文，见文件头说明。
+      REDNOTE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+      REDNOTE_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -89,8 +95,9 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
-      REDNOTE_DATABASE_URL: ${{ env.PG_DSN }}
-      REDNOTE_TEST_DATABASE_URL: ${{ env.PG_DSN }}
+      # 字面值：jobs.<job_id>.env 不提供 env 上下文，见文件头说明。
+      REDNOTE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+      REDNOTE_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -135,8 +142,9 @@ jobs:
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
-      REDNOTE_DATABASE_URL: ${{ env.PG_DSN }}
-      REDNOTE_TEST_DATABASE_URL: ${{ env.PG_DSN }}
+      # 字面值：jobs.<job_id>.env 不提供 env 上下文，见文件头说明。
+      REDNOTE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+      REDNOTE_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
