@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认对照、原因与局部修复范围 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .cf-wrap { display: grid; grid-template-columns: 288px minmax(0,1fr); gap: 18px; align-items: start; }
+  @media (max-width: 1180px) { .cf-wrap { grid-template-columns: 1fr; } }
+  .sel-txt { background: rgba(251,191,36,0.2); border-bottom: 1.5px solid var(--warn); border-radius: 2px; padding: 0 1px; cursor: pointer; }
+  .fb-item { border: 1px solid var(--line); border-radius: 11px; padding: 11px 12px; background: rgba(255,255,255,0.018); }
+  .fb-item.pend { border-color: rgba(251,191,36,0.34); background: rgba(251,191,36,0.05); }
+  .fb-item.block { border-color: rgba(251,113,133,0.4); background: rgba(251,113,133,0.06); }
+  .fb-item.done { opacity: 0.66; }
+  .fb-q { font-size: 12px; line-height: 1.62; color: var(--text); }
+  .fb-meta { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; font-size: 10.5px; color: var(--muted); }
+  .regen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media (max-width: 900px) { .regen-grid { grid-template-columns: repeat(2, 1fr); } }
+  .regen { border: 1px solid var(--line); border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .regen:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .regen.on { border-color: var(--purple); background: rgba(160,107,255,0.13); }
+  .regen i { font-size: 14px; color: var(--purple); }
+  .regen div { font-size: 11px; margin-top: 6px; }
+  .cthumb { display: flex; gap: 9px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: all .16s ease; }
+  .cthumb:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.03); }
+  .cthumb.on { border-color: var(--purple); background: rgba(160,107,255,0.1); }
+  .cthumb .ct-img { width: 34px; height: 44px; flex: 0 0 auto; border-radius: 6px; background: linear-gradient(150deg,#2a1f45,#170f28); display: grid; place-items: center; font-size: 10px; color: rgba(160,107,255,0.6); }
+  .dz { border: 1.5px dashed var(--line-strong); border-radius: 11px; padding: 18px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .dz:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.05); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-5"></i> 步骤 5 / 8</span>
+            <span class="code code-purple">批次 BATCH-T01</span>
+            <span class="tag tag-ok">修复范围已收窄</span>
+          </div>
+          <h1 class="page-title">确认对照、原因与局部修复范围</h1>
+          <p class="page-desc">对照初稿与当前稿、确认媒体差异与原因，并把修复范围收窄到具体行。选择「应用后续生成」时写入本批次生成约束，但不修改生产基线。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="feedback-list.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="scale-batch.html">批准进入扩产 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-magnifying-glass-chart t-pur"></i>
+                <h3 class="card-title">原因确认</h3>
+              </div>
+              <span class="card-sub">问题表现与根因分开记录</span>
+            </div>
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:132px">候选根因</th>
+                    <th style="width:150px">正确修复位置</th>
+                    <th>最小对照结论</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="f11">资料错误或缺失</td>
+                    <td class="f11">事实资产及证据补充</td>
+                    <td class="f11 t-mut">已排除：F-003 有书面来源且已批准</td>
+                  </tr>
+                  <tr>
+                    <td class="f11">正确资料存在但没检索到</td>
+                    <td class="f11">检索过滤、型号映射、重排</td>
+                    <td class="f11 t-mut">已排除：上下文包含 F-003 全文</td>
+                  </tr>
+                  <tr>
+                    <td class="f11">检索到但裁剪丢失</td>
+                    <td class="f11">上下文预算与必保留字段</td>
+                    <td class="f11 t-mut">已排除：该段未被裁剪</td>
+                  </tr>
+                  <tr class="tr-on">
+                    <td class="f11 fw5">上下文正确但生成未遵守</td>
+                    <td class="f11 fw5">生成约束、主张核验、模型流程</td>
+                    <td class="f11 t-pur"><b>已确认：同任务只替换指令后不再复现</b></td>
+                  </tr>
+                </tbody>
+              </table></div></div>
+            </div>
+            <div class="card-foot" style="display:block">
+              <div class="grid g2 f1" style="gap:0 14px">
+                <div>
+                  <div class="f10 t-fai">问题表现（issue_code）</div>
+                  <div class="f11 fw5 mt4">FAC-01 参数与基线口径冲突</div>
+                </div>
+                <div>
+                  <div class="f10 t-fai">根因（root_cause）</div>
+                  <div class="f11 fw5 mt4">生成未遵守已批准基线</div>
+                </div>
+              </div>
+              <div class="note note-warn mt14 f11">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div><b>单次重试成功不能证明根因，单次失败也不能认定模型偶发。</b>问题表现适合描述「哪里错了」，不足以确定该改哪个资产。</div>
+              </div>
+
+              <div class="divider"></div>
+              <div class="f10 t-fai mb10">同类根因近 30 天频次 —— 仅用于安排处理优先级，不作事实真伪判断</div>
+              <div class="col" style="gap:8px">
+                <div class="bar-row">
+                  <span class="f11" style="width:126px">生成未遵守基线</span>
+                  <div class="bar"><div class="bar-fill warn" data-w="70%"></div></div>
+                  <span class="bar-num f11">7</span>
+                </div>
+                <div class="bar-row">
+                  <span class="f11" style="width:126px">裁剪丢失必保留字段</span>
+                  <div class="bar"><div class="bar-fill" data-w="40%"></div></div>
+                  <span class="bar-num f11">4</span>
+                </div>
+                <div class="bar-row">
+                  <span class="f11" style="width:126px">任务缺决策问题</span>
+                  <div class="bar"><div class="bar-fill" data-w="30%"></div></div>
+                  <span class="bar-num f11">3</span>
+                </div>
+                <div class="bar-row">
+                  <span class="f11" style="width:126px">文图冲突</span>
+                  <div class="bar"><div class="bar-fill" data-w="20%"></div></div>
+                  <span class="bar-num f11">2</span>
+                </div>
+                <div class="bar-row">
+                  <span class="f11" style="width:126px">审核口径冲突</span>
+                  <div class="bar"><div class="bar-fill" data-w="10%"></div></div>
+                  <span class="bar-num f11">1</span>
+                </div>
+              </div>
+              <div class="f10 t-fai mt10">
+                <i class="fa-solid fa-circle-info"></i>
+                一次严重事实错误也应立即纠正；同稿的十次修改不是十个独立证据。
+              </div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-screwdriver-wrench t-pur"></i>
+                <h3 class="card-title">局部修复与作用范围</h3>
+                <span class="tag tag-info">第 1 轮 / 最多 2 轮</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="sec-title" style="font-size:12.5px;margin-bottom:10px">
+                <i class="fa-solid fa-arrows-rotate"></i>本轮局部修订
+                <span class="sec-sub">只修定位到的缺陷，保留已通过部分</span>
+              </div>
+              <div class="col" style="gap:9px">
+                <div class="list-item" style="padding:9px 0">
+                  <span class="li-icon warn"><i class="fa-solid fa-1"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">替换参数表述为基线口径</div>
+                    <div class="li-sub">「62%」→「≥60%（与基线口径一致）」· 未动其余段落</div>
+                  </div>
+                  <div class="li-right"><span class="tag tag-ok no-dot f10">已解决</span></div>
+                </div>
+                <div class="list-item" style="padding:9px 0">
+                  <span class="li-icon warn"><i class="fa-solid fa-2"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">收窄人群适用表述</div>
+                    <div class="li-sub">「敏感肌也能天天用」→「日常清洁可长期使用」</div>
+                  </div>
+                  <div class="li-right"><span class="tag tag-warn no-dot f10">待复审</span></div>
+                </div>
+                <div class="list-item" style="padding:9px 0">
+                  <span class="li-icon"><i class="fa-solid fa-3"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">替换第 3 张起泡图</div>
+                    <div class="li-sub">消除文图冲突 · 已记录为「文图冲突」类差异</div>
+                  </div>
+                  <div class="li-right"><span class="tag tag-ok no-dot f10">已解决</span></div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="sec-title" style="font-size:12.5px;margin-bottom:10px">
+                <i class="fa-solid fa-crosshairs"></i>作用范围
+                <span class="sec-sub">本意见已选：应用后续生成</span>
+              </div>
+              <div class="grid g2 mb14" style="gap:10px">
+                <div class="fcard">
+                  <div class="f10 t-fai">生效路径</div>
+                  <div class="f11 fw5 mt4">作为附加约束写入 PLAN 版本</div>
+                  <div class="f10 t-fai mt4">不修改生产基线 BL-v3</div>
+                </div>
+                <div class="fcard">
+                  <div class="f10 t-fai">回退条件</div>
+                  <div class="f11 fw5 mt4">目标缺陷未降 / 正常能力回退</div>
+                  <div class="f10 t-fai mt4">生效后仍持续监测漂移</div>
+                </div>
+              </div>
+
+              <div class="sec-title" style="font-size:12.5px;margin-bottom:10px">
+                <i class="fa-solid fa-flag"></i>需一并记录的事件
+              </div>
+              <div class="row wrap mb14" style="gap:7px">
+                <span class="tag no-dot f10">无修改通过</span>
+                <span class="tag no-dot f10">优秀初稿</span>
+                <span class="tag no-dot f10">被淘汰</span>
+                <span class="tag tag-purple no-dot f10">不采纳修改建议</span>
+              </div>
+
+              <div class="note note-danger f11">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                  只学负面反馈容易让系统<b>越写越保守</b>；只学终稿则<b>学不到原因</b>。
+                  两轮局部修订未解决时交人工或补资料，<b>不无限重写</b>。
+                </div>
+              </div>
+            </div>
+          </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'feedback-fix', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '对照与修复'] });
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>领取推荐研究任务并上传资料 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .prompt-box {
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.75;
+    color: var(--text-2); background: rgba(0,0,0,0.3);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 12px 14px; white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="rs-head">
+          <h1 class="page-title">正在读取研究任务…</h1>
+          <p class="page-desc">GET /projects/{id}/research-prompts</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="brief-thicken.v2.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" data-keep-id href="research-files.v2.html">下一步：核对资料文件 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4" id="rs-metrics" data-stagger></div>
+
+      <div class="grid g-3-2">
+        <div class="col" style="gap:14px">
+          <div id="rs-prompts" aria-live="polite"></div>
+          <div id="rs-gaps" aria-live="polite"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="rs-keywords"></div>
+          <div id="rs-summary"></div>
+          <div id="rs-files"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/research.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'research', crumb: ['项目中心', '项目研究'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/research.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.research;
+    var head = document.getElementById('rs-head'), metrics = document.getElementById('rs-metrics');
+    var prompts = document.getElementById('rs-prompts'), gaps = document.getElementById('rs-gaps');
+    var keywords = document.getElementById('rs-keywords'), summary = document.getElementById('rs-summary');
+    var files = document.getElementById('rs-files'), keepId = document.querySelectorAll('[data-keep-id]');
+    function renderAll(project, data, fileRes) {
+      head.innerHTML = R.renderHead(project, data);
+      metrics.innerHTML = R.renderQuotaCards(fileRes.meta);
+      prompts.innerHTML = R.renderPromptsCard(data);
+      gaps.innerHTML = R.renderGapsCard(data);
+      keywords.innerHTML = R.renderKeywordsCard(data);
+      summary.innerHTML = R.renderSummaryCard(data);
+      files.innerHTML = R.renderFilesCard(fileRes.items, project && project.id);
+    }
+    async function load() {
+      head.innerHTML = '<div><h1 class="page-title">正在读取研究任务…</h1><p class="page-desc">GET /projects/{id}/research-prompts</p></div>';
+      [metrics, prompts, gaps, keywords, summary, files].forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取研究数据…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目。' };
+        keepId.forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(id); });
+        var base = '/projects/' + encodeURIComponent(id);
+        var res = await Promise.all([API.get(base), API.get(base + '/research-prompts'), API.page(base + '/research-files', { limit: 100 })]);
+        renderAll(res[0], res[1], res[2]);
+      } catch (err) {
+        head.innerHTML = '<div><h1 class="page-title">研究数据读取失败</h1><p class="page-desc">请检查后端与项目 ID 后重试。</p></div>';
+        metrics.innerHTML = '';
+        [prompts, gaps, keywords, summary, files].forEach(function (el) { el.innerHTML = R.renderCardError(err); });
+      }
+    }
+    prompts.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1561 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>知识库 · 六域字段 / SOP / 双 Loop 状态机 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .acard { border: 1px solid var(--line); border-radius: 13px; padding: 15px 16px; background: rgba(255,255,255,0.018); transition: all .18s ease; cursor: pointer; }
+  .acard:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.06); transform: translateY(-2px); }
+  .aic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-size: 14px; background: rgba(160,107,255,0.16); color: #c4a5ff; }
+  .st { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .st-draft { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .st-pend { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .st-live { color: #34d399; background: rgba(52,211,153,0.14); }
+  .st-sup { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .st-arch { color: var(--faint); background: rgba(255,255,255,0.035); }
+  .loop { border: 1px solid var(--line); border-radius: 12px; padding: 14px 15px; }
+  .lstep { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+  .lstep:last-child { border-bottom: 0; }
+  .ln { width: 22px; height: 22px; flex: 0 0 auto; border-radius: 7px; display: grid; place-items: center; font-size: 10px; font-weight: 700; font-family: var(--mono); background: rgba(160,107,255,0.18); color: #d9c2ff; }
+  .ctx { font-family: var(--mono); font-size: 11px; line-height: 1.9; }
+  .ctx .pick { color: var(--ok); }
+  .ctx .skip { color: var(--faint); text-decoration: line-through; }
+  .ctx .blk { color: var(--danger); }
+
+  /* ===== 画布：SOP 七步四门 ===== */
+  .cv { position: relative; border: 1px solid var(--line); border-radius: 14px; background:
+      linear-gradient(rgba(160,107,255,0.045) 1px, transparent 1px) 0 0 / 100% 26px,
+      linear-gradient(90deg, rgba(160,107,255,0.045) 1px, transparent 1px) 0 0 / 26px 100%,
+      rgba(255,255,255,0.012); padding: 16px; overflow-x: auto; }
+  .cv-flow { display: flex; align-items: stretch; gap: 0; min-width: 1080px; }
+  .nd { flex: 1 1 0; min-width: 116px; border: 1px solid var(--purple-line); border-radius: 11px; padding: 10px 11px; background: rgba(160,107,255,0.06); position: relative; }
+  .nd-n { font-family: var(--mono); font-size: 9px; font-weight: 700; color: #c4a5ff; letter-spacing: .05em; }
+  .nd-t { font-size: 11.5px; font-weight: 600; margin-top: 4px; line-height: 1.4; }
+  .nd-s { font-size: 9.5px; color: var(--muted); margin-top: 5px; line-height: 1.55; }
+  .arw { flex: 0 0 30px; display: grid; place-items: center; color: var(--faint); font-size: 11px; }
+  .gate { flex: 0 0 62px; display: grid; place-items: center; }
+  .gate-in { width: 56px; height: 56px; border-radius: 13px; transform: rotate(45deg); border: 1px solid rgba(251,191,36,0.5); background: rgba(251,191,36,0.1); display: grid; place-items: center; }
+  .gate-tx { transform: rotate(-45deg); text-align: center; font-family: var(--mono); font-size: 9px; font-weight: 700; color: #fbbf24; line-height: 1.3; }
+
+  /* ===== 画布：状态机 ===== */
+  .sm { display: flex; align-items: stretch; gap: 0; min-width: 1000px; }
+  .sn { flex: 1 1 0; min-width: 140px; border: 1px solid var(--line); border-radius: 11px; padding: 11px 12px; background: rgba(255,255,255,0.02); }
+  .sn-h { display: flex; align-items: center; gap: 6px; }
+  .sn-d { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .sn-n { font-size: 11.5px; font-weight: 700; }
+  .sn-c { font-family: var(--mono); font-size: 8.5px; color: var(--faint); margin-top: 3px; }
+  .sn-b { font-size: 9.5px; color: var(--muted); line-height: 1.6; margin-top: 7px; }
+  .sn-b b { color: var(--text); font-weight: 600; }
+  .d-obs { background: #94a3b8; } .d-clue { background: #60a5fa; } .d-cand { background: #a06bff; }
+  .d-exp { background: #fbbf24; } .d-val { background: #34d399; } .d-dead { background: #f87171; }
+  .smx { flex: 0 0 34px; display: grid; place-items: center; position: relative; }
+  .smx i { color: var(--faint); font-size: 11px; }
+  .smx span { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: 8px; color: #fbbf24; white-space: nowrap; }
+
+  /* ===== 字段矩阵 ===== */
+  .fm { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 6px; }
+  .fmi { border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; background: rgba(255,255,255,0.015); }
+  .fmi .k { font-family: var(--mono); font-size: 9.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fmi .m { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; font-size: 8.5px; color: var(--faint); }
+  .fmi.t0 { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.06); }
+  .fmi.t0 .w { color: #f87171; font-weight: 700; }
+  .fmi.t1 { border-color: rgba(160,107,255,0.32); }
+  .fmi.t1 .w { color: #c4a5ff; }
+  .fmi.rsv { border-style: dashed; border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.05); }
+  .fmi.rsv .w { color: #60a5fa; }
+  .dom { border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; }
+  .dom-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .fixnote { border-left: 2px solid rgba(251,191,36,0.6); padding-left: 10px; margin-top: 8px; font-size: 10px; color: var(--muted); line-height: 1.7; }
+  .fixnote b { color: #fbbf24; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-book"></i> 全局知识库</span>
+            <span class="tag tag-info no-dot">标准 v1.0 · 六域 180 字段</span>
+            <span class="tag tag-warn">7 处口径已更正</span>
+          </div>
+          <h1 class="page-title">知识库 · 六域字段 / SOP 七步四门 / 双 Loop 状态机</h1>
+          <p class="page-desc">依据《小红书发帖知识沉淀标准》00–09 重构：<b>7 类实体 + 12 种具名关系</b>为本体地基，<b>六域 180 预设字段</b>为采集口径，<b>SOP 七步四门</b>为入库流程，<b>双 Loop</b> 在策略证据层汇合，策略生命周期由<b>六态状态机</b>管控。所有知识点必须绑定 <span class="code">note_id + evidence_level + collected_at</span>（约束 X1），三者缺一不得被引用。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：打开字段字典（180 字段全量口径与权重）"><i class="fa-solid fa-table-columns"></i>字段字典</button>
+          <button class="btn btn-ghost" data-toast="演示环境：查看 8 条推理禁令 K1–K8 与 6 条一票否决 F1–F6"><i class="fa-solid fa-ban"></i>禁令与否决</button>
+          <button class="btn btn-primary" data-toast="演示环境：新建知识点须填齐主题+结论+证据+边界+反面证据五要素"><i class="fa-solid fa-plus"></i>新建知识点</button>
+        </div>
+      </div>
+
+      <!-- ============ 知识库主体：左[口径更正/本体地基/SOP/动态上下文] · 右[双 Loop/Loop 状态机] ============ -->
+      <div class="grid pc-autofit-620 mb14">
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 0. 口径更正清单 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-screwdriver-wrench t-warn"></i>
+                <h3 class="card-title">口径更正清单</h3>
+                <span class="tag tag-warn no-dot">对照附件核出 7 处不一致，已按下述口径落地</span>
+              </div>
+              <span class="f11 t-mut">原页面基于旧 PRD §15，现全部对齐标准 00–09</span>
+            </div>
+            <div class="card-body p0">
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th style="width:46px">#</th>
+                      <th style="width:150px">原表述（错 / 不完整）</th>
+                      <th>更正后口径</th>
+                      <th style="width:130px">依据</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="tr-warn">
+                      <td class="mono">C1</td>
+                      <td class="f11">流程只有「双闭环 7 步」，<b>缺入库流程</b></td>
+                      <td class="f11">知识库流程是<b>两层</b>：① 入库侧 <b>SOP 七步四门</b>（归集→清洗去重→结构化打标→跨域关联→知识抽取→质量校验→入库版本化）；② 运行侧<b>双 Loop</b>。原页面把运行侧当成了全部流程。</td>
+                      <td class="f11">06 §1 / 07 §3</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C2</td>
+                      <td class="f11">打标顺序未定义</td>
+                      <td class="f11">打标必须按 <span class="code">D6 → D1 → D4 → D2 → D5</span> 顺序执行 —— 先锁溯源再读内容，先定主体再判策略，最后过风险闸。<b>顺序颠倒会导致 D2 策略判定失去主体锚点</b>。</td>
+                      <td class="f11">06 §4.2</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C3</td>
+                      <td class="f11">「五级检索顺序」</td>
+                      <td class="f11">动态上下文组装为<b>六步</b>，且第 0 步是<b>权限与合规过滤（必须发生在检索阶段，不能在生成时补救）</b>。原页面缺此步 → 违反约束 X2。</td>
+                      <td class="f11">07 §5 / 05 §9 X2</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C4</td>
+                      <td class="f11">资产 5 状态（草稿/待确认/生效/被替代/已归档）</td>
+                      <td class="f11"><b>资产状态与策略状态是两套，不可混用</b>。资产走 5 状态版本模型；<b>策略走六态状态机</b>（观察信号→相关性线索→候选策略→实验中→已验证策略→失效归档），<b>不可跳级</b>。原页面用「待验证/支持/不支持」五种结论状态代替，粒度不足。</td>
+                      <td class="f11">07 §7.4 / 09 §13</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C5</td>
+                      <td class="f11">「预设字段」只写了每类资产 5–7 个核心字段</td>
+                      <td class="f11">预设字段是<b>六域 180 字段</b>的完整维度体系（D1 内容 45 / D2 策略 35 / D3 效果 32 / D4 主体 30 / D5 质量风险 25 / D6 采集溯源 15），每字段带 <b>权重（0–10）+ 权重档（T0–T3）+ 可得性</b>。原页面的「核心字段」是展示摘要，不是采集口径。</td>
+                      <td class="f11">00 §4 / 01–05</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C6</td>
+                      <td class="f11">判优用「点赞 &gt;100 = 优质」</td>
+                      <td class="f11">必须用平台官方公式：<span class="code">优质 =（CTR≥9% AND 阅读≥200）AND（互动率≥11% OR 种草率≥7% OR 进店率≥2%）</span>，窗口固定 3d，阈值为 <b>3C 家电口径</b>。<b>点赞数不是判优指标</b>；且评论数在本批为采集截断值（上限 20），不可用于热度判断。</td>
+                      <td class="f11">03 §1 / KP-A01 / KP-A03</td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono">C7</td>
+                      <td class="f11">回写只有「提出变更 → 人工确认新版本」两段</td>
+                      <td class="f11">回写必须<b>三段式</b>：<span class="code">event_log</span>（不可变事件）→ <span class="code">change_proposal</span>（系统建议）→ <span class="code">asset_version</span>（发布新版本）。<b>禁止原地覆盖</b>；高风险资产 A1/A2/A5 必须人工审批。</td>
+                      <td class="f11">09 §18 / 07 §4.3</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-foot">
+              <div class="row wrap f11 t-mut" style="gap:14px">
+                <span><i class="fa-solid fa-triangle-exclamation t-warn"></i> 另有 1 处<b>标准内部冲突</b>需老大裁决：<span class="code">KP-D04</span> 要求长尾词内容的评估窗口为 7d/30d，与 <span class="code">D3</span> 固定 3d 窗口冲突 —— 建议按内容方向分设窗口，见下方效果域说明。</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 1. 本体地基 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-cubes t-pur"></i>
+                <h3 class="card-title">本体地基</h3>
+                <span class="tag tag-purple no-dot">7 类实体 · 12 种具名关系</span>
+              </div>
+              <span class="f11 t-mut">大模型让获取知识变便宜，本体让使用知识变安全</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g-1-1-fix gap14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-shapes"></i>实体类型<span class="sec-sub">C1–C7</span></div>
+                  <div class="grid g4 mb14" style="gap:6px">
+                    <div class="fmi t0"><div class="k">C1 笔记</div><div class="m"><span>D1+D6</span><span class="w">主干</span></div></div>
+                    <div class="fmi t1"><div class="k">C2 账号</div><div class="m"><span>D4-01~09</span><span class="w">9</span></div></div>
+                    <div class="fmi t1"><div class="k">C3 品牌</div><div class="m"><span>D4-10~14</span><span class="w">5</span></div></div>
+                    <div class="fmi t1"><div class="k">C4 商品</div><div class="m"><span>D4-15~22</span><span class="w">8</span></div></div>
+                    <div class="fmi t1"><div class="k">C5 场景</div><div class="m"><span>D4-23~27</span><span class="w">5</span></div></div>
+                    <div class="fmi t1"><div class="k">C6 人群</div><div class="m"><span>D4-28~30</span><span class="w">3</span></div></div>
+                    <div class="fmi t1"><div class="k">C7 素材</div><div class="m"><span>D6-13~15</span><span class="w">3</span></div></div>
+                    <div class="fmi"><div class="k">— 策略证据</div><div class="m"><span>Loop 汇合点</span><span>派生</span></div></div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-key"></i>关联键强度<span class="sec-sub">决定能不能做归因</span></div>
+                  <table class="tbl tbl-compact mb14">
+                    <tbody>
+                      <tr><td style="width:64px"><span class="tag tag-ok no-dot f10">强</span></td><td class="f11 mono">note_id</td><td class="f11">全库主键，唯一可做逐篇归因</td></tr>
+                      <tr><td><span class="tag tag-info no-dot f10">中</span></td><td class="f11 mono">sku_full_model</td><td class="f11">把个案升格为批次问题的唯一依据</td></tr>
+                      <tr><td><span class="tag tag-warn no-dot f10">弱</span></td><td class="f11 mono">spu + content_direction</td><td class="f11">仅可做方向性对比，不可做因果</td></tr>
+                      <tr class="tr-danger"><td><span class="tag tag-danger no-dot f10">禁止</span></td><td class="f11 mono">品类 + 时间</td><td class="f11"><b>禁止跨批归因</b> —— 三层数据无天然主键关联（KP-E02）</td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="note note-danger f11">
+                    <i class="fa-solid fa-ban"></i>
+                    <div>
+                      <b>R08「表现」不可反推 R09「证实」。</b>「某策略的笔记数据好」只能记为<b>相关性线索</b>，不能写成「该策略有效」。这是整套双 Loop 的第一道防线，也是状态机<b>不可跳级</b>的根本原因。
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-hand"></i>八条推理禁令<span class="sec-sub">K1–K8 · 系统层强制</span></div>
+                  <div class="col mb14" style="gap:7px">
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-1"></i></span>
+                      <div class="li-main"><div class="li-title">标题出现 ≠ 普遍事实</div><div class="li-sub">「102 篇标题写了米家」只说明多少篇把品牌写进标题，不代表市场占比</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-2"></i></span>
+                      <div class="li-main"><div class="li-title">可能出现 ≠ 已发生</div><div class="li-sub">未经 reproduce_count / measure_conditions 不得写「批次」或「可复现设计问题」</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-3"></i></span>
+                      <div class="li-main"><div class="li-title">单点数据 ≠ 趋势</div><div class="li-sub">样本 &lt; 10 不出结论（06 §6.1.3）</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-4"></i></span>
+                      <div class="li-main"><div class="li-title">方差过小的字段不得分层</div><div class="li-sub">本批 follower_count 全在 3–12，分层会得出「粉丝数无影响」的伪结论</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-5"></i></span>
+                      <div class="li-main"><div class="li-title">相关 ≠ 因果</div><div class="li-sub">必须经「实验中」态才能升「已验证策略」</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-6"></i></span>
+                      <div class="li-main"><div class="li-title">采集截断值不得当自然分布</div><div class="li-sub">评论数上限 20 是采集限制，不是热度</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-7"></i></span>
+                      <div class="li-main"><div class="li-title">跨账号机械改写一票否决</div><div class="li-sub"><b>不因数据表现好而豁免</b>（对应 F5）</div></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon info"><i class="fa-solid fa-8"></i></span>
+                      <div class="li-main"><div class="li-title">继承单向</div><div class="li-sub">品牌级结论可下推到商品，商品级个案不可上推为品牌事实</div></div>
+                    </div>
+                  </div>
+
+                  <div class="note note-warn f11">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div>
+                      <b>「当前不可用」≠「不该设计该字段」。</b>粉丝数在本批无区分度（KP-A04），但字段必须保留 —— 换 KOC/KOL 池后方差立刻拉开。<b>表结构不因单批数据而删字段。</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 2. 要求1：知识库流程 —— SOP 七步四门画布 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-diagram-project t-pur"></i>
+                <h3 class="card-title">知识库流程 · SOP 七步四门</h3>
+                <span class="tag tag-purple no-dot">入库侧</span>
+                <span class="tag tag-warn no-dot">更正 C1 / C2</span>
+              </div>
+              <span class="f11 t-mut">四道门任一不过则回退，不得跳门入库</span>
+            </div>
+            <div class="card-body">
+              <div class="cv mb14">
+                <div class="cv-flow">
+                  <div class="nd">
+                    <div class="nd-n">STEP 01</div>
+                    <div class="nd-t">归集</div>
+                    <div class="nd-s">采集/人工导入/API/客户提供四路入湖，登记 collect_batch、collect_method、collect_account。素材<b>必须本地化为 webp</b>，禁止只存 CDN URL。</div>
+                  </div>
+                  <div class="arw"><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 02</div>
+                    <div class="nd-t">清洗去重</div>
+                    <div class="nd-s">三级去重：同账号近 30 篇 / 全库近 30 天 / 跨账号。跨账号相似度触发 F5 一票否决。</div>
+                  </div>
+                  <div class="gate">
+                    <div class="gate-in"><div class="gate-tx">G1<br>去重</div></div>
+                  </div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 03</div>
+                    <div class="nd-t">结构化打标</div>
+                    <div class="nd-s">严格按 <b>D6→D1→D4→D2→D5</b> 顺序。D3 效果域此时留空，待发布后回填。</div>
+                  </div>
+                  <div class="arw"><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 04</div>
+                    <div class="nd-t">跨域关联</div>
+                    <div class="nd-s">落库 12 种具名关系 R01–R12。场景-人群-利益点-情绪<b>四元组必须整组齐备</b>，缺一只能作素材。</div>
+                  </div>
+                  <div class="gate">
+                    <div class="gate-in"><div class="gate-tx">G2<br>关联</div></div>
+                  </div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 05</div>
+                    <div class="nd-t">知识抽取</div>
+                    <div class="nd-s">按五要素模板产出知识点：<b>主题 + 结论 + 证据 + 边界 + 反面证据</b>。缺反面证据栏也必须显式写「无」。</div>
+                  </div>
+                  <div class="arw"><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 06</div>
+                    <div class="nd-t">质量校验</div>
+                    <div class="nd-s">F1–F6 一票否决 + 100 分制 12 模块评分。<span class="t-dan">&lt;75 退回</span> / 75–84 抽检 / <span class="t-ok">≥85 优先排期</span>。</div>
+                  </div>
+                  <div class="gate">
+                    <div class="gate-in"><div class="gate-tx">G3<br>质检</div></div>
+                  </div>
+                  <div class="nd">
+                    <div class="nd-n">STEP 07</div>
+                    <div class="nd-t">入库版本化</div>
+                    <div class="nd-s">四要素齐备方可入库：<b>note_id + evidence_level + collected_at + 责任人</b>。高风险资产需人工审批。</div>
+                  </div>
+                  <div class="gate">
+                    <div class="gate-in"><div class="gate-tx">G4<br>入库</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid g-1-1-fix gap14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-door-closed"></i>四道门的判定条件</div>
+                  <table class="tbl tbl-compact mb14">
+                    <thead>
+                      <tr><th style="width:52px">门</th><th style="width:82px">名称</th><th>通过条件</th><th style="width:74px">不过则</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="mono t-warn">G1</td><td class="f11">去重门</td>
+                        <td class="f11">dup_cross_account &lt; 阈值 且 dup_same_account &lt; 阈值；命中 F5 直接 <span class="code">is_usable=false</span></td>
+                        <td class="f11 t-dan">丢弃</td>
+                      </tr>
+                      <tr>
+                        <td class="mono t-warn">G2</td><td class="f11">关联门</td>
+                        <td class="f11">四元组齐备（scene_id + audience + main_selling_point + tone），且 note_id 已绑定</td>
+                        <td class="f11 t-warn">降级为素材</td>
+                      </tr>
+                      <tr>
+                        <td class="mono t-warn">G3</td><td class="f11">质检门</td>
+                        <td class="f11">F1–F6 全部未命中 且 score_total ≥ 75</td>
+                        <td class="f11 t-dan">退回重做</td>
+                      </tr>
+                      <tr>
+                        <td class="mono t-warn">G4</td><td class="f11">入库门</td>
+                        <td class="f11">四要素齐备；正式对外发布内容 <b>evidence_level 必须为 A</b></td>
+                        <td class="f11 t-warn">仅内部选题</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="note note-danger f11">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div>
+                      <b>约束 X2：一票否决必须前置到入库前。</b>权限与合规过滤发生在<b>检索阶段</b>，不能在生成时补救 —— 生成时才发现不合规，说明库里已经存了不该存的东西。
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-gavel"></i>六条一票否决<span class="sec-sub">F1–F6 · 任一命中即不可用</span></div>
+                  <div class="col mb14" style="gap:7px">
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-mask"></i></span>
+                      <div class="li-main"><div class="li-title">F1 伪造购买 / 使用时长 / 实验 / 体验</div><div class="li-sub">对应 <span class="mono">D5-11 authenticity</span></div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-heart-pulse"></i></span>
+                      <div class="li-main"><div class="li-title">F2 安全 / 健康 / 母婴结论无证据</div><div class="li-sub"><span class="mono">D5-12 + D5-03</span> 必须挂证据文件</div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-arrows-up-to-line"></i></span>
+                      <div class="li-main"><div class="li-title">F3 把个例写成品牌普遍事实</div><div class="li-sub"><span class="mono">D5-08 conclusion_scope</span> · 对应禁令 K2</div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-eye-slash"></i></span>
+                      <div class="li-main"><div class="li-title">F4 隐瞒商业合作 / 素材授权问题</div><div class="li-sub"><span class="mono">D5-09 / D5-10 / D5-14</span></div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-clone"></i></span>
+                      <div class="li-main"><div class="li-title">F5 同一内容跨账号机械改写</div><div class="li-sub"><span class="mono">D5-20 dup_cross_account</span> · 对应禁令 K7</div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-copyright"></i></span>
+                      <div class="li-main"><div class="li-title">F6 未授权图片 / 视频 / 音乐 / 肖像</div><div class="li-sub"><span class="mono">D5-14 / D5-15</span></div></div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">阻断</span></div>
+                    </div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-layer-group"></i>证据等级与可用范围<span class="sec-sub">A / B / C / D</span></div>
+                  <table class="tbl tbl-compact">
+                    <tbody>
+                      <tr><td style="width:44px"><span class="tag tag-ok no-dot f10">A</span></td><td class="f11">正文+图+视频+评论+铭牌均已人工核验</td><td class="f11 t-ok">可对外发布</td></tr>
+                      <tr><td><span class="tag tag-info no-dot f10">B</span></td><td class="f11">标题明确出现品牌 / 型号 / 问题</td><td class="f11 t-warn">仅内部选题</td></tr>
+                      <tr><td><span class="tag tag-warn no-dot f10">C</span></td><td class="f11">仅在品牌搜索结果出现，标题未提品牌</td><td class="f11 t-warn">关联线索</td></tr>
+                      <tr class="tr-danger"><td><span class="tag tag-danger no-dot f10">D</span></td><td class="f11">模型据标题语义推断</td><td class="f11 t-dan">禁止对外</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="fixnote">
+                    <b>现状提示：</b>本批 269 条与 kettle 研究的品牌结论<b>主要为 B 级</b> —— 即目前<b>不具备对外发布资格</b>，只能用于内部选题。G4 门会拦住它们。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 6. 动态上下文组装六步（更正 C3）+ 资产版本模型 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-layer-group t-pur"></i>
+                <h3 class="card-title">动态上下文组装 · 六步</h3>
+                <span class="tag tag-warn no-dot">更正 C3：新增第 0 步权限与合规过滤</span>
+              </div>
+              <span class="f11 t-mut">任务 JOB-2108 · 完整保存选用条目、版本、片段与未纳入原因</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g-1-1-fix gap14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-list-ol"></i>组装顺序<span class="sec-sub">第 0 步不可后置</span></div>
+                  <div class="col mb14" style="gap:9px">
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-shield-halved"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">STEP 0 · 权限与合规过滤</div>
+                        <div class="li-sub"><b>必须发生在检索阶段</b>（约束 X2）· 剔除 F1–F6 命中项、D 级证据、已归档、已过期 —— 命中 23 条，全部在检索前剔除</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-danger no-dot f10">剔除 23</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-1"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">当前项目已批准事实（A1）</div>
+                        <div class="li-sub">命中 12 · 选用 12 · 优先级最高，上下文裁剪时优先保留</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-ok no-dot f10">12 / 12</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-2"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">当前商品（SPU/型号）有效资产</div>
+                        <div class="li-sub">命中 34 · 选用 19 · 15 条因上下文预算裁剪，裁剪原因逐条留痕</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-warn no-dot f10">19 / 34</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-3"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">场景人群四元组 + 审核规则（A3/A5）</div>
+                        <div class="li-sub">命中 9 · 选用 9 · 含 3 条阻断级规则，<b>硬规则全量保留，不参与裁剪</b></div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-ok no-dot f10">9 / 9</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-4"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">适用风格指纹（A4）</div>
+                        <div class="li-sub">命中 4 · 选用 2 · 按 account_type 与人群匹配度择优</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-ok no-dot f10">2 / 4</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon info"><i class="fa-solid fa-5"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">已验证策略（S5）与跨项目可迁移方法</div>
+                        <div class="li-sub">命中 6 · 选用 2 · <b>仅 S5 态策略可入 Prompt</b>；跨项目仅迁移表达方法并标明来源</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-info no-dot f10">2 / 6</span></div>
+                    </div>
+                  </div>
+
+                  <div class="note note-danger mb14 f11">
+                    <i class="fa-solid fa-ban"></i>
+                    <div>
+                      <b>跨品牌事实不得迁移，跨账号内容不得机械复用。</b>检索到其他品牌 3 条相关事实已全部排除 —— <b>表达方法</b>可迁移并标源，<b>事实</b>不可迁移（K8 继承单向）。同一策略在不同账号落地必须重新组织表达，否则触 F5。
+                    </div>
+                  </div>
+
+                  <div class="note note-warn f11">
+                    <i class="fa-solid fa-scale-unbalanced"></i>
+                    <div>
+                      <b>来源冲突处理：</b>按结论冲突优先级裁定 —— 实验证据 &gt; 跨批次可复现相关性 &gt; 跨项目相关性 &gt; 单批次/通说。<b>无法解决的核心事实冲突将阻断生成</b>，不允许「先生成再人工挑」。
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-code"></i>实际选用明细<span class="sec-sub">44 条选用 / 65 条命中 / 23 条前置剔除</span></div>
+                  <div class="ctx mb14" style="max-height:300px;overflow-y:auto">
+    <span class="pick">✓ A1-FACT-0113 v3</span>　容量 1.7L（铭牌实拍·A级）
+    <span class="pick">✓ A1-FACT-0107 v1</span>　316 不锈钢内胆（检测报告·A级）
+    <span class="pick">✓ A1-FACT-0119 v2</span>　额定功率 1500W
+    <span class="pick">✓ A5-RULE-0044 v5</span>　极限词清单【阻断·F 类】
+    <span class="pick">✓ A5-RULE-0051 v2</span>　不编造使用经历【阻断·F1】
+    <span class="pick">✓ A5-RULE-0058 v1</span>　母婴健康声明须挂证据【阻断·F2】
+    <span class="pick">✓ A3-SCEN-0203 v2</span>　母婴夜间调奶（S3）+ 宝妈 + 恒温免等待 + 焦虑缓解
+    <span class="pick">✓ A4-STYL-0067 v2</span>　素人平实自述口吻
+    <span class="pick">✓ A6-STRA-0012 v1</span>　评论区主动答型号/链接【S5 已验证】
+    <span class="pick">✓ A6-STRA-0019 v1</span>　结果导向表达痛点【S5 已验证】
+    <span class="skip">✗ A6-STRA-0031 v1</span>　<span style="color:var(--faint)">未纳入：状态 S4 实验中，未验证不得入 Prompt</span>
+    <span class="skip">✗ A6-STRA-0044 v1</span>　<span style="color:var(--faint)">未纳入：状态 S2 相关性线索，仅供选题参考</span>
+    <span class="skip">✗ A2-RSCH-0142 v1</span>　<span style="color:var(--faint)">未纳入：上下文预算裁剪（优先级低于硬规则）</span>
+    <span class="skip">✗ A1-FACT-0088 v4</span>　<span style="color:var(--faint)">未纳入：已归档（旧规格），历史引用仍可查</span>
+    <span class="skip">✗ A2-RSCH-0133 v2</span>　<span style="color:var(--faint)">未纳入：证据有效期已过 2026-08-31</span>
+    <span class="blk">✗ A1-FACT-0402 v1</span>　<span style="color:var(--danger)">STEP0 剔除：跨品牌事实，K8 禁止上推</span>
+    <span class="blk">✗ A1-FACT-0411 v1</span>　<span style="color:var(--danger)">STEP0 剔除：evidence_level = D，禁止对外</span>
+    <span class="blk">✗ A1-FACT-0417 v2</span>　<span style="color:var(--danger)">STEP0 剔除：conclusion_scope=个例，被误标批次</span>
+    <span class="blk">✗ A6-STRA-0058 v1</span>　<span style="color:var(--danger)">STEP0 剔除：S6 已归档（粉丝数分层·方差不足）</span>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-clock-rotate-left"></i>六类资产统一版本模型<span class="sec-sub">A1–A6 · 5 状态 · 与策略六态并行不混用</span></div>
+                  <div class="table-wrap mb14">
+                    <table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th style="width:52px">代号</th><th style="width:88px">资产</th><th style="width:74px">风险级</th><th>审批策略</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr class="tr-danger"><td class="mono">A1</td><td class="f11">事实账本</td><td><span class="tag tag-danger no-dot f10">高</span></td><td class="f11"><b>必须人工审批</b> · 须挂 evidence_files + 有效期</td></tr>
+                        <tr class="tr-danger"><td class="mono">A2</td><td class="f11">平台研究</td><td><span class="tag tag-danger no-dot f10">高</span></td><td class="f11"><b>必须人工审批</b> · 须写证据限制</td></tr>
+                        <tr><td class="mono">A3</td><td class="f11">人群场景</td><td><span class="tag tag-warn no-dot f10">低</span></td><td class="f11">可自动小版本 · 四元组齐备为前提</td></tr>
+                        <tr><td class="mono">A4</td><td class="f11">风格指纹</td><td><span class="tag tag-warn no-dot f10">低</span></td><td class="f11">可自动小版本 · 大改需人工</td></tr>
+                        <tr class="tr-danger"><td class="mono">A5</td><td class="f11">审核规则</td><td><span class="tag tag-danger no-dot f10">高</span></td><td class="f11"><b>必须人工审批</b> · 阻断级规则不可自动新增</td></tr>
+                        <tr><td class="mono">A6</td><td class="f11">反馈与实验</td><td><span class="tag tag-warn no-dot f10">低</span></td><td class="f11">事件可自动写 · <b>但升 S5 须人工确认适用范围</b></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="note note-purple f11">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <div>
+                      <b>必须保存条目编号 + 版本号 + 引用片段 + 每条未纳入原因</b> —— <b>不能只保存检索条件后假定可重现</b>。资产会升版、会归档，只存条件的追溯在三个月后必然失效。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-foot">
+              <div class="row wrap f11 t-mut" style="gap:14px">
+                <span><i class="fa-solid fa-shield-halved t-pur"></i> 编辑生效资产创建新版本，禁止原地覆盖</span>
+                <span><i class="fa-solid fa-box-archive t-pur"></i> 删除采用归档，不物理抹除审计历史</span>
+                <span><i class="fa-solid fa-robot t-pur"></i> AI 只能提交 change_proposal，不能直接发布 asset_version</span>
+                <span><i class="fa-solid fa-link t-pur"></i> 引用必须给出 KP 编号 + 置信度 + 适用边界</span>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左 -->
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 4. 要求3：双 Loop 主要功能文案 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-arrows-spin t-pur"></i>
+                <h3 class="card-title">双 Loop 主要功能</h3>
+                <span class="tag tag-purple no-dot">两个 Loop 只在「策略证据层」汇合</span>
+              </div>
+              <span class="f11 t-mut">共同北极星：提升优秀帖子率</span>
+            </div>
+            <div class="card-body">
+              <div class="note note-purple mb14 f11">
+                <i class="fa-solid fa-star"></i>
+                <div>
+                  <b>共同北极星 = 提升优秀帖子率</b>（<span class="mono">is_quality_note</span> 为真的占比）。两个 Loop 服务同一目标但<b>职责严格分离</b>：Loop ① 管「别做错」，Loop ② 管「做对什么」。<b>严禁互相代偿</b> —— 效果好不能豁免质量问题（K7），质量高不能推断效果会好（K5）。
+                </div>
+              </div>
+
+              <div class="grid g2 gap14">
+                <div class="dom">
+                  <div class="dom-h">
+                    <div class="row">
+                      <span class="aic"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+                      <div>
+                        <div class="f13 fw6">Loop ① 生产质量 Loop</div>
+                        <div class="f10 t-mut mt4">作用时点：<b>发布前</b> · 驱动源：人工修改与退回</div>
+                      </div>
+                    </div>
+                    <span class="tag tag-warn no-dot f10">管「别做错」</span>
+                  </div>
+
+                  <div class="sec-title mt10"><i class="fa-solid fa-bullseye"></i>主要功能<span class="sec-sub">这个 Loop 到底解决什么</span></div>
+                  <div class="col mb14" style="gap:8px">
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-rotate-left"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">降返工率</div>
+                        <div class="li-sub">把「同一类修改意见反复出现」转成资产变更，让下一批次不再犯 —— 对照指标：单条平均修改次数、首次通过率</div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-circle-exclamation"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">降事实错误率</div>
+                        <div class="li-sub">事实错一次就赔钱 —— 把口头/无证据来源逐出事实账本，强制挂 <span class="mono">evidence_files</span> 与有效期</div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-gavel"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">降审核退回率</div>
+                        <div class="li-sub">把退回原因固化为 A5 审核规则资产，前移到生成阶段拦截，而不是每次靠人肉复查</div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon info"><i class="fa-solid fa-repeat"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">防 Bad Case 复发</div>
+                        <div class="li-sub">每个 Bad Case 打原因码（FCT 事实类 / OPS 操作类）→ 根因决策树定位 → 分级回写；<b>回归门验证该类问题不再出现</b></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-code-branch"></i>事件链<span class="sec-sub">三段式回写 · 更正 C7</span></div>
+                  <div class="loop mb14">
+                    <div class="lstep">
+                      <span class="ln">1</span>
+                      <div class="f1">
+                        <div class="f12 fw5">event_log <span class="tag tag-muted no-dot f10">不可变</span></div>
+                        <div class="f10 t-mut mt4">记录原始事件：谁在哪一版改了什么、退回原因码、时间戳。<b>只追加，永不修改</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">2</span>
+                      <div class="f1">
+                        <div class="f12 fw5">原因码归类 <span class="code">FCT / OPS</span></div>
+                        <div class="f10 t-mut mt4">FCT = 事实类（数据错、无证据、过期）；OPS = 操作类（结构、语气、标签、CTA）。<b>两类走不同决策树</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">3</span>
+                      <div class="f1">
+                        <div class="f12 fw5">根因决策树定位受影响资产</div>
+                        <div class="f10 t-mut mt4">映射到 A1 事实 / A2 研究 / A3 人群场景 / A4 风格 / A5 规则 / A6 反馈实验</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">4</span>
+                      <div class="f1">
+                        <div class="f12 fw5">change_proposal <span class="tag tag-warn no-dot f10">系统建议</span></div>
+                        <div class="f10 t-mut mt4">系统只能<b>提议</b>，并标注作用范围（仅当前项目 / 产品级 / 品牌级 / 跨品牌方法）</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">5</span>
+                      <div class="f1">
+                        <div class="f12 fw5">分级审批</div>
+                        <div class="f10 t-dan mt4"><b>高风险 A1 事实 / A2 研究 / A5 规则 → 必须人工审批</b>；低风险 A3 / A4 / Prompt → 可自动小版本</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">6</span>
+                      <div class="f1">
+                        <div class="f12 fw5">asset_version <span class="tag tag-ok no-dot f10">发布新版本</span></div>
+                        <div class="f10 t-mut mt4"><b>禁止原地覆盖</b>。旧版本转「被替代」，历史引用继续可查</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">7</span>
+                      <div class="f1">
+                        <div class="f12 fw5">回归门验证</div>
+                        <div class="f10 t-mut mt4">下一批次比对该原因码出现率；<b>未下降则回滚该变更并重新归因</b>，不允许「改了就算完」</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-chart-line"></i>首次通过率趋势</div>
+                  <div class="col mb14" style="gap:10px">
+                    <div>
+                      <div class="row between f11 mb6"><span>BATCH-T01 试产</span><span class="mono">70.0%</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:70%"></div></div>
+                    </div>
+                    <div>
+                      <div class="row between f11 mb6"><span>BATCH-S01 扩产</span><span class="mono">77.8%</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:77.8%"></div></div>
+                    </div>
+                    <div>
+                      <div class="row between f11 mb6"><span>BATCH-S02（应用 STYL v3）</span><span class="mono t-ok">80.0%</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:80%"></div></div>
+                    </div>
+                    <div>
+                      <div class="row between f11 mb6"><span>BATCH-B01 批产</span><span class="mono t-warn">82.9%（35/50 已处置）</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:82.9%"></div></div>
+                    </div>
+                  </div>
+
+                  <div class="note note-warn f11">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <div>
+                      <b>不得把个别内容的修改直接推广为全局规则。</b>允许反馈<b>不入库</b>或<b>仅作用于当前项目</b> —— 一条意见就改品牌级风格指纹，是把噪声当信号。
+                    </div>
+                  </div>
+                </div>
+                <div class="dom">
+                  <div class="dom-h">
+                    <div class="row">
+                      <span class="aic"><i class="fa-solid fa-chart-pie"></i></span>
+                      <div>
+                        <div class="f13 fw6">Loop ② 线上效果 Loop</div>
+                        <div class="f10 t-mut mt4">作用时点：<b>发布后</b> · 驱动源：线上数据与评论</div>
+                      </div>
+                    </div>
+                    <span class="tag tag-ok no-dot f10">管「做对什么」</span>
+                  </div>
+
+                  <div class="sec-title mt10"><i class="fa-solid fa-bullseye"></i>主要功能<span class="sec-sub">这个 Loop 到底解决什么</span></div>
+                  <div class="col mb14" style="gap:8px">
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">识别能稳定提升流量的策略</div>
+                        <div class="li-sub">从 D1×D2 特征组合中找出与 <span class="mono">is_quality_note</span> 稳定相关的策略；<b>「稳定」= 跨批次可复现，单批次好看不算</b></div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon info"><i class="fa-solid fa-link"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">建立发布绑定，让归因可做</div>
+                        <div class="li-sub"><span class="mono">publish_binding</span> 把「我们生成的哪一版」绑到「线上哪条 note_id」—— <b>没有这层绑定，一切效果分析都是猜</b>（KP-E02）</div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon warn"><i class="fa-solid fa-flask"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">把相关性升格为可用策略</div>
+                        <div class="li-sub">相关性线索<b>必须经实验</b>才能成为「已验证策略」；这是状态机不可跳级的落点，也是抵御 K5（相关≠因果）的唯一手段</div>
+                      </div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon danger"><i class="fa-solid fa-arrow-down-short-wide"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">及时判定策略失效并下架</div>
+                        <div class="li-sub">平台算法与品类竞争会变 —— <b>已验证策略也会过期</b>。到期未复验自动转「待复验」，连续未达标转「失效/归档」</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-code-branch"></i>事件链<span class="sec-sub">采集 → 证据单元 → 实验</span></div>
+                  <div class="loop mb14">
+                    <div class="lstep">
+                      <span class="ln">1</span>
+                      <div class="f1">
+                        <div class="f12 fw5">发布绑定 <span class="code">publish_binding</span></div>
+                        <div class="f10 t-mut mt4">生成版本 ↔ 线上 note_id ↔ 账号 ↔ 批次，四者绑定。<b>缺 note_id 的批次不进本 Loop</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">2</span>
+                      <div class="f1">
+                        <div class="f12 fw5">采集计划执行</div>
+                        <div class="f10 t-mut mt4">按 3d 窗口回填 D3 效果域 32 字段；长尾类内容另设 7d / 30d 窗口</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">3</span>
+                      <div class="f1">
+                        <div class="f12 fw5">判优计算</div>
+                        <div class="f10 t-mut mt4">套平台公式产出 <span class="mono">is_quality_note</span>；<b>按 field_type 分组，不混池</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">4</span>
+                      <div class="f1">
+                        <div class="f12 fw5">策略证据单元汇总</div>
+                        <div class="f10 t-mut mt4">最小单元 = 策略 + 样本集 + 对照 + 窗口 + 结论 + 边界。<b>这是与 Loop ① 唯一的汇合点</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">5</span>
+                      <div class="f1">
+                        <div class="f12 fw5">实验设计与执行</div>
+                        <div class="f10 t-mut mt4">单变量、同期、同账号池、样本 ≥ 最小量；<b>污染即作废</b>（见下方清单）</div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">6</span>
+                      <div class="f1">
+                        <div class="f12 fw5">四道门校验</div>
+                        <div class="f10 t-mut mt4">样本门 / 口径门 / 污染门 / 显著性门，<b>四门全过才允许升「已验证策略」</b></div>
+                      </div>
+                    </div>
+                    <div class="lstep">
+                      <span class="ln">7</span>
+                      <div class="f1">
+                        <div class="f12 fw5">写入 A6 资产并绑定适用范围</div>
+                        <div class="f10 t-mut mt4">同样走三段式回写；<b>适用范围必须显式标注，不得默认全局</b></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-shield-virus"></i>防污染清单<span class="sec-sub">任一命中则实验作废</span></div>
+                  <table class="tbl tbl-compact mb14">
+                    <tbody>
+                      <tr class="tr-danger"><td class="mono t-dan" style="width:38px">P1</td><td class="f11">实验期内同时改了 ≥2 个变量</td></tr>
+                      <tr><td class="mono t-dan">P2</td><td class="f11">对照组与实验组<b>账号池等级不同</b>（素人 vs KOC）</td></tr>
+                      <tr><td class="mono t-dan">P3</td><td class="f11">实验期内有投流介入，或投流比例两组不一致</td></tr>
+                      <tr><td class="mono t-dan">P4</td><td class="f11">跨大促 / 节点，两组时间窗不重合</td></tr>
+                      <tr><td class="mono t-dan">P5</td><td class="f11">用<b>采集截断字段</b>（评论数）作为主指标</td></tr>
+                      <tr><td class="mono t-dan">P6</td><td class="f11">样本量 &lt; 最小量，或方差过小字段被用于分层</td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="sec-title"><i class="fa-solid fa-scale-unbalanced"></i>结论冲突优先级<span class="sec-sub">同一问题多来源结论不一致时</span></div>
+                  <table class="tbl tbl-compact mb14">
+                    <tbody>
+                      <tr><td style="width:34px" class="mono t-ok">1</td><td class="f11">实验证据（同期对照）</td><td class="f11 t-ok num">最高</td></tr>
+                      <tr><td class="mono">2</td><td class="f11">同项目跨批次可复现的相关性</td><td class="f11 t-mut num">次之</td></tr>
+                      <tr><td class="mono">3</td><td class="f11">同品类跨项目相关性</td><td class="f11 t-mut num">参考</td></tr>
+                      <tr><td class="mono t-warn">4</td><td class="f11">单批次相关性 / 行业通说</td><td class="f11 t-warn num">仅作线索</td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="note note-danger f11">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <div>
+                      <b>只沉淀高表现内容会产生偏差。</b>分析样本必须保留全部普通与失败内容，不做择优筛选。<b>优质标签不能自动升级为跨项目通用策略</b> —— 那等于把 K8（继承单向）反向违反。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 5. 要求4：Loop 状态机建议方案 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-sitemap t-pur"></i>
+                <h3 class="card-title">Loop 状态机 · 建议方案</h3>
+                <span class="tag tag-purple no-dot">六态 · 不可跳级</span>
+                <span class="tag tag-warn no-dot">更正 C4</span>
+              </div>
+              <span class="f11 t-mut">管的是「策略」的生命周期，不是资产版本状态</span>
+            </div>
+            <div class="card-body">
+              <div class="note note-purple mb14 f11">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div>
+                  <b>设计立场：</b>状态机的存在意义是<b>把「相关」和「因果」用制度隔开</b>。每一次升级都要付出成本（样本、实验、时间），代价换来的是「这条策略敢不敢写进 Prompt 让它影响成百上千篇内容」。<b>能跳级的状态机等于没有状态机。</b>
+                </div>
+              </div>
+
+              <div class="cv mb14">
+                <div class="sm">
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-obs"></span><span class="sn-n">观察信号</span></div>
+                    <div class="sn-c">S1 · OBSERVED</div>
+                    <div class="sn-b">
+                      <b>进入：</b>任一数据/评论/退回事件被记录，无需判断<br>
+                      <b>允许：</b>登记、聚类、打原因码<br>
+                      <b>禁止：</b>写入任何资产、影响生成
+                    </div>
+                  </div>
+                  <div class="smx"><span>聚类成形</span><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-clue"></span><span class="sn-n">相关性线索</span></div>
+                    <div class="sn-c">S2 · CORRELATED</div>
+                    <div class="sn-b">
+                      <b>进入：</b>同类信号 ≥ 阈值次数，且指向同一策略维度<br>
+                      <b>允许：</b>进入选题池、供人参考<br>
+                      <b>禁止：</b><b>写成「有效」</b>（R08 不可反推 R09）
+                    </div>
+                  </div>
+                  <div class="smx"><span>过样本门</span><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-cand"></span><span class="sn-n">候选策略</span></div>
+                    <div class="sn-c">S3 · CANDIDATE</div>
+                    <div class="sn-b">
+                      <b>进入：</b>样本 ≥ 最小量、口径统一、有明确对照设想<br>
+                      <b>允许：</b>写实验方案、申请实验额度<br>
+                      <b>禁止：</b>直接进 Prompt / 全量铺开
+                    </div>
+                  </div>
+                  <div class="smx"><span>实验启动</span><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-exp"></span><span class="sn-n">实验中</span></div>
+                    <div class="sn-c">S4 · TESTING</div>
+                    <div class="sn-b">
+                      <b>进入：</b>单变量方案获批、对照组就位、窗口锁定<br>
+                      <b>允许：</b>灰度小批量、记录过程<br>
+                      <b>禁止：</b>中途改变量（触 P1 则整个实验作废）
+                    </div>
+                  </div>
+                  <div class="smx"><span>四门全过</span><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-val"></span><span class="sn-n">已验证策略</span></div>
+                    <div class="sn-c">S5 · VALIDATED</div>
+                    <div class="sn-b">
+                      <b>进入：</b>样本/口径/污染/显著性四门全过 + 人工确认适用范围<br>
+                      <b>允许：</b>写入 A6、进 Prompt、批量应用<br>
+                      <b>必须：</b>带<b>有效期</b>与<b>复验周期</b>
+                    </div>
+                  </div>
+                  <div class="smx"><span>失效 / 过期</span><i class="fa-solid fa-arrow-right"></i></div>
+                  <div class="sn">
+                    <div class="sn-h"><span class="sn-d d-dead"></span><span class="sn-n">失效 / 归档</span></div>
+                    <div class="sn-c">S6 · DEPRECATED</div>
+                    <div class="sn-b">
+                      <b>进入：</b>复验未达标 ×2、或平台规则变更、或有效期到<br>
+                      <b>允许：</b>历史引用可查<br>
+                      <b>禁止：</b>参与新任务检索（同资产归档语义）
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid g-1-1-fix gap14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-arrow-right-arrow-left"></i>合法转移与升级门<span class="sec-sub">未列出的转移一律拒绝</span></div>
+                  <div class="table-wrap mb14">
+                    <table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th style="width:100px">转移</th><th style="width:76px">升级门</th><th>硬性条件（全部满足才放行）</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="mono f11">S1 → S2</td>
+                          <td class="f11 t-warn">聚类门</td>
+                          <td class="f11">同类信号 ≥ 5 次 且 来自 ≥ 3 条不同 note_id；<b>同一条笔记的重复反馈只计 1 次</b></td>
+                        </tr>
+                        <tr>
+                          <td class="mono f11">S2 → S3</td>
+                          <td class="f11 t-warn">样本门</td>
+                          <td class="f11">样本 ≥ 最小量（建议每组 ≥ 30）；<b>口径统一（同 field_type、同窗口）</b>；已排除方差不足字段</td>
+                        </tr>
+                        <tr>
+                          <td class="mono f11">S3 → S4</td>
+                          <td class="f11 t-warn">方案门</td>
+                          <td class="f11"><b>单变量</b>、对照组同账号池等级、同期、窗口写死；投流比例两组一致</td>
+                        </tr>
+                        <tr class="tr-warn">
+                          <td class="mono f11">S4 → S5</td>
+                          <td class="f11 t-dan">四道门</td>
+                          <td class="f11">样本门 + 口径门 + <b>污染门（P1–P6 全不命中）</b> + 显著性门；<b>并需人工确认适用范围</b>，系统不得自动升级</td>
+                        </tr>
+                        <tr>
+                          <td class="mono f11">S5 → S6</td>
+                          <td class="f11 t-mut">失效判定</td>
+                          <td class="f11">连续 2 个复验周期未达标 · 或平台规则/公式变更 · 或有效期到未复验</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="sec-title"><i class="fa-solid fa-rotate-left"></i>降级与回退<span class="sec-sub">状态机必须双向，否则会积累僵尸策略</span></div>
+                  <table class="tbl tbl-compact mb14">
+                    <tbody>
+                      <tr><td class="mono f11" style="width:100px">S4 → S3</td><td class="f11">实验被污染作废 → 退回候选，<b>重新设计方案</b>，原样本不可复用</td></tr>
+                      <tr><td class="mono f11">S4 → S2</td><td class="f11">实验结论为「无明显差异」→ 退回线索，可留待样本更足时再试</td></tr>
+                      <tr><td class="mono f11">S5 → S4</td><td class="f11">到期触发<b>自动复验</b>，复验期间状态标记「待复验」，<b>但仍可继续使用</b>（避免生产断档）</td></tr>
+                      <tr class="tr-danger"><td class="mono f11">任意 → S6</td><td class="f11"><b>紧急下架通道</b>：命中合规风险或 F1–F6 时可从任意状态直接归档，<b>无需走复验</b></td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="note note-danger f11">
+                    <i class="fa-solid fa-ban"></i>
+                    <div>
+                      <b>禁止的转移（系统层拦截）：</b>S1→S3（未聚类直接当候选）· S2→S5（<b>最危险 —— 把相关性当结论</b>）· S3→S5（跳过实验）· S6→S5（<b>归档策略不得直接复活</b>，须从 S3 重走实验）。
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-gauge-high"></i>建议的默认参数<span class="sec-sub">可按品类调，但必须显式配置</span></div>
+                  <table class="tbl tbl-compact mb14">
+                    <tbody>
+                      <tr><td class="f11" style="width:150px">聚类阈值（S1→S2）</td><td class="f11 mono">≥ 5 次 / ≥ 3 note_id</td></tr>
+                      <tr><td class="f11">最小样本量（S2→S3）</td><td class="f11 mono">每组 ≥ 30 条</td></tr>
+                      <tr><td class="f11">实验窗口</td><td class="f11 mono">3d 主口径 · 长尾类 7d + 30d</td></tr>
+                      <tr><td class="f11">显著性要求</td><td class="f11 mono">优秀帖子率差值 ≥ 5pp 且跨 2 批次同向</td></tr>
+                      <tr><td class="f11">已验证策略有效期</td><td class="f11 mono">90 天</td></tr>
+                      <tr><td class="f11">复验周期</td><td class="f11 mono">每 30 天一次</td></tr>
+                      <tr><td class="f11">失效触发</td><td class="f11 mono">连续 2 次复验未达标</td></tr>
+                      <tr><td class="f11">状态变更留痕</td><td class="f11 mono">全部写 event_log，含操作人</td></tr>
+                    </tbody>
+                  </table>
+
+                  <div class="sec-title"><i class="fa-solid fa-list-check"></i>当前策略池分布<span class="sec-sub">演示数据</span></div>
+                  <div class="table-wrap mb14">
+                    <table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th style="width:86px">状态</th><th>策略</th><th style="width:120px">依据 / 卡点</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span class="st st-live">S5 已验证</span></td>
+                          <td class="f11">评论区承接改为<b>主动回答型号/链接/价格</b></td>
+                          <td class="f11">KP-B05 · 复验 10-16</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-live">S5 已验证</span></td>
+                          <td class="f11">内容方向配比按 <b>买家秀 47% / 钓鱼贴 20% / 伪差评 20%</b> 基线</td>
+                          <td class="f11">KP-D01 · n=450 实盘</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-live">S5 已验证</span></td>
+                          <td class="f11">采集词改用 <b>{品类}真实测评 / 真实使用</b></td>
+                          <td class="f11">KP-C01 · 命中 72%</td>
+                        </tr>
+                        <tr class="tr-warn">
+                          <td><span class="st st-pend">S4 实验中</span></td>
+                          <td class="f11">「长期使用复盘」叙事结构提升种草率</td>
+                          <td class="f11">KP-B02 · 窗口至 09-23</td>
+                        </tr>
+                        <tr class="tr-warn">
+                          <td><span class="st st-pend">S4 实验中</span></td>
+                          <td class="f11">痛点改<b>结果导向</b>表达（「不怕吵到邻居」而非「78dB」）</td>
+                          <td class="f11">KP-B08 · 窗口至 09-25</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-sup">S3 候选</span></td>
+                          <td class="f11">「对比后退货」结构提升可信度</td>
+                          <td class="f11 t-warn">n=2，<b>样本门未过</b></td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-sup">S3 候选</span></td>
+                          <td class="f11">数字清单 + 场景锚定结构</td>
+                          <td class="f11 t-warn">需配差异化角度，防 F5</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-draft">S2 线索</span></td>
+                          <td class="f11">「无广告声明」作为信任对冲</td>
+                          <td class="f11 t-mut">KP-B04 · 置信度中</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-draft">S2 线索</span></td>
+                          <td class="f11">「伪差评」效果是否优于「买家秀」</td>
+                          <td class="f11 t-mut">O2 · 缺分组效果数据</td>
+                        </tr>
+                        <tr>
+                          <td><span class="st st-draft">S1 信号</span></td>
+                          <td class="f11">发布时段对效果的影响</td>
+                          <td class="f11 t-dan">O4 · <b>无 publish_time 字段</b></td>
+                        </tr>
+                        <tr class="tr-off">
+                          <td><span class="st st-arch">S6 归档</span></td>
+                          <td class="f11">图片数量越多效果越好</td>
+                          <td class="f11">KP-B07 反证 · 受截断干扰</td>
+                        </tr>
+                        <tr class="tr-off">
+                          <td><span class="st st-arch">S6 归档</span></td>
+                          <td class="f11">按粉丝数分层评估达人质量</td>
+                          <td class="f11">KP-A04 · <b>方差不足</b></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="note note-warn f11">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                      <b>S6 归档不等于结论错。</b>「按粉丝数分层」被归档是因为<b>本批数据方差不足</b>，不是因为方法错 —— 换 KOC/KOL 池后应从 S3 重新起跑。<b>归档理由必须写清是「结论被推翻」还是「数据不支持判断」</b>，两者的复活成本完全不同。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /右 -->
+
+      </div><!-- /知识库主体 -->
+
+      <!-- ============ 预设字段 · 六域 180 字段（宽内容例外：宽表，标记 pc-full） ============ -->
+      <section class="card pc-full">
+        <div class="card-head">
+          <div class="row">
+            <i class="fa-solid fa-table-columns t-pur"></i>
+            <h3 class="card-title">预设字段 · 六域 180 字段</h3>
+            <span class="tag tag-purple no-dot">每字段带权重 + 权重档 + 可得性</span>
+            <span class="tag tag-warn no-dot">更正 C5</span>
+          </div>
+          <span class="f11 t-mut">T0 必填强制 · T1 重要 · T2 补充 · T3 观察</span>
+        </div>
+        <div class="card-body">
+          <div class="grid g6 mb14" style="gap:8px">
+            <div class="metric">
+              <div class="metric-label">D1 内容域</div>
+              <div class="metric-value">45</div>
+              <div class="metric-foot f10 t-mut">文本 / 视觉 / 标签 / 互动引导</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">D2 策略域</div>
+              <div class="metric-value">35</div>
+              <div class="metric-foot f10 t-warn">自动化洼地 · 25 个需人工</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">D3 效果域</div>
+              <div class="metric-value">32</div>
+              <div class="metric-foot f10 t-ok">可 100% 脚本计算</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">D4 主体域</div>
+              <div class="metric-value">30</div>
+              <div class="metric-foot f10 t-mut">账号/品牌/商品/场景/人群</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">D5 质量风险</div>
+              <div class="metric-value">25</div>
+              <div class="metric-foot f10 t-dan">安全阀 · F1–F6 载体</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">D6 采集溯源</div>
+              <div class="metric-value">15</div>
+              <div class="metric-foot f10 t-mut">引用绑定的前提</div>
+            </div>
+          </div>
+
+          <div class="filters mb14">
+            <input class="input" style="max-width:260px" placeholder="按字段 Key 或中文名检索，如 comment_guide" />
+            <select class="select"><option>全部域</option><option>D1 内容域</option><option>D2 策略域</option><option>D3 效果域</option><option>D4 主体域</option><option>D5 质量风险域</option><option>D6 采集溯源域</option></select>
+            <select class="select"><option>全部权重档</option><option>T0 必填强制</option><option>T1 重要</option><option>T2 补充</option><option>T3 观察</option></select>
+            <select class="select"><option>全部可得性</option><option>现采可得</option><option>可派生</option><option>可自动</option><option>需判定</option><option>需人工</option><option>需补采</option></select>
+            <select class="select"><option>全部状态</option><option>已启用</option><option>预留槽位（未激活）</option><option>方差不足（暂不可用）</option></select>
+            <select class="select"><option>权重不限</option><option>≥ 9.5</option><option>≥ 9.0</option><option>≥ 8.0</option></select>
+          </div>
+
+          <div class="grid g2 gap14 mb14">
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-purple no-dot f10">D1 内容域</span>
+                  <span class="f12 fw6">45 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：这条笔记长什么样？</span>
+              </div>
+              <div class="f10 t-mut mb10">子域：文本 14 · 视觉 16 · 标签 7 · 互动引导 8</div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">title_hook</div><div class="m"><span>10 枚举</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">comment_guide</div><div class="m"><span>KP-B05</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">body_structure</div><div class="m"><span>枚举</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">title_text</div><div class="m"><span>text</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">image_count</div><div class="m"><span>int</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">cover_type</div><div class="m"><span>枚举</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">has_live_photo</div><div class="m"><span>bool</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">data_readable</div><div class="m"><span>bool</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">tag_category</div><div class="m"><span>text[]</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">tag_scene</div><div class="m"><span>text[]</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">long_tail_kw</div><div class="m"><span>KP-D04</span><span class="w">8.5</span></div></div>
+                <div class="fmi"><div class="k">body_length</div><div class="m"><span>int</span><span>7.0</span></div></div>
+                <div class="fmi"><div class="k">emoji_density</div><div class="m"><span>float</span><span>6.0</span></div></div>
+                <div class="fmi"><div class="k">…另 32 字段</div><div class="m"><span>展开查看</span><span>—</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>更正要点：</b><span class="mono">comment_guide</span> 权重给到 9.0 的依据是评论词频实证 —— 高频词是「什么牌子/有链接吗/好用吗」，<b>评论区主导行为是购买决策验证，不是情绪共鸣</b>。因此该字段口径应为「是否主动回答型号/链接/价格/适用人群」，<span class="t-dan">而非「是否引导点赞关注」</span>（KP-B05）。
+              </div>
+              <div class="fixnote">
+                <b>反向约束：</b><span class="mono">image_count</span> 权重 8.0 但<b>不构成效果的线性解释</b> —— 14 图仅 12 评论、1 图却 19 评论（KP-B07，置信度低—中）。该字段可采集、可分析，<b>但不得作为质量评分依据</b>。
+              </div>
+            </div>
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-warn no-dot f10">D2 策略域</span>
+                  <span class="f12 fw6">35 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：这条笔记想干什么？</span>
+              </div>
+              <div class="f10 t-mut mb10">子域：内容方向 8 · 场域与投放 9 · 卖点与人设 10 · 排期 8 <span class="t-dan">· 25 个必须人工/LLM 判定</span></div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">content_direction</div><div class="m"><span>6 枚举</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">main_selling_point</div><div class="m"><span>唯一性</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">field_type</div><div class="m"><span>精/泛/破圈</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">tone</div><div class="m"><span>四元组</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">persona_fit</div><div class="m"><span>enum</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">schedule_daily</div><div class="m"><span>KP-D02</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">cta_type</div><div class="m"><span>enum</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">competitor_ref</div><div class="m"><span>enum</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">price_anchor</div><div class="m"><span>bool</span><span class="w">7.5</span></div></div>
+                <div class="fmi"><div class="k">is_paid_boost</div><div class="m"><span>bool</span><span>7.0</span></div></div>
+                <div class="fmi"><div class="k">batch_id</div><div class="m"><span>text</span><span>7.0</span></div></div>
+                <div class="fmi"><div class="k">…另 24 字段</div><div class="m"><span>展开查看</span><span>—</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>content_direction 六枚举的实盘基线</b>（KP-D01，n=450 实测）：买家秀 47% ／ 钓鱼贴 20% ／ 伪差评 20% ／ 产品横测 7% ／ 使用经验分享 7% ／ 清单。<b>应作为新品牌启动默认配比。</b><span class="t-dan">⚠️ 母婴/健康类「伪差评」存在合规风险，必须替换</span>。
+              </div>
+              <div class="fixnote">
+                <b>field_type 决定判优指标，不可用统一标准</b>（KP-D03）：精搜/泛搜看<b>低 CPUV + 低自然 CPM</b>；破圈看<b>低搜组 CPC + 低自然 CPM</b>。原页面用一套阈值评估全部笔记 → 会得出错误结论。
+              </div>
+            </div>
+
+          </div>
+
+          <div class="grid g2 gap14 mb14">
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-ok no-dot f10">D3 效果域</span>
+                  <span class="f12 fw6">32 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：跑得怎么样？</span>
+              </div>
+              <div class="f10 t-mut mb10">流量 8 · 互动转化 7 · 成本 4 · 站外 2 · 判优 <span class="t-ok">11 预留槽位</span></div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">is_quality_note</div><div class="m"><span>公式派生</span><span class="w">10.0</span></div></div>
+                <div class="fmi t0"><div class="k">ctr_3d</div><div class="m"><span>门槛 9%</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">read_3d</div><div class="m"><span>门槛 200</span><span class="w">9.5</span></div></div>
+                <div class="fmi t1"><div class="k">interact_rate</div><div class="m"><span>≥11%</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">seed_rate</div><div class="m"><span>≥7%</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">store_visit_rate</div><div class="m"><span>≥2%</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">cpuv</div><div class="m"><span>精/泛搜</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">natural_cpm</div><div class="m"><span>float</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">search_cpc</div><div class="m"><span>破圈</span><span class="w">8.0</span></div></div>
+                <div class="fmi rsv"><div class="k">gmv</div><div class="m"><span>预留 A1</span><span class="w">槽位</span></div></div>
+                <div class="fmi rsv"><div class="k">store_uv</div><div class="m"><span>预留 A1</span><span class="w">槽位</span></div></div>
+                <div class="fmi rsv"><div class="k">…另 9 槽位</div><div class="m"><span>A2/A3</span><span class="w">槽位</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>更正 C6 —— 判优只认平台公式：</b><br>
+                <span class="code">优质 =（CTR≥9% AND 阅读≥200）AND（互动率≥11% OR 种草率≥7% OR 进店率≥2%）</span><br>
+                CTR 与阅读是<b>双必达门槛</b>，另三项三选一。阈值为 <b>3C 家电口径、窗口固定 3d</b>，其他类目需重新核对（KP-A01）。<span class="t-dan">点赞数与评论数均不是判优指标</span> —— 本批评论数上限 20 为采集截断值（KP-A03）。
+              </div>
+              <div class="fixnote">
+                <b>11 个预留槽位的激活规则（A1–A3）：</b>激活时<b>表结构不变、权重不重算、互动率需双向校验</b>。设计理由：字段先立、数据后补，避免「等数据齐了再改表」导致历史数据无法回填。
+              </div>
+              <div class="fixnote">
+                <b>⚠️ 待老大裁决的冲突：</b>D3 窗口固定 3d，但 KP-D04 指出「埋长尾词的使用经验分享类内容目标是<b>长期搜索占位</b>，评估窗口应长于 3d」。<b>建议方案：</b>按 content_direction 分设窗口 —— 买家秀/钓鱼贴/伪差评走 3d，使用经验分享/清单走 <b>7d + 30d 双窗口</b>，判优阈值随窗口单独标定，<b>不同窗口的数据禁止混池对比</b>。
+              </div>
+            </div>
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-info no-dot f10">D4 主体域</span>
+                  <span class="f12 fw6">30 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：谁发的、推什么、给谁看？</span>
+              </div>
+              <div class="f10 t-mut mb10">账号 9 · 品牌 5 · 商品 8 · 场景 5 · 人群 3 <span class="t-warn">· 19 个需判定/人工</span></div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">account_id</div><div class="m"><span>主键 P0</span><span class="w">10.0</span></div></div>
+                <div class="fmi t0"><div class="k">sku_full_model</div><div class="m"><span>关联键</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">brand_name</div><div class="m"><span>规范化</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">pain_point</div><div class="m"><span>text[]</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">account_type</div><div class="m"><span>5 枚举</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">product_cat_l3</div><div class="m"><span>三级品类</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">scene_id</div><div class="m"><span>9 类 S1–S9</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">audience</div><div class="m"><span>8 枚举</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">mention_context</div><div class="m"><span>4 枚举</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">product_price</div><div class="m"><span>促/日常分存</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">family_stage</div><div class="m"><span>5 枚举</span><span class="w">7.0</span></div></div>
+                <div class="fmi"><div class="k">follower_count</div><div class="m"><span class="t-warn">方差不足</span><span>6.5</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>为什么 sku_full_model 权重 9.5：</b>它是跨域<b>中强关联键</b>，也是「把个案升格为批次问题」的唯一依据。没有型号，所有负面内容只能停在「某品牌某产品」的模糊层，<b>无法沉淀为可执行的质量知识</b>。
+              </div>
+              <div class="fixnote">
+                <b>场景枚举 S1–S9 是实盘语言不是理论：</b>租房/小户型/宿舍（<b>最高频，KP-C03</b>）· 办公室工位 · 母婴夜间调奶 · 老人防烫 · 家庭多人饮水 · 泡茶咖啡手冲 · 旅行露营 · 新家乔迁 · <b>换季（含「台风天」，除湿机项目实跑数百篇）</b>。
+              </div>
+              <div class="fixnote">
+                <b>四元组强制整组：</b>场景 + 人群 + 利益点（<span class="mono">main_selling_point</span>）+ 情绪（<span class="mono">tone</span>）必须<b>整组齐备</b>才能作为「内容原子」入库。缺任一项，该笔记<b>只能作素材，不能作策略样板</b> —— 由 G2 门拦截。
+              </div>
+            </div>
+
+          </div>
+
+          <div class="grid g2 gap14 mb14">
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-danger no-dot f10">D5 质量风险域</span>
+                  <span class="f12 fw6">25 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：这条知识能不能信、能不能用？</span>
+              </div>
+              <div class="f10 t-mut mb10">证据可信度 8 · 商业合规 9 · 重复原创 4 · 评分审核 4 <span class="t-dan">· 整套标准的安全阀</span></div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">evidence_level</div><div class="m"><span>A/B/C/D</span><span class="w">10.0</span></div></div>
+                <div class="fmi t0"><div class="k">is_commercial</div><div class="m"><span>F4</span><span class="w">10.0</span></div></div>
+                <div class="fmi t0"><div class="k">commercial_disclosed</div><div class="m"><span>3 枚举</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">score_total</div><div class="m"><span>100 分制</span><span class="w">9.5</span></div></div>
+                <div class="fmi t0"><div class="k">authenticity</div><div class="m"><span>F1</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">conclusion_scope</div><div class="m"><span>F3 / K2</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">dup_cross_account</div><div class="m"><span>F5 / K7</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">fact_source</div><div class="m"><span>text[]</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">evidence_files</div><div class="m"><span>text[]</span><span class="w">9.0</span></div></div>
+                <div class="fmi t0"><div class="k">is_measured</div><div class="m"><span>bool</span><span class="w">9.0</span></div></div>
+                <div class="fmi t1"><div class="k">reproduce_count</div><div class="m"><span>int</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">sensitive_words</div><div class="m"><span>可自动</span><span class="w">8.5</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>关键更正 —— 内容等级与发布就绪度必须分开成两个字段：</b><br>
+                <span class="mono">content_level</span> = preview / verified_product / verified_experience（<b>能说什么</b>）<br>
+                <span class="mono">publish_readiness</span> = draft_only / review_required / publishable / blocked（<b>能不能发</b>）<br>
+                <span class="t-dan">⚠️ 不要因为内容达到第三级就自动标记为可发布</span> —— 第三级内容仍需事实、视觉、平台规则和跨模态审核。
+              </div>
+              <div class="fixnote">
+                <b>conclusion_scope 三值不可越级：</b>个例（单用户单次经历）→ 批次（同批次多例集中）→ 可复现设计问题（换条件仍复现）。<b>不经过 reproduce_count 与 measure_conditions 就直接写「批次」或「可复现设计问题」= 触发 F3</b>。
+              </div>
+              <div class="fixnote">
+                <b>100 分制 12 模块的分值分布：</b>商品事实准确 15 · <b>证据充分 15</b> · 场景真实具体 12 · 痛点卖点匹配 10 · 优缺点平衡 8 · 标题与封面 8 · 正文结构 8 · 视觉与声音 8 · 标签与搜索意图 5 · 账号人设一致 4 · 原创与差异化 4 · 合规与披露 3。发布线：<span class="t-dan">&lt;75 退回</span> ／ 75–84 抽检 ／ <span class="t-ok">≥85 优先排期</span>。
+              </div>
+            </div>
+
+            <div class="dom">
+              <div class="dom-h">
+                <div class="row">
+                  <span class="tag tag-muted no-dot f10">D6 采集溯源域</span>
+                  <span class="f12 fw6">15 字段</span>
+                </div>
+                <span class="f10 t-mut">回答：这条知识从哪来？</span>
+              </div>
+              <div class="f10 t-mut mb10">来源与批次 8 · 检索与命中 4 · 素材与展示 3 <span class="t-info">· 引用绑定的前提，无此域则引用无从绑定</span></div>
+              <div class="fm mb10">
+                <div class="fmi t0"><div class="k">note_id</div><div class="m"><span>全库主键</span><span class="w">10.0</span></div></div>
+                <div class="fmi t1"><div class="k">note_url</div><div class="m"><span>原文 URL</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">collected_at</div><div class="m"><span>ISO 8601</span><span class="w">8.5</span></div></div>
+                <div class="fmi t1"><div class="k">collect_batch</div><div class="m"><span>可派生</span><span class="w">8.0</span></div></div>
+                <div class="fmi t1"><div class="k">query_keyword</div><div class="m"><span>KP-C01</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">query_type</div><div class="m"><span>精/泛/破圈</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">collect_method</div><div class="m"><span>4 枚举</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">source_file</div><div class="m"><span>可回溯</span><span class="w">7.5</span></div></div>
+                <div class="fmi t1"><div class="k">image_paths</div><div class="m"><span>本地 webp</span><span class="w">7.0</span></div></div>
+                <div class="fmi"><div class="k">rank_position</div><div class="m"><span class="t-warn">需补采</span><span>6.5</span></div></div>
+                <div class="fmi"><div class="k">hit_count_snapshot</div><div class="m"><span class="t-warn">需补采</span><span>6.0</span></div></div>
+                <div class="fmi"><div class="k">display_date_text</div><div class="m"><span>需判定</span><span>6.5</span></div></div>
+              </div>
+              <div class="fixnote">
+                <b>约束 X1（系统层强制）：</b>任何进入知识库的知识点<b>必须绑定 note_id + evidence_level + collected_at</b>，三者缺一<b>不得被引用</b>。深层理由：AI 答案必须绑定证据（引用、原文定位、时间、适用范围、责任人）—— 在「错一次就赔钱」的场景里，<b>不可信答案比没有答案更危险</b>。
+              </div>
+              <div class="fixnote">
+                <b>素材必须本地化（KP-E03）：</b>小红书 CDN 链接<b>带时效签名会过期</b>。标准要求本地化到 <span class="mono">images/&lt;note_id&gt;/01.webp</span>，<b>禁止只存 URL</b> —— 只存 URL 的知识库，几个月后就是一座空库。
+              </div>
+              <div class="fixnote">
+                <b>默认检索词模板（KP-C01，命中率实证）：</b><span class="mono">{品类}真实测评</span> / <span class="mono">{品类}真实使用</span> 四个词贡献 194/269 = <b>72%</b>；而泛词 <span class="mono">{品类}好物</span> 仅 14 条。<b>下一轮采集应改用前者，弃用泛词。</b>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="note note-warn f11">
+            <i class="fa-solid fa-robot"></i>
+            <div>
+              <b>系统建设的真正难点不在算法，在「策略域的人工判断如何规模化」</b>（KP-E04）：180 字段中效果域 32 个<b>可 100% 脚本计算</b>、采集溯源域 15 个中 9 个可自动；而<b>策略域 35 个中 25 个必须人工/LLM 判定</b>、视觉子域 16 个中 12 个需读图。→ 落地方案为 <b>LLM 初判 + 强制人工抽检</b>，抽检比例与准确率挂钩。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 知识库分视图：生产修复 / 效果策略 · 证据 · 验证 · 版本 · 失效原因 —— 双 Loop 建议 §10 -->
+      <div class="grid g-1-1 mt14">
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-screwdriver-wrench t-pur"></i>
+              <h3 class="card-title">视图 A · 生产修复资产</h3>
+              <span class="code">Loop ① 产出</span>
+            </div>
+            <span class="tag tag-warn no-dot">管「别做错」</span>
+          </div>
+          <div class="card-body p0">
+            <div class="table-wrap">
+              <table class="tbl tbl-compact" style="min-width:560px">
+                <thead>
+                  <tr>
+                    <th style="width:200px">资产</th>
+                    <th style="width:134px">证据</th>
+                    <th style="width:150px">验证</th>
+                    <th>版本 / 状态 / 失效原因</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="f11">无体验资料时改用产品说明结构</div>
+                      <div class="mt4"><span class="code f10">A5 规则</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">ISS-014</span><br />12 条人工退回记录</td>
+                    <td class="f11"><span class="t-ok">通过</span><br /><span class="t-mut">回归集 4 类全过 · 09-15</span></td>
+                    <td>
+                      <span class="tag tag-ok no-dot f10">v3 · 当前生效</span>
+                      <div class="f10 t-mut mt4">失效原因：—</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="f11">产品参数必须引用基线事实清单</div>
+                      <div class="mt4"><span class="code f10">A1 事实</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">ISS-016</span><br />事实账本 diff 3 处</td>
+                    <td class="f11"><span class="t-ok">通过</span><br /><span class="t-mut">50 条批次 0 复发 · 09-18</span></td>
+                    <td>
+                      <span class="tag tag-ok no-dot f10">v5 · 当前生效</span>
+                      <div class="f10 t-mut mt4">失效原因：—</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="f11">文图一致性检查前移到生成后第 1 步</div>
+                      <div class="mt4"><span class="code f10">A5 规则</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">FAC-01</span><br />累计 6 例文图冲突</td>
+                    <td class="f11"><span class="t-warn">样本不足</span><br /><span class="t-mut">回归集仅 4 例 · 观察中</span></td>
+                    <td>
+                      <span class="tag tag-info no-dot f10">v1 · 观察中</span>
+                      <div class="f10 t-mut mt4">失效原因：—（未验证，暂不推广）</div>
+                    </td>
+                  </tr>
+                  <tr class="tr-danger">
+                    <td>
+                      <div class="f11">结尾段反套话改写规则</div>
+                      <div class="mt4"><span class="code f10">A4 风格</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">STY-03</span><br />累计 19 例结尾套话</td>
+                    <td class="f11"><span class="t-dan">未通过</span><br /><span class="t-mut">复发 38% → 47%，不降反升</span></td>
+                    <td>
+                      <span class="tag tag-muted no-dot f10">v2 · 已停用</span>
+                      <div class="f10 t-dan mt4"><b>失效原因：只改成品表述，未改生成决策</b>；回归集未覆盖清单体条目。回退到 v1 并把问题重开。</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding:4px 18px 16px">
+              <div class="row mb10" style="flex-wrap:wrap;gap:8px">
+                <span class="tag tag-ok no-dot f10">当前生效 2</span>
+                <span class="tag tag-info no-dot f10">观察中 1</span>
+                <span class="tag tag-muted no-dot f10">已停用 1</span>
+              </div>
+              <div class="note note-purple f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>两类资产<b>不合并在同一张表</b> —— 生产修复解决「别做错」；把它与效果结论混排会让归因失真。<b>停用必须写明失效原因与回退位置</b>，不能靠「之后不再使用」了事；资产一律新版本发布，禁止原地覆盖。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-flask-vial t-pur"></i>
+              <h3 class="card-title">视图 B · 效果策略资产</h3>
+              <span class="code">Loop ② 产出</span>
+            </div>
+            <span class="tag tag-purple no-dot">回答「做对什么」</span>
+          </div>
+          <div class="card-body p0">
+            <div class="table-wrap">
+              <table class="tbl tbl-compact" style="min-width:560px">
+                <thead>
+                  <tr>
+                    <th style="width:200px">资产</th>
+                    <th style="width:134px">证据</th>
+                    <th style="width:150px">验证</th>
+                    <th>版本 / 状态 / 失效原因</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="f11">结论前置（先回答决策问题）</div>
+                      <div class="mt4"><span class="code f10">A6 反馈实验</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">HY-021</span><br />EXP-007 对照 / 实验</td>
+                    <td class="f11"><span class="t-warn">执行 2/2</span><br /><span class="t-mut">发布环节保留 1/2</span></td>
+                    <td>
+                      <span class="tag tag-purple no-dot f10">v1 · 试验中</span>
+                      <div class="f10 t-mut mt4">失效原因：—</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="f11">图解取舍（双轴对比）</div>
+                      <div class="mt4"><span class="code f10">A6 反馈实验</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">EXP-007</span><br />对照 18 / 实验 17</td>
+                    <td class="f11"><span class="t-info">窗口未满</span><br /><span class="t-mut">7d 窗口观察中</span></td>
+                    <td>
+                      <span class="tag tag-info no-dot f10">v1 · 观察中</span>
+                      <div class="f10 t-mut mt4">失效原因：—（窗口未满，暂不出结论）</div>
+                    </td>
+                  </tr>
+                  <tr class="tr-danger">
+                    <td>
+                      <div class="f11">频次边界声明</div>
+                      <div class="mt4"><span class="code f10">A6 反馈实验</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">HY-024</span><br />试产 1 条</td>
+                    <td class="f11"><span class="t-dan">未保留</span><br /><span class="t-mut">发布环节 0 / 1</span></td>
+                    <td>
+                      <span class="tag tag-muted no-dot f10">v0 · 未生效</span>
+                      <div class="f10 t-dan mt4"><b>失效原因：发布流程无策略检查点</b>，边界说明被删除且无人拦截。先修流程，再重开实验。</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="f11">证据前置结构（除湿机选购）</div>
+                      <div class="mt4"><span class="code f10">A6 反馈实验</span></div>
+                    </td>
+                    <td class="f11 t-sub"><span class="mono">EXP-003</span><br />24 个保留任务</td>
+                    <td class="f11"><span class="t-ok">方向为正</span><br /><span class="t-mut">3d 窗口已满</span></td>
+                    <td>
+                      <span class="tag tag-ok no-dot f10">v2 · 当前生效</span>
+                      <div class="f10 t-mut mt4">失效原因：—</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding:4px 18px 16px">
+              <div class="row mb10" style="flex-wrap:wrap;gap:8px">
+                <span class="tag tag-ok no-dot f10">当前生效 1</span>
+                <span class="tag tag-purple no-dot f10">试验中 1</span>
+                <span class="tag tag-info no-dot f10">观察中 1</span>
+                <span class="tag tag-muted no-dot f10">未生效 1</span>
+              </div>
+              <div class="note note-warn f11">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <div>效果策略的验证依赖<b>窗口数据</b>：窗口未满期间只能标「观察」，<b>不得写成「已生效」</b>；执行未保留到发布环节的策略，必须先修流程再谈效果 —— 否则会把流程问题记成策略无效。</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'knowledge', crumb: ['知识库', '知识沉淀标准 v1.0'] });
+</script>
+</body>
+</html>

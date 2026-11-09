@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>AI 任务与费用账本 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <!-- 页头：所有「数量 / 状态声称」都不写死。原型页头的
+           `PRJ-2026-0037` / `2 项待核对` 两枚标签已删除：前者是编造的项目编号
+           （后端项目只有 UUID，无业务编号字段），后者无 GET 来源（见下） -->
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-coins"></i> 费用账本</span>
+            <span class="code" id="cost-project">—</span>
+            <span class="tag tag-muted no-dot f10" id="cost-source">读取中…</span>
+          </div>
+          <h1 class="page-title">AI 任务与费用账本</h1>
+          <p class="page-desc">失败重试费用计入，不能只统计成功结果；未知结果不能直接记作无费用，标记待核对。发起人为归因字段，不意味其承担个人费用。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="project-overview.v2.html"><i class="fa-solid fa-arrow-left"></i>项目总览</a>
+          <button class="btn btn-primary" data-action="reconcile"><i class="fa-solid fa-magnifying-glass-dollar"></i>处理待核对</button>
+        </div>
+      </div>
+
+      <div id="cost-summary" aria-live="polite"></div>
+      <div id="cost-truncation" aria-live="polite"></div>
+
+      <div class="grid g-3-2" style="margin-top:14px">
+        <div class="col" style="gap:14px">
+          <div id="cost-kinds" aria-live="polite"></div>
+          <div id="cost-units" aria-live="polite"></div>
+          <div id="cost-ledger" aria-live="polite"></div>
+          <div id="cost-estimates" aria-live="polite"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="cost-budget" aria-live="polite"></div>
+          <div id="cost-budget-mode"></div>
+          <div id="cost-reconcile" aria-live="polite"></div>
+          <div id="cost-reservations" aria-live="polite"></div>
+          <div id="cost-pricing" aria-live="polite"></div>
+          <div id="cost-attribution"></div>
+          <div id="cost-queue"></div>
+          <div id="cost-doctrine"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/cost.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'cost', crumb: ['管理', '费用管理'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/cost.js。
+     paint(map) 把「容器 id → HTML 串」的搬运收成一处；IIFE 40 行。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.cost;
+    var el = function (id) { return document.getElementById(id); };
+    /* paint(map)：容器 id → 已渲染好的 HTML 串。挂载层只负责搬运，不拼字符串。 */
+    var paint = function (map) { Object.keys(map).forEach(function (k) { el(k).innerHTML = map[k]; }); };
+    var SLOTS = ['cost-summary', 'cost-kinds', 'cost-units', 'cost-ledger', 'cost-estimates', 'cost-budget', 'cost-reservations', 'cost-pricing'];
+    var src = el('cost-source'), pid = '';
+    var tag = function (cls, label) { src.className = 'tag ' + cls + ' no-dot f10'; src.textContent = label; };
+    paint({ 'cost-budget-mode': R.renderBudgetModeNotice(), 'cost-attribution': R.renderAttributionUnavailable(), 'cost-queue': R.renderQueueUnavailable(), 'cost-doctrine': R.renderCostDoctrine(), 'cost-reconcile': R.renderReconciliation(null) });
+    async function load() {
+      SLOTS.forEach(function (id) { el(id).innerHTML = R.renderCardLoading('正在读取费用数据…'); });
+      try {
+        pid = new URLSearchParams(window.location.search).get('id') || '';
+        if (!pid) { var ps = await API.page('/projects', { limit: 100 }); pid = ps.items.length ? ps.items[0].id : ''; }
+        if (!pid) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目，无法读取费用账本。' };
+        var p = '/projects/' + encodeURIComponent(pid);
+        document.querySelectorAll('[data-keep-id]').forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(pid); });
+        el('cost-project').textContent = pid;
+        var r = await Promise.all([API.get(p + '/budget'), API.get(p + '/ledger-summary', { query: { limit: 100 } }), API.page(p + '/ledger-entries', { limit: 100 }), API.page(p + '/cost-estimates', { limit: 100 }), API.page(p + '/budget-reservations', { limit: 100 }), API.page('/pricing-versions', { limit: 100 })]);
+        var budget = r[0], summary = r[1], entries = r[2], estimates = r[3], reservations = r[4], pricing = r[5];
+        paint({ 'cost-summary': R.renderSummaryCards(summary, budget), 'cost-truncation': R.renderTruncationWarning(summary), 'cost-kinds': R.renderKindDistribution(summary), 'cost-units': R.renderUnitDistribution(entries.items) });
+        paint({ 'cost-ledger': R.renderLedgerTable(entries.items), 'cost-estimates': R.renderEstimates(estimates.items), 'cost-budget': R.renderBudgetCard(budget), 'cost-reservations': R.renderReservations(reservations.items), 'cost-pricing': R.renderPricingVersions(pricing.items) });
+        var demo = entries.static || estimates.static || reservations.static || pricing.static;
+        tag(demo ? 'tag-warn' : 'tag-ok', demo ? '演示数据 · 静态降级' : '实时数据 · ' + entries.items.length + ' 条分录');
+      } catch (err) {
+        SLOTS.forEach(function (id) { el(id).innerHTML = ''; });
+        paint({ 'cost-summary': R.renderCardError(err), 'cost-truncation': '' });
+        tag('tag-danger', '读取失败');
+      }
+    }
+    async function reconcile() {
+      el('cost-reconcile').innerHTML = R.renderCardLoading('正在对账…');
+      var req = R.reconcileRequest(pid);
+      try { el('cost-reconcile').innerHTML = R.renderReconciliation(await API.post(req.path, req.body, { query: req.query })); }
+      catch (err) { el('cost-reconcile').innerHTML = R.renderCardError(err); }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load(); else if (e.target.closest('[data-action="reconcile"]')) reconcile();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

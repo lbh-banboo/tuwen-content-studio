@@ -1,0 +1,340 @@
+{
+  "_comment": "M4 mock 只读样例。形状必须与 contracts/draft/m4-openapi.yaml 一致。所有值为虚构，勿当真实数据。",
+  "deliveries": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "kocRecordId": "aaaaaaaa-1111-4111-8111-111111111111",
+      "contentItemId": "cccccccc-1111-4111-8111-111111111111",
+      "versionNodeId": "vvvvvvvv-1111-4111-8111-111111111111",
+      "state": "PREPARED",
+      "eligibilityHash": "sha256:abcd1234",
+      "replacesDeliveryId": null,
+      "deliveredAt": null,
+      "cancelledAt": null
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "kocRecordId": null,
+      "contentItemId": "cccccccc-2222-4222-8222-222222222222",
+      "versionNodeId": "vvvvvvvv-2222-4222-8222-222222222222",
+      "state": "DELIVERED",
+      "eligibilityHash": "sha256:ef567890",
+      "replacesDeliveryId": null,
+      "deliveredAt": "2026-10-07T10:00:00+08:00",
+      "cancelledAt": null
+    }
+  ],
+  "export_items": [
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "deliveryId": "22222222-2222-4222-8222-222222222222",
+      "contentItemId": "cccccccc-2222-4222-8222-222222222222",
+      "versionNodeId": "vvvvvvvv-2222-4222-8222-222222222222",
+      "eligibilityHash": "sha256:ef567890",
+      "exportKind": "BATCH_ZIP",
+      "artifactRef": "minio://exports/demo-batch-01.zip"
+    }
+  ],
+  "koc_records": [
+    {
+      "id": "aaaaaaaa-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "displayName": "素人甲（虚构）",
+      "platformHomeUrl": "https://www.xiaohongshu.com/user/profile/demo001",
+      "homeUrlCanonical": "https://www.xiaohongshu.com/user/profile/demo001",
+      "contactRef": "koc-contact/demo001"
+    }
+  ],
+  "publications": [
+    {
+      "id": "pppppppp-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "deliveryId": "22222222-2222-4222-8222-222222222222",
+      "publicationKey": "PUB-2026-0001",
+      "noteId": "note-demo-0001",
+      "noteUrl": "https://www.xiaohongshu.com/explore/abc123?xsec_token=XYZ",
+      "urlCanonical": "https://www.xiaohongshu.com/explore/abc123",
+      "state": "PUBLISHED",
+      "contentState": "VERIFIED",
+      "publishedAt": "2026-10-07T12:00:00+08:00"
+    }
+  ],
+  "publication_links": [
+    {
+      "id": "llllllll-1111-4111-8111-111111111111",
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "rawUrl": "https://xhslink.com/aBcDeF",
+      "canonicalUrl": "https://www.xiaohongshu.com/explore/abc123",
+      "linkKind": "SHORT"
+    }
+  ],
+  "metric_definitions": [
+    {
+      "id": "dddddddd-1111-4111-8111-111111111111",
+      "metricCode": "LIKE_COUNT",
+      "scope": "CUMULATIVE",
+      "valueKind": "NUMERIC",
+      "unit": "次",
+      "label": "点赞数"
+    },
+    {
+      "id": "dddddddd-2222-4222-8222-222222222222",
+      "metricCode": "VIEW_COUNT",
+      "scope": "LAST_24H",
+      "valueKind": "NUMERIC",
+      "unit": "次",
+      "label": "近 24h 浏览量"
+    },
+    {
+      "id": "dddddddd-3333-4333-8333-333333333333",
+      "metricCode": "NOTE_URL",
+      "scope": "NOT_APPLICABLE",
+      "valueKind": "TEXT",
+      "unit": null,
+      "label": "笔记链接"
+    }
+  ],
+  "metric_observations": [
+    {
+      "id": "obobobob-1111-4111-8111-111111111111",
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-1111-4111-8111-111111111111",
+      "observedAt": "2026-10-07T18:00:00+08:00",
+      "valueNum": 12000,
+      "valueText": null,
+      "rawValue": "1.2 万",
+      "precision": "APPROXIMATE",
+      "availability": "ACQUIRED",
+      "sourceType": "MANUAL",
+      "evidenceRef": "WP03-shots/F02-like-20261007.png",
+      "importId": null,
+      "recordedAt": "2026-10-07T20:30:00+08:00"
+    },
+    {
+      "id": "obobobob-2222-4222-8222-222222222222",
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-2222-4222-8222-222222222222",
+      "observedAt": "2026-10-07T18:00:00+08:00",
+      "valueNum": null,
+      "valueText": null,
+      "rawValue": null,
+      "precision": null,
+      "availability": "NO_PERMISSION",
+      "sourceType": "MANUAL",
+      "evidenceRef": null,
+      "importId": null,
+      "recordedAt": "2026-10-07T20:31:00+08:00"
+    }
+  ],
+  "metric_latest": [
+    {
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-1111-4111-8111-111111111111",
+      "observationId": "obobobob-1111-4111-8111-111111111111",
+      "valueNum": 12000,
+      "valueText": null,
+      "observedAt": "2026-10-07T18:00:00+08:00",
+      "label": "QUALITY",
+      "rebuiltAt": "2026-10-07T20:35:00+08:00"
+    },
+    {
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-2222-4222-8222-222222222222",
+      "observationId": "obobobob-2222-4222-8222-222222222222",
+      "valueNum": null,
+      "valueText": null,
+      "observedAt": "2026-10-07T18:00:00+08:00",
+      "label": "PENDING",
+      "rebuiltAt": "2026-10-07T20:35:00+08:00"
+    }
+  ],
+  "publication_labels": [
+    {
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-1111-4111-8111-111111111111",
+      "label": "QUALITY",
+      "thresholdVersion": "v1"
+    },
+    {
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "metricDefinitionId": "dddddddd-2222-4222-8222-222222222222",
+      "label": "PENDING",
+      "thresholdVersion": "v1"
+    }
+  ],
+  "metric_imports": [
+    {
+      "id": "imimimim-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "importKind": "CSV",
+      "state": "PREVIEWED",
+      "sourceFileId": "ffffffff-1111-4111-8111-111111111111",
+      "templateVersion": "1.0",
+      "rowCount": 3,
+      "errorRowCount": 1,
+      "confirmedAt": null
+    }
+  ],
+  "metric_import_rows": [
+    {
+      "id": "rrrrrrrr-1111-4111-8111-111111111111",
+      "importId": "imimimim-1111-4111-8111-111111111111",
+      "rowNo": 1,
+      "payload": {
+        "publication_key": "PUB-2026-0001",
+        "metric_code": "LIKE_COUNT",
+        "metric_scope": "CUMULATIVE",
+        "observed_at": "2026-10-07T18:00:00+08:00",
+        "value": "12000",
+        "raw_value": "1.2 万",
+        "precision": "APPROXIMATE",
+        "availability": "ACQUIRED",
+        "source_type": "CSV_IMPORT",
+        "evidence_ref": "WP03-export/backend-export-20261007.csv",
+        "note": ""
+      },
+      "status": "OK",
+      "warnings": [],
+      "errors": [],
+      "confidence": null,
+      "observationId": null
+    },
+    {
+      "id": "rrrrrrrr-2222-4222-8222-222222222222",
+      "importId": "imimimim-1111-4111-8111-111111111111",
+      "rowNo": 2,
+      "payload": {
+        "publication_key": "PUB-2026-0001",
+        "metric_code": "VIEW_COUNT",
+        "metric_scope": "UNKNOWN",
+        "observed_at": "2026-10-07T18:00:00+08:00",
+        "value": "0",
+        "raw_value": "",
+        "precision": "EXACT",
+        "availability": "NO_PERMISSION",
+        "source_type": "CSV_IMPORT",
+        "evidence_ref": "",
+        "note": "口径含曝光，未拆分"
+      },
+      "status": "ERROR",
+      "warnings": ["SCOPE_UNKNOWN", "IMPRESSION_IN_VIEW"],
+      "errors": ["VALUE_ZERO_ON_MISSING", "EXACT_MISSING_RAW"],
+      "confidence": null,
+      "observationId": null
+    },
+    {
+      "id": "rrrrrrrr-3333-4333-8333-333333333333",
+      "importId": "imimimim-1111-4111-8111-111111111111",
+      "rowNo": 3,
+      "payload": {
+        "publication_key": "PUB-2026-0001",
+        "metric_code": "COMMENT_TEXT",
+        "metric_scope": "NOT_APPLICABLE",
+        "observed_at": "2026-10-07T18:00:00+08:00",
+        "value": "",
+        "raw_value": "这条评论是虚构样例",
+        "precision": null,
+        "availability": "ACQUIRED",
+        "source_type": "SCREENSHOT_OCR",
+        "evidence_ref": "WP03-shots/F03-comment-20261007.png",
+        "note": "OCR 识别"
+      },
+      "status": "OK",
+      "warnings": [],
+      "errors": [],
+      "confidence": 0.93,
+      "observationId": null
+    }
+  ],
+  "metric_adapters": [
+    {
+      "id": "adadadad-1111-4111-8111-111111111111",
+      "name": "小红书后台导出（样例）",
+      "availability": "NO_CHANNEL"
+    },
+    {
+      "id": "adadadad-2222-4222-8222-222222222222",
+      "name": "蒲公英数据服务（样例）",
+      "availability": "NO_PERMISSION"
+    }
+  ],
+  "comment_records": [
+    {
+      "id": "cmcmcmcm-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "publicationId": "pppppppp-1111-4111-8111-111111111111",
+      "platformCommentId": "cmt-demo-0001",
+      "contentDigest": null,
+      "contentText": "看起来不错（虚构）",
+      "likeCount": 12,
+      "postedAt": "2026-10-07T15:00:00+08:00",
+      "dedupMode": "PLATFORM_ID"
+    }
+  ],
+  "experiments": [
+    {
+      "id": "exexexex-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "name": "标题风格 A/B（样例）",
+      "hypothesis": "疑问句标题提升收藏率（虚构假设）",
+      "state": "RUNNING",
+      "startedAt": "2026-10-07T09:00:00+08:00",
+      "closedAt": null
+    }
+  ],
+  "experiment_assignments": [
+    {
+      "id": "asasasas-1111-4111-8111-111111111111",
+      "experimentId": "exexexex-1111-4111-8111-111111111111",
+      "contentItemId": "cccccccc-1111-4111-8111-111111111111",
+      "arm": "A",
+      "assignedAt": "2026-10-07T09:05:00+08:00"
+    }
+  ],
+  "strategy_evidence": [
+    {
+      "id": "svsvsvsv-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "experimentId": "exexexex-1111-4111-8111-111111111111",
+      "strategyRef": "title-style:question",
+      "state": "INCONCLUSIVE",
+      "evidenceGrade": "INSUFFICIENT",
+      "note": "样本量不足，标证据不足，不声称因果。"
+    }
+  ],
+  "reports": [
+    {
+      "id": "rprprprp-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "reportKind": "OVERVIEW",
+      "templateVersion": "v1",
+      "currentVersionNo": 1
+    }
+  ],
+  "report_versions": [
+    {
+      "id": "rvrvrvrv-1111-4111-8111-111111111111",
+      "reportId": "rprprprp-1111-4111-8111-111111111111",
+      "versionNo": 1,
+      "cutoffAt": "2026-10-07T23:59:59+08:00",
+      "metricsSnapshot": {"publicationCount": 1, "deliveredCount": 1},
+      "contentHash": "sha256:0011223344",
+      "generatedAt": "2026-10-08T00:10:00+08:00"
+    }
+  ],
+  "report_markdown": "# 项目总览报告（样例）\n\n> 截止快照：2026-10-07T23:59:59+08:00　模板 v1\n\n| 指标 | 值 |\n|---|---|\n| 发布登记数 | 1 |\n| 已交付数 | 1 |\n\n_本文件为 mock 样例，勿当真实数据。_\n",
+  "project_closures": [
+    {
+      "id": "clclclcl-1111-4111-8111-111111111111",
+      "projectId": "00000000-0000-4000-8000-000000000001",
+      "closureType": "COMPLETED",
+      "outstandingSnapshot": {"pendingDeliveries": 0},
+      "closedAt": "2026-10-08T00:00:00+08:00",
+      "reopenedAt": null,
+      "reopenReason": null
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+# rednote-production 内网开发/试点环境编排（WP05）
+#
+# 依据：outputs/Rednote研发执行计划_V2.0_2026-09-19.md §5 技术栈与版本基线
+#   - 主库 PostgreSQL 17 + pgvector 0.8 系列 + pg_trgm
+#   - 队列 RabbitMQ 4.x（quorum queue）
+#   - 对象存储 MinIO（S3 兼容；版本锁定规则见下方 minio 服务注释）
+#   - 身份 Keycloak 26.x（选装，profile=auth，默认不启动）
+#
+# 设计口径（为什么这么写）：
+#   1) 本编排是「开发/试点」环境，不是生产拓扑。生产为 API 双实例 + Worker 分组 +
+#      RabbitMQ 3 节点 quorum + 独立 PG/存储节点，见研发计划 §4 与 §10。
+#   2) 端口只在本机回环需要时才发布；内网部署必须改为「仅应用网段可访问」，
+#      数据库/AMQP/对象存储一律不对用户网段开放（研发计划 §4 出口约束）。
+#   3) 网络分两条：
+#      - edge 网：承载需要发布到宿主机的端口（本机调试用）。
+#      - data 网（internal: true，无默认网关）：应用容器（M1 起）挂这条网，
+#        拿不到公网出口，天然满足「模式 A 受控出网」里"数据面不出网"的要求。
+#      数据面服务同时挂两条网：应用能连它，宿主机也能连它。
+#   4) 环境变量一律从同级 .env 读取（compose 默认行为），不把口令写进本文件。
+
+name: rednote-dev
+
+# ###########################################################################
+# 公共片段：为什么用 YAML 锚点
+#   健康检查/重启策略在各服务重复，锚点避免三处不一致导致"某个服务没健康检查"。
+# ###########################################################################
+
+x-restart-policy: &default-restart
+  restart: unless-stopped
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 17 + pgvector
+  # 为什么用 pgvector/pgvector:pg17：官方 pgvector 发行镜像，基于 PG17 官方镜像，
+  # 预编译好 vector 扩展，避免在内网里现场编译扩展（内网无公网 = 编译取依赖会失败）。
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: rednote-dev-postgres
+    <<: *default-restart
+    environment:
+      POSTGRES_USER: ${PG_USER:?PG_USER 必须在 .env 中设置}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?PG_PASSWORD 必须在 .env 中设置}
+      POSTGRES_DB: ${PG_DATABASE:?PG_DATABASE 必须在 .env 中设置}
+      # 初始化脚本里用到的应用角色口令（01_init.sql 通过 psql 变量拿不到 compose env，
+      # 因此该口令以「数据库初始化模板」的方式在 SQL 文件内显式声明，见该文件注释）
+      TZ: ${TZ:-Asia/Shanghai}
+      # 中文排序与全文口径需在 initdb 阶段定死，运行期无法改；这里显式声明避免随宿主 locale 漂移
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # 仅本机调试需要；内网部署时删除本段 ports（改用 data 网容器内访问）
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - rednote_pg_data:/var/lib/postgresql/data
+      # docker-entrypoint-initdb.d 下的脚本「只在数据目录为空时执行一次」。
+      # 重置方式见 deploy/dev/README.md「重置」一节。
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # pg_isready 是 PG 官方自带的就绪探针；用 $$ 转义避免 compose 提前插值容器内变量
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\" -h 127.0.0.1 -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - edge
+      - data
+
+  # ---------------------------------------------------------------------------
+  # MinIO（S3 兼容对象存储）
+  # 版本口径（重要）：
+  #   dev 用 latest，是为了本机/试点环境免维护；
+  #   【生产必须锁 digest】（研发计划 §5：实施第一周锁补丁版本并产出 SBOM，不使用浮动 latest）。
+  #   生产写法示例（digest 需在内网 Harbor 侧确认后回填）：
+  #     image: minio/minio@sha256:<64位十六进制digest>
+  #   本文件不写具体 RELEASE 日期 tag —— 该值需开场时核官方发布页，属待核实项。
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: rednote-dev-minio
+    <<: *default-restart
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER 必须在 .env 中设置}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD 必须在 .env 中设置}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"      # S3 API
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"  # Web 控制台（生产不发布）
+    volumes:
+      - rednote_minio_data:/data
+    healthcheck:
+      # MinIO 自带 /minio/health/live 存活探针；需镜像内有 curl。
+      # [待核实: 以 `docker compose ps` 的 health 状态为准；若该镜像无 curl，
+      #  改用 ["CMD","mc","ready","local"] 或去掉 healthcheck 改用 depends_on 轮询]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - edge
+      - data
+
+  # ---------------------------------------------------------------------------
+  # RabbitMQ 4（管理插件）
+  # 为什么用 -management 而非 -alpine：需要 15672 控制台做人工核对；
+  # 生产按 quorum queue + 3 节点部署，单节点仅用于 dev 打通链路。
+  # ---------------------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rednote-dev-rabbitmq
+    <<: *default-restart
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER 必须在 .env 中设置}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD 必须在 .env 中设置}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"          # AMQP 0-9-1
+      - "${RABBITMQ_CONSOLE_PORT:-15672}:15672"     # 管理控制台（生产不发布）
+    volumes:
+      - rednote_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      # rabbitmq-diagnostics ping 是官方文档给出的就绪判定方式
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    networks:
+      - edge
+      - data
+
+  # ---------------------------------------------------------------------------
+  # Keycloak（选装）
+  # 默认不启动：`docker compose up -d` 不会拉起它；需要时加 --profile auth。
+  # 版本口径：计划 §5 写的是 Keycloak 26.x 且标注了「待核实当周补丁」，
+  # 因此这里先落 26.0 通道基线。
+  # [待核实: 内网 `docker pull quay.io/keycloak/keycloak:26.0` 是否命中；
+  #  不命中则改为当周官方最新 26.x 补丁 tag，并同步更新本注释与 .env.example]
+  # ---------------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: rednote-dev-keycloak
+    profiles: ["auth"]
+    <<: *default-restart
+    command: ["start-dev", "--http-port=8080", "--hostname-strict=false"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?KEYCLOAK_ADMIN 必须在 .env 中设置}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD 必须在 .env 中设置}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - rednote_keycloak_data:/opt/keycloak/data
+    healthcheck:
+      # start-dev 下管理端口为 9000（Keycloak 24 起 /health/ready 默认在该端口暴露）。
+      # 该镜像无 curl，因此用 bash 的 /dev/tcp 做 TCP 层探测。
+      # [待核实: 以 `docker compose --profile auth ps` 的 health 状态为准；
+      #  若镜像内无 bash，改为 ["CMD","/opt/keycloak/bin/kc.sh","show-config"]]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000"]
+      interval: 15s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
+    networks:
+      - edge
+      - data
+
+# ###########################################################################
+# 网络
+#   edge：普通 bridge，承载宿主机端口发布（本机调试）。
+#   data：internal: true —— 没有默认网关，容器无法访问编排外网络。
+#         应用容器（M1 起）只挂 data 网，天然被限制在数据面内；
+#         需要出网的只有模型网关出口，且必须走白名单（ADR-10 模式 A）。
+# ###########################################################################
+networks:
+  edge:
+    name: rednote-dev-edge
+    driver: bridge
+  data:
+    name: rednote-dev-data
+    driver: bridge
+    internal: true
+
+# ###########################################################################
+# 命名卷（为什么用命名卷而不是 bind mount）：
+#   容器重启/重建后数据必须留存，这是 WP05/G0-19 的核心验收点。
+#   命名卷由 docker 管理，不依赖宿主目录权限，避免 PG uid 映射踩坑。
+# ###########################################################################
+volumes:
+  rednote_pg_data:
+    name: rednote-dev-pg-data
+  rednote_minio_data:
+    name: rednote-dev-minio-data
+  rednote_rabbitmq_data:
+    name: rednote-dev-rabbitmq-data
+  rednote_keycloak_data:
+    name: rednote-dev-keycloak-data

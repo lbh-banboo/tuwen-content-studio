@@ -1,0 +1,55 @@
+{
+  "drill_at": "2026-10-07T16:06:46.362913+00:00",
+  "source_db": "rednote_drill_src_20261007T160614",
+  "target_db": "rednote_drill_dst_20261007T160614",
+  "dump_bytes": 309295,
+  "dump_sha256": "2fa59f49d7df424289b81e278888abfafc60556c1b42ad424d05d64c7888c2b4",
+  "dump_seconds": 0.407,
+  "restore_seconds": 0.977,
+  "rto_budget_seconds": 28800,
+  "tables": 62,
+  "rows_restored": 27,
+  "object_sets_equal": true,
+  "definition_text_equal": true,
+  "normalizer_no_over_collapse": true,
+  "row_counts_equal": true,
+  "business_digest_equal": true,
+  "fingerprint": {
+    "tables": {
+      "count": 62,
+      "objects_sha256": "da465d951c16790a8a9d6b9025cc480fcc14866baa740b3f175a0801cfb94f46"
+    },
+    "columns": {
+      "count": 663,
+      "objects_sha256": "ef7949071df5786763e7b7b1c0a582d3d1e46dd5833bfd58716e2b1631189be2"
+    },
+    "constraints": {
+      "count": 532,
+      "objects_sha256": "52a8c9edc7bb9a7d0cc838e1b6b99beedbcd4234ef852f84898e1349a79c80ad",
+      "defs_sha256": "eeed93aad8984cac73138c1004ee9a248cefce1f321eea3f1cd884506f884a8c",
+      "distinct_raw_defs": 344,
+      "distinct_norm_defs": 344
+    },
+    "indexes": {
+      "count": 225,
+      "objects_sha256": "9a48010092ecbd621ae4de9f6cd838bd2f017c126f8a839c0c3377783720dd15",
+      "defs_sha256": "69e0148f79d1394ad6b1ef503035cc73bca57bcf40c345752ae779f3cc26c3bb",
+      "distinct_raw_defs": 225,
+      "distinct_norm_defs": 225
+    },
+    "triggers": {
+      "count": 45,
+      "objects_sha256": "5cd7bf79a11117b590803ee304b03e465942ac9d4967f65012ba16a780959755",
+      "defs_sha256": "cbeb37746669ca6ec18b983897a1ce2ed9997ed603d542c00eb955ee6267104c",
+      "distinct_raw_defs": 45,
+      "distinct_norm_defs": 45
+    },
+    "functions": {
+      "count": 142,
+      "objects_sha256": "aa4ff1299ca16831ef7a575daadc3cf7c185aa4934a88618e2831d3dd4b2bb10",
+      "defs_sha256": "baa608ce37b92a1b8f1a5b64464b7bf26473765c3069793f38fbb08dc6821431",
+      "distinct_raw_defs": 140,
+      "distinct_norm_defs": 140
+    }
+  }
+}

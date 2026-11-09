@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>登录 · 页面导览 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<link rel="stylesheet" href="index.css" />
+</head>
+<body>
+<div class="bg-media" aria-hidden="true">
+  <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="assets/bg-poster.jpg">
+    <source src="assets/bg.mp4" type="video/mp4" />
+  </video>
+</div>
+<div class="grid-bg"></div>
+
+<div class="lp">
+  <header class="lp-header">
+    <a class="lp-logo" href="index.v2.html">R</a>
+    <span class="f12 t-mut">Rednote 内容生产 AI Native 系统 · P0 导览</span>
+    <a class="lp-signin" href="workbench.v2.html">进入工作台 <i class="fa-solid fa-arrow-right" style="margin-left:7px;font-size:10px"></i></a>
+  </header>
+
+  <section class="lp-hero">
+    <span class="lp-badge anim"><span class="bd"></span>AI Native 内容运营系统</span>
+    <h1 class="lp-h1 anim" style="--d:.08s">
+      从 Brief 到发布数据<br /><span class="g">全链路内容生产系统</span>
+    </h1>
+    <p class="lp-sub anim" style="--d:.18s">
+      以项目为组织单位，AI 协助完成 Brief 解析、研究整理、内容方案、文案与图片生产，经运营自审与反馈交付真实 KOC，
+      回收发布效果并沉淀可追溯的知识资产。八步首次必经，静态图与 Live 图同时首发。
+    </p>
+
+    <div class="lp-login anim" id="auth-card" aria-live="polite" style="--d:.28s"></div>
+
+    <div class="lp-flow anim" style="--d:.36s">
+      <span><i class="fa-solid fa-1"></i>Brief 解析</span>
+      <span><i class="fa-solid fa-2"></i>项目研究</span>
+      <span><i class="fa-solid fa-3"></i>信息审核</span>
+      <span><i class="fa-solid fa-4"></i>素材试产</span>
+      <span><i class="fa-solid fa-5"></i>试产反馈</span>
+      <span><i class="fa-solid fa-6"></i>扩产 / 批产</span>
+      <span><i class="fa-solid fa-7"></i>批量交付</span>
+      <span><i class="fa-solid fa-8"></i>发布登记</span>
+    </div>
+  </section>
+
+  <section class="lp-group anim" style="--d:.44s">
+    <div class="lp-group-head">
+      <span class="lp-group-n">P0</span>
+      <span class="lp-group-t">Demo 页面导览</span>
+      <span class="lp-group-d">实时连接后端 · 页面数据不写死</span>
+    </div>
+    <div class="lp-cards">
+      <a class="pcard" href="index.v2.html">
+        <div class="pcard-top"><span class="pcard-ic"><i class="fa-solid fa-arrow-right-to-bracket"></i></span><span class="pcard-step">本页</span></div>
+        <div class="pcard-name">登录 / 导览</div>
+        <div class="pcard-file">index.v2.html</div>
+        <div class="pcard-desc">开发旁路登录（POST /dev/auth/login）与登录态读取（GET /me）；未登录时直接展示登录卡。</div>
+        <div class="pcard-go"><span>查看登录态</span><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+      <a class="pcard" href="projects.v2.html">
+        <div class="pcard-top"><span class="pcard-ic"><i class="fa-solid fa-folder-open"></i></span><span class="pcard-step">P0 · 2</span></div>
+        <div class="pcard-name">项目中心</div>
+        <div class="pcard-file">projects.v2.html</div>
+        <div class="pcard-desc">项目列表与新建入口，数据源 GET /projects；负责人按 ownerId 展示，不推测姓名。</div>
+        <div class="pcard-go"><span>打开项目中心</span><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+      <a class="pcard" href="project-overview.v2.html">
+        <div class="pcard-top"><span class="pcard-ic"><i class="fa-solid fa-diagram-project"></i></span><span class="pcard-step">P0 · 3</span></div>
+        <div class="pcard-name">项目总览 · 八步关口</div>
+        <div class="pcard-file">project-overview.v2.html</div>
+        <div class="pcard-desc">八步关口中枢、项目信息与预算；批准记录为空时如实显示「全部未开始」。</div>
+        <div class="pcard-go"><span>打开八步关口</span><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+      <a class="pcard" href="workbench.v2.html">
+        <div class="pcard-top"><span class="pcard-ic"><i class="fa-solid fa-gauge-high"></i></span><span class="pcard-step">P0 · 4</span></div>
+        <div class="pcard-name">工作台</div>
+        <div class="pcard-file">workbench.v2.html</div>
+        <div class="pcard-desc">待办（GET /work-items）、可见项目（GET /projects）与近期动态（GET /audit-events）。</div>
+        <div class="pcard-go"><span>进入工作台</span><i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+    </div>
+  </section>
+
+  <div class="lp-foot">
+    <b>会话与安全：</b>会话为 HttpOnly Cookie，任何令牌都不进 localStorage；本页不渲染 csrfToken / sessionId。
+    开发登录仅在 dev 环境可用，不开放外部自由注册。
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/index.js"></script>
+<script>
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/index.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI;
+    var R = window.RednoteRender.index;
+    var mount = document.getElementById('auth-card');
+    var DEV_EMAIL = 'member06@example.com';
+
+    mount.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) boot();
+    });
+
+    mount.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = e.target.elements.email.value.trim();
+      mount.innerHTML = R.renderLoginBusy(email);
+      API.auth.devLogin({ email: email, as_admin: true })
+        .then(function (data) {
+          API.auth.setCsrfToken(data.csrfToken);
+          mount.innerHTML = R.renderLoginResult(data);
+        })
+        .catch(function (err) { mount.innerHTML = R.renderAuthError(err); });
+    });
+
+    function boot() {
+      mount.innerHTML = R.renderSessionLoading();
+      API.get('/me')
+        .then(function (me) { mount.innerHTML = R.renderSession(me); })
+        .catch(function (err) {
+          if (err.code === 'SESSION_EXPIRED') mount.innerHTML = R.renderLoginForm({ email: DEV_EMAIL });
+          else mount.innerHTML = R.renderAuthError(err);
+        });
+    }
+
+    boot();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>执行计划层差异化检查 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .qbox { display: flex; align-items: stretch; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; width: 148px; }
+  .qbox button { width: 34px; background: rgba(255,255,255,0.04); border: 0; color: var(--text-2); cursor: pointer; font-size: 13px; transition: background .16s ease; }
+  .qbox button:hover { background: rgba(160,107,255,0.16); color: #fff; }
+  .qbox input { flex: 1; min-width: 0; background: transparent; border: 0; color: #fff; text-align: center; font-size: 15px; font-weight: 600; font-family: var(--mono); height: 36px; outline: none; }
+  .qbox.err { border-color: var(--danger); }
+  .dif { display: grid; grid-template-columns: 116px minmax(0,1fr) 62px; gap: 10px; align-items: center; }
+  .dif-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .dif-bar i { display: block; height: 100%; border-radius: 999px; }
+  .qrow { display: flex; gap: 11px; align-items: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); }
+  .qrow.run { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .qrow.wait { border-style: dashed; }
+  .qn { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700; font-family: var(--mono); background: rgba(255,255,255,0.06); color: var(--muted); }
+  .qrow.run .qn { background: rgba(160,107,255,0.22); color: #d9c2ff; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-6"></i> 步骤 6 / 8</span>
+            <span class="code code-purple">批次 BATCH-B01</span>
+            <span class="tag tag-warn">4 项软提示</span>
+          </div>
+          <h1 class="page-title">执行计划层差异化检查</h1>
+          <p class="page-desc">第一版作为软提示，不以机械低相似度作为唯一质量标准。事实保持一致，不为差异化编造参数或经历（PRD §11.2）。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="batch-run.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <button class="btn btn-ghost" data-toast="演示环境：已导出差异化检查报告 CSV"><i class="fa-solid fa-download"></i>导出报告</button>
+          <a class="btn btn-primary" href="delivery.html">前往交付 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-diagram-project t-pur"></i>
+              <h3 class="card-title">计划层差异化检查（生成前）</h3>
+            </div>
+            <span class="tag tag-purple no-dot">先查计划层 · 再查成品</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-3-1 card-split">
+            <div class="cs-main">
+            <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+              <thead>
+                <tr>
+                  <th style="width:88px">计划维度</th>
+                  <th style="width:104px">计划取值</th>
+                  <th>最高集中度</th>
+                  <th style="width:86px">判定</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="strong">人群</td>
+                  <td class="f11 t-sub">3 类</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>通勤党</span><span class="mono">20 / 30</span></div>
+                    <div class="bar"><div class="bar-fill warn" style="width:67%"></div></div>
+                  </td>
+                  <td><span class="tag tag-warn no-dot f10">偏集中</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">场景</td>
+                  <td class="f11 t-sub">4 个启用</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>早八 + 卸妆二次</span><span class="mono">19 / 30</span></div>
+                    <div class="bar"><div class="bar-fill warn" style="width:63%"></div></div>
+                  </td>
+                  <td><span class="tag tag-warn no-dot f10">偏集中</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">决策问题</td>
+                  <td class="f11 t-sub">8 类</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>单类最高</span><span class="mono">7 / 30</span></div>
+                    <div class="bar"><div class="bar-fill ok" style="width:23%"></div></div>
+                  </td>
+                  <td><span class="tag tag-ok no-dot f10">达标</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">证据</td>
+                  <td class="f11 t-sub">6 类</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>pH 5.5 参数</span><span class="mono">9 / 30</span></div>
+                    <div class="bar"><div class="bar-fill ok" style="width:30%"></div></div>
+                  </td>
+                  <td><span class="tag tag-ok no-dot f10">达标</span></td>
+                </tr>
+                <tr class="tr-danger">
+                  <td class="strong">结构</td>
+                  <td class="f11 t-sub">3 种骨架</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>痛点 → 记录 → 成分 → 结论</span><span class="mono">19 / 30</span></div>
+                    <div class="bar"><div class="bar-fill danger" style="width:63%"></div></div>
+                  </td>
+                  <td><span class="tag tag-danger no-dot f10">超阈值</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">视觉</td>
+                  <td class="f11 t-sub">4 种风格</td>
+                  <td>
+                    <div class="row between f11 mb6"><span>清透晨光</span><span class="mono">11 / 30</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:37%"></div></div>
+                  </td>
+                  <td><span class="tag tag-ok no-dot f10">达标</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="fw6 t-mut">计划层阈值：人群 / 场景 / 结构 60%，决策问题 / 证据 / 视觉 45%。集中度 = 该取值条目占比；成品相似度另见上方「批次差异化检查」六维。</td>
+                </tr>
+              </tfoot>
+            </table></div></div></div>
+            <div class="note note-warn f11 mt14">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div>
+                结构维度 63% 已超阈值：30 条中 19 条沿用同一骨架。请在<b>生成前</b>为其中 8 条改用问答式或对比式，而不是生成后再改写降相似度。人群与场景偏集中属配置取舍，本批允许，但<b>不得据此宣称已覆盖全部人群</b>。
+              </div>
+            </div>
+            </div>
+            <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-gavel"></i>本次判定</div>
+              <div class="col" style="gap:8px">
+                <div class="row between f11"><span>达标</span><span class="mono t-ok">3 项</span></div>
+                <div class="row between f11"><span>偏集中</span><span class="mono t-warn">2 项</span></div>
+                <div class="row between f11"><span>超阈值</span><span class="mono t-dan">1 项</span></div>
+              </div>
+              <div class="divider"></div>
+              <div class="note note-purple f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  差异化必须先查<b>内容计划层</b>（人群 × 场景 × 决策问题 × 证据 × 结构 × 视觉），再查成品相似度。计划层重复只能在生成前修正 ——<b>不能靠事后改写降相似度</b>，那会退化成机械改写，还容易顺手改掉事实参数。
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </section>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'batch-check', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '计划层检查'] });
+</script>
+</body>
+</html>

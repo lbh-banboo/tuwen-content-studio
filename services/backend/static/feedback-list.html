@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>核对本轮 10 条内容与关卡校验 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .cf-wrap { display: grid; grid-template-columns: 288px minmax(0,1fr); gap: 18px; align-items: start; }
+  @media (max-width: 1180px) { .cf-wrap { grid-template-columns: 1fr; } }
+  .sel-txt { background: rgba(251,191,36,0.2); border-bottom: 1.5px solid var(--warn); border-radius: 2px; padding: 0 1px; cursor: pointer; }
+  .fb-item { border: 1px solid var(--line); border-radius: 11px; padding: 11px 12px; background: rgba(255,255,255,0.018); }
+  .fb-item.pend { border-color: rgba(251,191,36,0.34); background: rgba(251,191,36,0.05); }
+  .fb-item.block { border-color: rgba(251,113,133,0.4); background: rgba(251,113,133,0.06); }
+  .fb-item.done { opacity: 0.66; }
+  .fb-q { font-size: 12px; line-height: 1.62; color: var(--text); }
+  .fb-meta { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; font-size: 10.5px; color: var(--muted); }
+  .regen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media (max-width: 900px) { .regen-grid { grid-template-columns: repeat(2, 1fr); } }
+  .regen { border: 1px solid var(--line); border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .regen:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .regen.on { border-color: var(--purple); background: rgba(160,107,255,0.13); }
+  .regen i { font-size: 14px; color: var(--purple); }
+  .regen div { font-size: 11px; margin-top: 6px; }
+  .cthumb { display: flex; gap: 9px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: all .16s ease; }
+  .cthumb:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.03); }
+  .cthumb.on { border-color: var(--purple); background: rgba(160,107,255,0.1); }
+  .cthumb .ct-img { width: 34px; height: 44px; flex: 0 0 auto; border-radius: 6px; background: linear-gradient(150deg,#2a1f45,#170f28); display: grid; place-items: center; font-size: 10px; color: rgba(160,107,255,0.6); }
+  .dz { border: 1.5px dashed var(--line-strong); border-radius: 11px; padding: 18px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .dz:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.05); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-5"></i> 步骤 5 / 8</span>
+            <span class="code code-purple">批次 BATCH-T01</span>
+            <span class="tag tag-warn">6 通过 · 8 待处置</span>
+          </div>
+          <h1 class="page-title">核对本轮 10 条内容与关卡校验</h1>
+          <p class="page-desc">逐条核对本轮 10 条内容的状态与处置结果，并确认进入扩产的关卡校验：每个方向至少有一条已通过样例（AC-12 / AC-13）。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="content-feedback.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="feedback-fix.html">下一步：对照与修复 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g3" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-circle-check"></i>完整成功</div>
+              <div class="metric-value t-ok" data-count="8">0</div>
+              <div class="metric-foot">文案与媒体均已完成</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-circle-half-stroke"></i>部分成功</div>
+              <div class="metric-value t-warn" data-count="1">0</div>
+              <div class="metric-foot t-warn">媒体未完成，不计完整成功</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-circle-xmark"></i>失败</div>
+              <div class="metric-value t-dan" data-count="1">0</div>
+              <div class="metric-foot">重试不增加内容编号</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-thumbs-up"></i>已通过</div>
+              <div class="metric-value t-ok" data-count="5">0</div>
+              <div class="metric-foot">覆盖 3 个方向</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-ban"></i>已淘汰</div>
+              <div class="metric-value" data-count="1">0</div>
+              <div class="metric-foot">本轮不用 · 保留历史</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-comment-dots"></i>待处理意见</div>
+              <div class="metric-value t-dan" data-count="3">0</div>
+              <div class="metric-foot t-dan">含 1 条阻断事实问题</div>
+            </div>
+          </div>
+
+<div class="grid g-1-1">
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-code-compare t-pur"></i>
+                <h3 class="card-title">初稿 / 当前稿对照</h3>
+                <span class="code code-purple">T01-04</span>
+              </div>
+              <span class="card-sub">修复必须可回看 · 直接编辑自动保存差异</span>
+            </div>
+            <div class="card-body">
+              <div class="diff2">
+                <div class="diff-side diff-old">
+                  <div class="diff-h"><i class="fa-solid fa-arrow-left"></i>原始初稿 v1 · 机器直出 · 未经人工介入</div>
+                  <div class="diff-b">
+                    卸妆之后总觉得脸上有层膜，这次用手背做了个对比测试。左边只卸妆没二次清洁，右边用了这支氨基酸洁面，手背擦过去的顺滑度差别很明显。
+                    成分表里<span class="hit-d">氨基酸表活占比 62%</span>，无皂基配方，pH 5.5 弱酸性。
+                    洗完不紧绷，摸上去还是软的，<span class="hit-d">敏感肌也能天天用</span>。
+                  </div>
+                </div>
+                <div class="diff-side diff-new">
+                  <div class="diff-h"><i class="fa-solid fa-arrow-right"></i>当前稿 v3 · 人工确认后</div>
+                  <div class="diff-b">
+                    卸妆之后总觉得脸上有层膜，这次用手背做了个对比测试。左边只卸妆没二次清洁，右边用了这支氨基酸洁面，手背擦过去的顺滑度差别很明显。
+                    成分表里<span class="hit-o">氨基酸表活占比 ≥60%（与基线口径一致）</span>，无皂基配方，pH 5.5 弱酸性。
+                    洗完不紧绷，摸上去还是软的，<span class="hit-o">日常清洁可长期使用</span>。
+                  </div>
+                </div>
+              </div>
+              <div class="row wrap mt14" style="gap:8px">
+                <span class="tag tag-danger no-dot">2 处删除／收窄</span>
+                <span class="tag tag-ok no-dot">2 处替换为可核实表述</span>
+                <span class="tag no-dot">1 段保留原文</span>
+              </div>
+              <div class="note note-purple mt14 f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  <b>原始初稿必须单独留存。</b>不存初稿就只能看终稿，学不到「为什么改」。直接编辑自动保存差异，
+                  运营只需确认必要原因，<b>不要求每改一句都填表</b>。
+                </div>
+              </div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-images t-pur"></i>
+                <h3 class="card-title">媒体差异</h3>
+                <span class="tag tag-warn">1 / 6 有差异</span>
+              </div>
+              <span class="card-sub">替换素材须记录属于哪一类差异</span>
+            </div>
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:52px">序号</th>
+                    <th style="width:150px">画面职责</th>
+                    <th style="width:118px">差异类型</th>
+                    <th>说明</th>
+                    <th style="width:88px">处置</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono f11">01</td>
+                    <td class="f11">封面 · 手背对比</td>
+                    <td><span class="tag tag-muted no-dot f10">无差异</span></td>
+                    <td class="f11 t-mut">与正文首段一致</td>
+                    <td class="f11 t-mut">保留</td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">02</td>
+                    <td class="f11">卸妆后状态</td>
+                    <td><span class="tag tag-muted no-dot f10">无差异</span></td>
+                    <td class="f11 t-mut">与正文第 2 段一致</td>
+                    <td class="f11 t-mut">保留</td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="mono f11">03</td>
+                    <td class="f11">起泡状态特写</td>
+                    <td><span class="tag tag-warn no-dot f10">文图冲突</span></td>
+                    <td class="f11">正文写「绵密那种，不是廉价的大泡」，原图起泡偏稀</td>
+                    <td class="f11 t-ok">已替换</td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">04</td>
+                    <td class="f11">成分表局部</td>
+                    <td><span class="tag tag-muted no-dot f10">无差异</span></td>
+                    <td class="f11 t-mut">与批准资料一致</td>
+                    <td class="f11 t-mut">保留</td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">05</td>
+                    <td class="f11">清洁后肤感</td>
+                    <td><span class="tag tag-muted no-dot f10">无差异</span></td>
+                    <td class="f11 t-mut">与正文第 4 段一致</td>
+                    <td class="f11 t-mut">保留</td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">06</td>
+                    <td class="f11">尾部产品平铺</td>
+                    <td><span class="tag tag-muted no-dot f10">无差异</span></td>
+                    <td class="f11 t-mut">格式校验通过</td>
+                    <td class="f11 t-mut">保留</td>
+                  </tr>
+                </tbody>
+              </table></div></div>
+            </div>
+            <div class="card-foot">
+              <div class="row wrap f1" style="gap:7px">
+                <span class="f10 t-fai">差异类型须四选一：</span>
+                <span class="tag no-dot f10">外观错</span>
+                <span class="tag tag-warn no-dot f10">文图冲突</span>
+                <span class="tag no-dot f10">构图不佳</span>
+                <span class="tag no-dot f10">交付格式问题</span>
+              </div>
+            </div>
+          </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'feedback-list', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '本轮内容'] });
+</script>
+</body>
+</html>

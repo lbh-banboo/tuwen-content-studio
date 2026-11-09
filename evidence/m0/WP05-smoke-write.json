@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "wp05.smoke.v1",
+  "stage": "write",
+  "startedAt": "2026-09-19T15:38:37.197896+00:00",
+  "startedAtLocal": "2026-09-19T23:38:37.197896+08:00",
+  "tool": {
+    "python": "3.13.12",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "hostname": "leedeMBP",
+    "cwd": "/Users/<user>/内容运营AI Native/rednote-production",
+    "script": "/Users/<user>/内容运营AI Native/rednote-production/tools/m0/wp05_smoke/smoke.py"
+  },
+  "checks": [
+    {
+      "name": "pg.connect",
+      "ok": true,
+      "blocking": true,
+      "detail": "已连接 localhost:5432/postgres"
+    },
+    {
+      "name": "pg.server_version_is_17",
+      "ok": true,
+      "blocking": true,
+      "detail": "PostgreSQL 17.10 (Homebrew)"
+    },
+    {
+      "name": "pg.extension_vector",
+      "ok": true,
+      "blocking": false,
+      "detail": "本机 PG 未提供 vector 扩展（缺 pgvector 二进制）——环境限制，待内网 pgvector 镜像验证"
+    },
+    {
+      "name": "pg.bootstrap_smoke_meta",
+      "ok": true,
+      "blocking": true,
+      "detail": "smoke_meta / 索引已就绪（IF NOT EXISTS）"
+    },
+    {
+      "name": "pg.insert_row",
+      "ok": true,
+      "blocking": true,
+      "detail": "已写入 smoke_meta 并提交事务"
+    },
+    {
+      "name": "pg.readback_matches",
+      "ok": true,
+      "blocking": true,
+      "detail": "读回一致"
+    },
+    {
+      "name": "blob.put",
+      "ok": true,
+      "blocking": true,
+      "detail": "已写入 fs"
+    },
+    {
+      "name": "blob.exists_after_put",
+      "ok": true,
+      "blocking": true,
+      "detail": "object_key=wp05/smoke/9969e6c6-140e-425a-82d7-90a094c434b1.bin"
+    },
+    {
+      "name": "blob.readback_digest",
+      "ok": true,
+      "blocking": true,
+      "detail": "读回 65647 字节，sha256 与写入值一致"
+    }
+  ],
+  "pg": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "rednote",
+    "database": "postgres",
+    "passwordProvided": false,
+    "serverVersion": "PostgreSQL 17.10 (Homebrew) on aarch64-apple-darwin25.6.0, compiled by Apple clang version 21.0.0 (clang-2100.1.1.101), 64-bit",
+    "extensionsInstalled": {
+      "plpgsql": "1.0"
+    },
+    "extensionsAvailable": [
+      "pg_trgm",
+      "pgcrypto",
+      "uuid-ossp"
+    ]
+  },
+  "blob": {
+    "backend": "fs",
+    "degraded": true,
+    "degradedNote": "本机 Docker/colima 不可用，无法启动 MinIO；仅用于验证脚本与 PG 腿。",
+    "root": "/Users/<user>/内容运营AI Native/rednote-production/evidence/m0/blobs",
+    "rootExists": true,
+    "objectKey": "wp05/smoke/9969e6c6-140e-425a-82d7-90a094c434b1.bin",
+    "put": {
+      "backend": "fs",
+      "degraded": true,
+      "absolutePath": "/Users/<user>/内容运营AI Native/rednote-production/evidence/m0/blobs/wp05/smoke/9969e6c6-140e-425a-82d7-90a094c434b1.bin",
+      "bytes": 65647
+    }
+  },
+  "runId": "9969e6c6-140e-425a-82d7-90a094c434b1",
+  "contentDigest": "a7ed573fcfbb0f2aaed79d431722f847e15ea0e8a7ee8c842a21a0a2593823fc",
+  "contentBytes": 65647,
+  "finishedAt": "2026-09-19T15:38:37.302971+00:00",
+  "durationMs": 105,
+  "counts": {
+    "total": 9,
+    "blockingPassed": 8,
+    "blockingFailed": 0,
+    "info": 1
+  },
+  "passed": true
+}

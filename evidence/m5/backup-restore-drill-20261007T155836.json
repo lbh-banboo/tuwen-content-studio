@@ -1,0 +1,15 @@
+{
+  "drill_at": "2026-10-07T15:59:08.808107+00:00",
+  "source_db": "rednote_drill_src_20261007T155836",
+  "target_db": "rednote_drill_dst_20261007T155836",
+  "dump_bytes": 309305,
+  "dump_sha256": "f48df28fa8c6c933fca848ce0047bcb4dd1cd47653222ffd67efe9609786bf94",
+  "dump_seconds": 0.422,
+  "restore_seconds": 1.516,
+  "rto_budget_seconds": 28800,
+  "tables": 62,
+  "rows_restored": 27,
+  "fingerprint_equal": false,
+  "row_counts_equal": true,
+  "business_digest_equal": true
+}

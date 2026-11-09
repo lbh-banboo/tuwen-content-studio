@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>新建批产批次（每批 1—50 条） · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .qbox { display: flex; align-items: stretch; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; width: 148px; }
+  .qbox button { width: 34px; background: rgba(255,255,255,0.04); border: 0; color: var(--text-2); cursor: pointer; font-size: 13px; transition: background .16s ease; }
+  .qbox button:hover { background: rgba(160,107,255,0.16); color: #fff; }
+  .qbox input { flex: 1; min-width: 0; background: transparent; border: 0; color: #fff; text-align: center; font-size: 15px; font-weight: 600; font-family: var(--mono); height: 36px; outline: none; }
+  .qbox.err { border-color: var(--danger); }
+  .dif { display: grid; grid-template-columns: 116px minmax(0,1fr) 62px; gap: 10px; align-items: center; }
+  .dif-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .dif-bar i { display: block; height: 100%; border-radius: 999px; }
+  .qrow { display: flex; gap: 11px; align-items: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); }
+  .qrow.run { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .qrow.wait { border-style: dashed; }
+  .qn { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700; font-family: var(--mono); background: rgba(255,255,255,0.06); color: var(--muted); }
+  .qrow.run .qn { background: rgba(160,107,255,0.22); color: #d9c2ff; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-6"></i> 步骤 6 / 8</span>
+            <span class="code code-purple">批次 BATCH-B01</span>
+            <span class="tag tag-warn">队列中 · 待提交</span>
+          </div>
+          <h1 class="page-title">新建批产批次（每批 1—50 条）</h1>
+          <p class="page-desc">批产每批 1—50 条，均为整数且不含原试产内容。批次差异化检查作为软提示，不阻断推进（AC-15）。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="scale-batch.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="batch-check.html">下一步：计划层检查 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-industry t-pur"></i>
+                <h3 class="card-title">步骤 7 · 新建批产批次</h3>
+              </div>
+              <span class="tag tag-purple no-dot">1—50 整数</span>
+            </div>
+            <div class="card-body p0">
+              <div class="card-pad">
+              <div class="row wrap" style="gap:14px">
+                <div class="field" style="flex:0 0 auto">
+                  <span class="label req">本批生产数量</span>
+                  <div class="qbox">
+                    <button data-toast="演示环境：减少数量"><i class="fa-solid fa-minus"></i></button>
+                    <input value="30" />
+                    <button data-toast="演示环境：增加数量"><i class="fa-solid fa-plus"></i></button>
+                  </div>
+                  <span class="hint mt6">有效范围 1—50 · 累计批次数不设业务上限</span>
+                </div>
+                <div class="field f1">
+                  <span class="label">并发与预算约束</span>
+                  <div class="col" style="gap:9px">
+                    <div>
+                      <div class="row between f11 mb6"><span>供应商并发</span><span class="mono">2 / 3 占用</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:67%"></div></div>
+                    </div>
+                    <div>
+                      <div class="row between f11 mb6"><span>月度预算</span><span class="mono">¥2,938 / ¥4,000</span></div>
+                      <div class="bar"><div class="bar-fill" style="width:73.4%"></div></div>
+                    </div>
+                    <div class="f10 t-warn"><i class="fa-solid fa-circle-exclamation"></i> 本批预估 ¥945.60，提交后预算使用率将达 97.1%</div>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="grid g-3-2 card-split">
+                <div class="cs-main">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-list-check"></i>生产清单预览<span class="sec-sub">先预览再提交 · 生成结束后仍需审核</span></div>
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact mb14">
+                <thead>
+                  <tr><th>方向</th><th style="width:96px">状态</th><th style="width:82px">比例</th><th class="num" style="width:66px">条数</th><th style="width:130px">形式分布</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="strong">早八通勤急救</td><td><span class="tag tag-ok no-dot f10">已验证</span></td><td class="mono">34%</td><td class="num mono">10</td><td class="f10 t-sub">文2 静4 Live2 混2</td></tr>
+                  <tr><td class="strong">卸妆后二次清洁</td><td><span class="tag tag-ok no-dot f10">已验证</span></td><td class="mono">30%</td><td class="num mono">9</td><td class="f10 t-sub">文2 静4 Live2 混1</td></tr>
+                  <tr><td class="strong">健身后油汗清洁</td><td><span class="tag tag-ok no-dot f10">已验证</span></td><td class="mono">20%</td><td class="num mono">6</td><td class="f10 t-sub">文1 静3 Live1 混1</td></tr>
+                  <tr><td class="strong">学生党性价比替换</td><td><span class="tag tag-ok no-dot f10">已验证</span></td><td class="mono">16%</td><td class="num mono">5</td><td class="f10 t-sub">文1 静2 Live1 混1</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2" class="fw6">合计</td><td class="mono fw6">100%</td><td class="num mono fw6">30</td><td class="f10 t-mut">静态 78 张 · Live 18 组</td></tr></tfoot>
+              </table></div></div></div></div>
+
+              <div class="note note-info mt14 f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  已有方向的<b>比例调整只影响后续批次</b>，不自动重做历史内容。新增未验证方向需回到试产（PRD §11.1）。
+                </div>
+              </div>
+                </div>
+                <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-layer-group"></i>批次队列<span class="sec-sub">支持多个排队批次</span></div>
+              <div class="col" style="gap:8px">
+                <div class="qrow run">
+                  <span class="qn">B02</span>
+                  <div class="f1">
+                    <div class="row between mb6"><span class="f12 fw5">BATCH-B02 · 50 条</span><span class="f11 t-pur mono">16 / 50</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:32%"></div></div>
+                  </div>
+                  <span class="tag tag-running f10">生成中</span>
+                </div>
+                <div class="qrow wait">
+                  <span class="qn">B03</span>
+                  <div class="f1">
+                    <div class="row between mb6"><span class="f12 fw5">BATCH-B03 · 30 条</span><span class="f11 t-mut">等待并发额度</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:0"></div></div>
+                  </div>
+                  <span class="tag tag-muted f10">排队中</span>
+                </div>
+                <div class="qrow wait">
+                  <span class="qn">新</span>
+                  <div class="f1">
+                    <div class="row between mb6"><span class="f12 fw5">待提交 · 30 条</span><span class="f11 t-mut">预估 ¥945.60</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:0"></div></div>
+                  </div>
+                  <span class="tag no-dot f10">草稿</span>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="sec-title"><i class="fa-solid fa-check-double"></i>批量通过约束<span class="sec-sub">PRD §11.1</span></div>
+              <div class="col" style="gap:8px">
+                <div class="list-item">
+                  <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">仅对已完成自检、无阻断问题的内容执行</div>
+                    <div class="li-sub">BATCH-B01 待审 15 条中，12 条符合批量通过条件，3 条含阻断问题需单独处置</div>
+                  </div>
+                  <div class="li-right"><button class="btn btn-sm btn-purple" data-toast="演示环境：已批量通过 12 条，保存人工确认记录（林知远 09-16 19:18）">批量通过 12</button></div>
+                </div>
+                <div class="list-item">
+                  <span class="li-icon purple"><i class="fa-solid fa-signature"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">明确保存人工确认记录</div>
+                    <div class="li-sub">记录操作人、时间、批量范围与逐条内容编号，可追溯</div>
+                  </div>
+                </div>
+              </div>
+                </div>
+              </div>
+
+              <div class="card-pad" style="padding-top:2px">
+              <button class="btn btn-primary" style="width:100%" data-toast="演示环境：已创建批产批次 BATCH-B04，30 条任务入队"><i class="fa-solid fa-play"></i>提交批产 30 条（¥945.60）</button>
+              </div>
+            </div>
+          </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-code-compare t-pur"></i>
+              <h3 class="card-title">修复版本与适用方向</h3>
+              <span class="code">BATCH-B04 · 30 条</span>
+            </div>
+            <span class="tag tag-warn no-dot">1 项复发未收敛</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-3-1 card-split">
+            <div class="cs-main">
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact" style="min-width:498px">
+                <thead>
+                  <tr>
+                    <th style="width:118px">修复版本</th>
+                    <th style="width:156px">适用方向 / 不适用</th>
+                    <th style="width:80px">生效状态</th>
+                    <th>本批复发</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="code f10">FIX-108</span>
+                      <div class="f11 mt4">无依据体验主张</div>
+                    </td>
+                    <td>
+                      <div class="f11">适用：全部体验型任务</div>
+                      <div class="f10 t-mut mt4">不适用：已有真实体验资料的任务</div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot f10">已生效 09-15</span></td>
+                    <td>
+                      <div class="f11 t-ok">0 / 30 · 已收敛</div>
+                      <div class="f10 t-mut mt4">上批 0 / 28，随基线 BL-v3 生效</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="code f10">FIX-112</span>
+                      <div class="f11 mt4">参数与基线不一致</div>
+                    </td>
+                    <td>
+                      <div class="f11">适用：所有引用产品参数的条目</div>
+                      <div class="f10 t-mut mt4">不适用：纯结构 / 风格类条目</div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot f10">已生效 09-18</span></td>
+                    <td>
+                      <div class="f11 t-ok">0 / 30 · 已收敛</div>
+                      <div class="f10 t-mut mt4">上批 2 / 32（6.3%）</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="code f10">FIX-115</span>
+                      <div class="f11 mt4">文图不一致</div>
+                    </td>
+                    <td>
+                      <div class="f11">适用：含静态图的条目（本批 21 条）</div>
+                      <div class="f10 t-mut mt4">不适用：仅文案条目 —— 不得一刀切禁用配图</div>
+                    </td>
+                    <td><span class="tag tag-info no-dot f10">观察中</span></td>
+                    <td>
+                      <div class="f11 t-ok">2 / 21（9.5%）· 收敛中</div>
+                      <div class="f10 t-mut mt4">上批 4 / 32（12.5%）；回归集仅 4 例，暂不放量</div>
+                    </td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td>
+                      <span class="code f10">FIX-104</span>
+                      <div class="f11 mt4">结尾套话</div>
+                    </td>
+                    <td>
+                      <div class="f11">适用：全部非清单体条目</div>
+                      <div class="f10 t-mut mt4">不适用：清单体条目（本就不设结尾段）</div>
+                    </td>
+                    <td><span class="tag tag-warn no-dot f10">已生效 09-10</span></td>
+                    <td>
+                      <div class="f11 t-warn">14 / 30（47%）· 未收敛</div>
+                      <div class="f10 t-mut mt4">上批 19 / 50（38%），占比不降反升</div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="fw6 t-mut">复发口径：可归因到该修复所针对问题的条目数 ÷ 适用方向内的条目数。「未收敛」= 复发占比未较上一批下降。</td>
+                  </tr>
+                </tfoot>
+              </table></div></div>
+            </div>
+            </div>
+            <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-vial-circle-check"></i>FIX-104 回归集覆盖<span class="sec-sub">与 §5.5 回归集一致</span></div>
+              <div class="col" style="gap:10px">
+                <div class="fcard">
+                  <div class="f11 fw6">无体验资料</div>
+                  <div class="f10 t-ok mt4">通过 12 / 12</div>
+                </div>
+                <div class="fcard">
+                  <div class="f11 fw6">真实体验</div>
+                  <div class="f10 t-ok mt4">通过 9 / 9</div>
+                </div>
+                <div class="fcard">
+                  <div class="f11 fw6">资料缺条件</div>
+                  <div class="f10 t-warn mt4">0 / 4 · 样本不足</div>
+                </div>
+                <div class="fcard">
+                  <div class="f11 fw6">相似型号</div>
+                  <div class="f10 t-fai mt4">未覆盖</div>
+                </div>
+              </div>
+              <div class="note note-danger f11">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <b>能否稳定扩展：暂不能。</b>4 项修复中 3 项已收敛、1 项（FIX-104 结尾套话）在两批之间复发占比不降反升 —— 只改到成品表述，没改到生成决策，本批不作为放量依据。
+                </div>
+              </div>
+            </div>
+            </div>
+            <div class="card-pad" style="padding-top:14px">
+              <div class="row wrap" style="gap:9px">
+                <button class="btn btn-sm btn-primary" data-toast="演示环境：已创建回归任务 REG-022，覆盖四类体验可用性"><i class="fa-solid fa-rotate-left"></i>退回 Loop 1 重开定位</button>
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：FIX-104 已标记为「仅限试产批次」"><i class="fa-solid fa-ban"></i>限制在小批量</button>
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：已导出修复复发明细 CSV"><i class="fa-solid fa-download"></i>导出明细</button>
+              </div>
+            </div>
+          </div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'batch-run', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '新建批产批次'] });
+</script>
+</body>
+</html>

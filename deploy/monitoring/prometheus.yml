@@ -1,0 +1,43 @@
+# Prometheus 抓取配置（WP47②，ADR-11 C6）
+#
+# 部署位置：内网运维面（C6 定"仅运维面开放"）。
+# 本机验证方式：`promtool check config deploy/monitoring/prometheus.yml`
+#
+# ⚠️ 为什么 `metrics_path` 不带 /api/v1 前缀：
+# WP47① 决策 D3 —— `/metrics` 是运维面入口，不是产品契约的一部分。
+# 它刻意不进 OpenAPI 契约（`include_in_schema=False`），Prometheus 的
+# scrape config 直接写这里即可。
+#
+# ⚠️ 双 API 实例（ADR-11 C8）：`targets` 列出两台机器的 9090 端口。
+# `job_name` 与 `metrics_path` 与代码里的 `METRICS_PATH` 常量必须一致 ——
+# 改任一侧都要改另一侧，`tools/quality/check_alerting_rules.py` 会核对。
+
+global:
+  # 抓取间隔：15s 是 Prometheus 惯例。ADR-11 未规定，本轮定为 15s。
+  scrape_interval: 15s
+  # 抓取超时必须小于间隔，否则会出现重叠抓取。
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: rednote-internal
+
+rule_files:
+  - rules/*.yml
+
+scrape_configs:
+  - job_name: rednote-api
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      # 双 API 实例 = 两台机器各一进程（ADR-11 C8，非单机多 worker）。
+      # 主机名用内网占位符，落地时由内网 DNS / 实际 IP 替换。
+      - targets:
+          - "api-1.internal:9090"
+          - "api-2.internal:9090"
+        labels:
+          service: rednote-api
+
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:9090"]

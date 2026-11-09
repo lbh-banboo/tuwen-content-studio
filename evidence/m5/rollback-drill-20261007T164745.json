@@ -1,0 +1,73 @@
+{
+  "drill_at": "2026-10-07T16:47:59.901155+00:00",
+  "database": "rednote_roll_20261007T164745",
+  "head_revision": "e8f07ba8f2bb",
+  "rolled_back_revision": "1c1c814b248e",
+  "chain_length": 20,
+  "first_migration_failure_seconds": 1.56,
+  "rollback_budget_seconds": 28800,
+  "data_incompatible_target": [
+    "prompt_templates",
+    "ck_prompt_templates_task_kind_valid",
+    "task_kind",
+    "STATIC_IMAGE"
+  ],
+  "injections": {
+    "first_migration": {
+      "kind": "pre_create_table",
+      "table": "title_candidates",
+      "created_order": [
+        "content_items",
+        "generation_contexts",
+        "narrative_blueprints",
+        "content_versions",
+        "title_candidates"
+      ],
+      "migration": "20261006_1700_1c1c814b248e_wp26_content_generation_and_title_candidates.py"
+    },
+    "last_migration": {
+      "kind": "drop_owned_dependency",
+      "constraint": "ck_prompt_templates_task_kind_valid",
+      "table": "prompt_templates",
+      "migration": "20261007_2326_e8f07ba8f2bb_wp27_add_static_image_task_kind.py"
+    }
+  },
+  "fingerprint_at_head": {
+    "tables": {
+      "count": 62,
+      "objects_sha256": "da465d951c16790a8a9d6b9025cc480fcc14866baa740b3f175a0801cfb94f46"
+    },
+    "columns": {
+      "count": 663,
+      "objects_sha256": "ef7949071df5786763e7b7b1c0a582d3d1e46dd5833bfd58716e2b1631189be2"
+    },
+    "constraints": {
+      "count": 532,
+      "objects_sha256": "52a8c9edc7bb9a7d0cc838e1b6b99beedbcd4234ef852f84898e1349a79c80ad",
+      "defs_sha256": "eeed93aad8984cac73138c1004ee9a248cefce1f321eea3f1cd884506f884a8c",
+      "distinct_raw_defs": 344,
+      "distinct_norm_defs": 344
+    },
+    "indexes": {
+      "count": 225,
+      "objects_sha256": "9a48010092ecbd621ae4de9f6cd838bd2f017c126f8a839c0c3377783720dd15",
+      "defs_sha256": "69e0148f79d1394ad6b1ef503035cc73bca57bcf40c345752ae779f3cc26c3bb",
+      "distinct_raw_defs": 225,
+      "distinct_norm_defs": 225
+    },
+    "triggers": {
+      "count": 45,
+      "objects_sha256": "5cd7bf79a11117b590803ee304b03e465942ac9d4967f65012ba16a780959755",
+      "defs_sha256": "cbeb37746669ca6ec18b983897a1ce2ed9997ed603d542c00eb955ee6267104c",
+      "distinct_raw_defs": 45,
+      "distinct_norm_defs": 45
+    },
+    "functions": {
+      "count": 142,
+      "objects_sha256": "aa4ff1299ca16831ef7a575daadc3cf7c185aa4934a88618e2831d3dd4b2bb10",
+      "defs_sha256": "baa608ce37b92a1b8f1a5b64464b7bf26473765c3069793f38fbb08dc6821431",
+      "distinct_raw_defs": 140,
+      "distinct_norm_defs": 140
+    }
+  }
+}

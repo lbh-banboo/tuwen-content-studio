@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>领取推荐研究任务并上传资料 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .prompt-box {
+    position: relative;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.75;
+    color: var(--text-2);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 12px 14px; white-space: pre-wrap;
+  }
+  .prompt-copy { position: absolute; top: 8px; right: 8px; }
+  .drop {
+    display: grid; place-items: center; gap: 8px;
+    padding: 26px 20px; text-align: center;
+    border: 1.5px dashed var(--line-2); border-radius: var(--r-md);
+    background: rgba(255,255,255,0.02);
+    transition: border-color 0.24s ease, background 0.24s ease;
+    cursor: pointer;
+  }
+  .drop:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.05); }
+  .drop-ic { font-size: 22px; color: var(--purple); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-2"></i> 步骤 2 / 8</span>
+            <span class="tag tag-ok">已完成 · 09-13 15:40</span>
+          </div>
+          <h1 class="page-title">领取推荐研究任务并上传资料</h1>
+          <p class="page-desc">复制提示词到外部 Agent 平台获取资料，再上传本系统。第一版不直接代替运营执行外部平台抓取。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：已复制研究提示词模板"><i class="fa-solid fa-copy"></i>复制提示词</button>
+          <a class="btn btn-primary" href="research-files.html">下一步：核对资料文件 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-3-2 mb14">
+
+        <!-- 左：容量汇总 + 推荐研究任务 -->
+        <div class="col" style="gap:14px">
+
+          <!-- 容量与状态汇总（收窄至左主区，与下方分栏对齐） -->
+          <div class="grid g4" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-database"></i>有效研究容量</div>
+              <div class="metric-value" data-count="218.4" data-dec="1"><span class="unit">MB</span></div>
+              <div class="mt10"><span class="bar"><span class="bar-fill warn" data-w="72.8%"></span></span></div>
+              <div class="metric-foot">218,412,663 / 300,000,000 字节 · 72.8%</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-file-lines"></i>有效文件</div>
+              <div class="metric-value" data-count="24">0</div>
+              <div class="metric-foot">成功 19 · 部分成功 2 · 未支持 3</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-list-check"></i>解析记录数</div>
+              <div class="metric-value" data-count="1284">0</div>
+              <div class="metric-foot">正文 862 页 · 评论 218 条 · 图文 204 项</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-shield-halved"></i>证据完整度</div>
+              <div class="metric-value t-warn" data-count="76" data-suf="%">0%</div>
+              <div class="metric-foot">链接 100% · 发布时间 82% · 互动数 41%</div>
+            </div>
+          </div>
+
+          <div class="note note-warn">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <b>容量校验（AC-06）：</b>剩余 81,587,337 字节。超容量时在提交前提示，服务器再次校验，避免并发上传突破上限。
+              重复上传同一文件优先复用，不重复占用有效容量。归档后恢复需重新校验容量。
+            </div>
+          </div>
+
+        <!-- 左：推荐研究任务 -->
+        <section class="card">
+          <div class="card-head">
+            <span class="card-title">推荐研究任务</span>
+            <span class="card-sub">6 组 · 覆盖产品类别、人群痛点、使用场景、购买顾虑、对比维度、表达参考</span>
+          </div>
+          <div class="card-body">
+
+            <div class="card card-pad mb10" style="background:rgba(255,255,255,0.02)">
+              <div class="row between mb6">
+                <div class="row" style="gap:8px">
+                  <span class="code code-purple">R-01</span>
+                  <span class="f13 fw6">产品类别认知与消费者关注点</span>
+                </div>
+                <span class="tag tag-ok">已上传 6 份</span>
+              </div>
+              <div class="f11 t-mut mb10">
+                <b class="t-2">研究目的：</b>了解氨基酸洁面品类当前的用户认知水平、常见误解与关注顺序。<br>
+                <b class="t-2">建议关键词：</b>氨基酸洁面 / 氨基酸表活 是什么 / 氨基酸洁面 智商税 / 氨基酸 vs 皂基<br>
+                <b class="t-2">需返回字段：</b>原始链接、标题、正文、发布时间、采集时间、互动数据、评论摘要、来源平台<br>
+                <b class="t-2">来源与时间要求：</b>近 12 个月内，优先小红书 / 知乎 / 品牌官方页
+              </div>
+              <div class="prompt-box">请检索「氨基酸洁面」品类的用户认知内容，覆盖以下问题：
+1) 用户如何理解「氨基酸表活」，常见误解有哪些；
+2) 与皂基洁面对比时最常被提到的差异点；
+3) 认为是「智商税」的主要理由。
+每条结果请返回：原始链接、标题、正文全文、发布时间、
+采集时间、可见互动数据（点赞/收藏/评论）、评论摘要（≥10 条）、来源平台。
+时间范围：近 12 个月。不要总结，保留原文。
+                <button class="btn btn-sm prompt-copy" data-toast="提示词已复制到剪贴板"><i class="fa-solid fa-copy"></i>复制</button>
+              </div>
+            </div>
+
+            <div class="card card-pad mb10" style="background:rgba(255,255,255,0.02)">
+              <div class="row between mb6">
+                <div class="row" style="gap:8px">
+                  <span class="code code-purple">R-02</span>
+                  <span class="f13 fw6">人群痛点与真实使用反馈</span>
+                </div>
+                <span class="tag tag-ok">已上传 5 份</span>
+              </div>
+              <div class="f11 t-mut mb10">
+                <b class="t-2">研究目的：</b>提取油皮 / 混油皮 / 敏感肌在洁面环节的真实痛点表达方式。<br>
+                <b class="t-2">建议关键词：</b>油皮 洁面 推荐 / 洗完脸紧绷 / 换季 泛红 洁面 / 早C晚A 洗脸
+              </div>
+              <div class="prompt-box">检索「油皮 / 混油皮 / 敏感肌」用户在洁面环节的真实反馈，
+重点收集：洗后紧绷、泛红、清洁力不足、泡沫少 等具体描述原句。
+返回字段同上，并额外标注：发帖人自述肤质、是否提及季节。
+                <button class="btn btn-sm prompt-copy" data-toast="提示词已复制到剪贴板"><i class="fa-solid fa-copy"></i>复制</button>
+              </div>
+            </div>
+
+            <div class="row wrap" style="gap:8px">
+              <div class="card card-pad f11 t-mut" style="flex:1;min-width:180px;background:rgba(255,255,255,0.02)">
+                <div class="row between mb6"><span class="code code-purple">R-03</span><span class="tag tag-ok" style="height:19px">4 份</span></div>
+                <b class="t-2">使用场景研究</b><br>早晚 / 运动后 / 带妆日二次清洁的实际使用描述
+              </div>
+              <div class="card card-pad f11 t-mut" style="flex:1;min-width:180px;background:rgba(255,255,255,0.02)">
+                <div class="row between mb6"><span class="code code-purple">R-04</span><span class="tag tag-ok" style="height:19px">5 份</span></div>
+                <b class="t-2">购买顾虑</b><br>价格容量比、复购原因、退货理由
+              </div>
+              <div class="row wrap" style="gap:8px;width:100%">
+                <div class="card card-pad f11 t-mut" style="flex:1;min-width:180px;background:rgba(255,255,255,0.02)">
+                  <div class="row between mb6"><span class="code code-purple">R-05</span><span class="tag tag-warn" style="height:19px">2 份</span></div>
+                  <b class="t-2">对比维度</b><br><span class="t-warn">证据偏少，建议补充</span>
+                </div>
+                <div class="card card-pad f11 t-mut" style="flex:1;min-width:180px;background:rgba(255,255,255,0.02)">
+                  <div class="row between mb6"><span class="code code-purple">R-06</span><span class="tag tag-ok" style="height:19px">2 份</span></div>
+                  <b class="t-2">表达参考</b><br>高互动笔记的开头与结构样本
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        </div><!-- /左列 -->
+
+        <!-- 右：上传区 + 缺口 -->
+        <div class="col" style="gap:14px">
+          <section class="card">
+            <div class="card-head"><span class="card-title">上传研究资料</span></div>
+            <div class="card-body">
+              <div class="drop" data-toast="演示环境：文件选择器未接入">
+                <span class="drop-ic"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+                <span class="f13 fw5">点击或拖拽文件到此处</span>
+                <span class="f11 t-fai">不限制文件选择类型，自动解析仅对支持类型承诺</span>
+              </div>
+
+              <div class="mt14">
+                <div class="label">第一版自动解析目标格式</div>
+                <div class="row wrap" style="gap:5px">
+                  <span class="code">PDF</span><span class="code">DOCX</span><span class="code">TXT</span>
+                  <span class="code">Markdown</span><span class="code">CSV</span><span class="code">XLSX</span>
+                  <span class="code">JPG</span><span class="code">PNG</span><span class="code">WebP</span>
+                </div>
+                <div class="hint">扫描文档与图片通过 OCR 处理。其他格式原样归档并标记「未解析」，不计入生成上下文。压缩包第一版不自动展开。</div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'research', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '项目研究'] });
+</script>
+</body>
+</html>

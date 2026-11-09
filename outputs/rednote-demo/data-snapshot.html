@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>查看指标快照历史与项目汇总 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fs { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .fs-got { color: var(--ok); background: var(--ok-dim); border-color: rgba(52,211,153,0.28); }
+  .fs-none { color: var(--muted); background: rgba(255,255,255,0.05); border-color: var(--line-strong); }
+  .fs-noauth { color: var(--warn); background: var(--warn-dim); border-color: rgba(251,191,36,0.28); }
+  .fs-na { color: var(--faint); background: rgba(255,255,255,0.03); border-color: var(--line); }
+  .fs-fail { color: var(--danger); background: var(--danger-dim); border-color: rgba(251,113,133,0.28); }
+  .fs-todo { color: var(--info); background: var(--info-dim); border-color: rgba(96,165,250,0.28); }
+  .approx { color: var(--warn); border-bottom: 1px dashed var(--warn); cursor: help; }
+  .snap { border-left: 2px solid var(--purple-line); padding: 0 0 0 13px; position: relative; }
+  .snap-i { position: relative; padding-bottom: 15px; }
+  .snap-i::before { content: ''; position: absolute; left: -19px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--purple); box-shadow: 0 0 0 3px rgba(160,107,255,0.18); }
+  .snap-i.old::before { background: var(--faint); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+  .conf { border: 1px solid rgba(251,113,133,0.36); background: rgba(251,113,133,0.06); border-radius: 10px; padding: 11px 12px; }
+  .bt { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .bt-good { color: #34d399; background: rgba(52,211,153,0.14); }
+  .bt-pot { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .bt-low { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .bt-wait { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .bt-conf { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-8"></i> 步骤 8 / 8</span>
+            <span class="code code-purple">持续工作区</span>
+            <span class="tag tag-ok">SNAP-005 最新</span>
+          </div>
+          <h1 class="page-title">查看指标快照历史与项目汇总</h1>
+          <p class="page-desc">快照按观测时间冻结，历史快照只读。指标缺失显示为「—」而非 0，项目汇总按方向聚合但不掩盖单条缺失。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="data-feedback.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="data-trace.html">下一步：差异与留痕 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<section class="card">
+        <div class="card-head">
+          <div class="row">
+            <i class="fa-solid fa-table-columns t-pur"></i>
+            <h3 class="card-title">指标最新视图</h3>
+            <span class="code">笔记 7f2a…c91 · C-0037-B01-001 v3</span>
+            <span class="tag tag-warn">各指标观测时间不同</span>
+          </div>
+          <div class="row wrap" style="gap:6px">
+            <span class="fs fs-got"><i class="fa-solid fa-circle"></i>已获取</span>
+            <span class="fs fs-none"><i class="fa-solid fa-circle"></i>未提供</span>
+            <span class="fs fs-noauth"><i class="fa-solid fa-circle"></i>无权限</span>
+            <span class="fs fs-na"><i class="fa-solid fa-circle"></i>不适用</span>
+            <span class="fs fs-fail"><i class="fa-solid fa-circle"></i>获取失败</span>
+            <span class="fs fs-todo"><i class="fa-solid fa-circle"></i>待确认</span>
+          </div>
+        </div>
+        <div class="card-body p0">
+          <div class="grid g-2-1 card-split">
+          <div class="table-wrap">
+            <div class="table-wrap"><div class="table-wrap"><table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:150px">指标</th>
+                  <th style="width:150px">最新有效值</th>
+                  <th style="width:104px">字段状态</th>
+                  <th style="width:126px">观测时间</th>
+                  <th style="width:96px">时间差</th>
+                  <th style="width:110px">来源</th>
+                  <th>保存要求与说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="strong">浏览 / 阅读量</td>
+                  <td>
+                    <div class="f14 fw6 mono"><span class="approx" title="平台显示为约数">1.2 万</span></div>
+                    <div class="f10 t-warn mt4">约数标记 · 原值 "1.2万"</div>
+                  </td>
+                  <td><span class="fs fs-got">已获取</span></td>
+                  <td class="f11 mono">09-16 18:05</td>
+                  <td class="f11 t-ok">最新</td>
+                  <td class="f11">渠道 A</td>
+                  <td class="f11 t-mut">保留平台原字段与口径「浏览量」，<b class="t-2">不与曝光量混加</b>；不伪装成精确计数</td>
+                </tr>
+                <tr>
+                  <td class="strong">点赞数</td>
+                  <td>
+                    <div class="f14 fw6 mono t-dan">冲突</div>
+                    <div class="f10 t-dan mt4">1,284 / 1,247 待确认</div>
+                  </td>
+                  <td><span class="fs fs-todo">待确认</span></td>
+                  <td class="f11 mono">09-16 18:00</td>
+                  <td class="f11 t-warn">-5 分钟</td>
+                  <td class="f11 t-dan">2 个来源</td>
+                  <td class="f11 t-mut">非负整数；同一时刻来源冲突由运营确认，<b class="t-2">未确认前保留冲突提示</b></td>
+                </tr>
+                <tr>
+                  <td class="strong">收藏数</td>
+                  <td>
+                    <div class="f14 fw6 mono">438</div>
+                    <div class="f10 t-mut mt4">精确值</div>
+                  </td>
+                  <td><span class="fs fs-got">已获取</span></td>
+                  <td class="f11 mono">09-16 18:05</td>
+                  <td class="f11 t-ok">最新</td>
+                  <td class="f11">渠道 A</td>
+                  <td class="f11 t-mut">非负整数或明确缺失</td>
+                </tr>
+                <tr>
+                  <td class="strong">评论数</td>
+                  <td>
+                    <div class="f14 fw6 mono">96</div>
+                    <div class="f10 t-info mt4">已导入评论 <b>31</b> 条</div>
+                  </td>
+                  <td><span class="fs fs-got">已获取</span></td>
+                  <td class="f11 mono">09-16 18:05</td>
+                  <td class="f11 t-ok">最新</td>
+                  <td class="f11">渠道 A</td>
+                  <td class="f11 t-mut"><b class="t-2">评论计数与已导入评论条数分开保存</b>（96 vs 31，不等同）</td>
+                </tr>
+                <tr>
+                  <td class="strong">商品链接跳转</td>
+                  <td>
+                    <div class="f14 fw6 mono t-warn">—</div>
+                    <div class="f10 t-warn mt4">无该数据访问权限</div>
+                  </td>
+                  <td><span class="fs fs-noauth">无权限</span></td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11 t-mut">需保留点击次数/人数、组件标识与统计窗口；<b class="t-dan">缺失不填 0</b></td>
+                </tr>
+                <tr>
+                  <td class="strong">评论正文</td>
+                  <td>
+                    <div class="f14 fw6 mono">31 条</div>
+                    <div class="f10 t-mut mt4">3 条发布时间缺失</div>
+                  </td>
+                  <td><span class="fs fs-got">已获取</span></td>
+                  <td class="f11 mono">09-15 21:30</td>
+                  <td class="f11 t-warn">-20h35m</td>
+                  <td class="f11">人工录入</td>
+                  <td class="f11 t-mut">保存来源、发布时间或缺失标记、采集时间、关联笔记</td>
+                </tr>
+              </tbody>
+            </table></div></div>
+          </div>
+
+          <div class="cs-side">
+            <div class="note note-warn">
+              <i class="fa-solid fa-clock"></i>
+              <div class="f11">
+                <b>最新视图按指标各自选择最新有效观测值，因此每个指标可有不同观测时间。</b>
+                本行最早 09-15 21:30、最新 09-16 18:05，<b>时间差 20 小时 35 分</b> —— 不声称整行是同一时刻完整采样（PRD §12.4）。
+              </div>
+            </div>
+            <div class="note note-danger f11">
+              <i class="fa-solid fa-ban"></i>
+              <div>
+                <b>缺失不填 0。</b>「未提供」「无权限」「不适用」「获取失败」「待确认」五种状态均显示为状态标记而非数值 0 —— 0 是一个有效观测值，不能与缺失混淆（PRD §12.3）。
+              </div>
+            </div>
+            <div class="note note-purple f11">
+              <i class="fa-solid fa-tags"></i>
+              <div>
+                <b>业务标签互斥，随最新有效快照重新计算，保留历史变化。</b>业务标签不等于已验证策略 —— 优质标签不能自动升级为跨项目通用策略（PRD §12.5 / §12.6）。
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </section>
+
+<div class="grid g-1-1">
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-camera-retro t-pur"></i>
+              <h3 class="card-title">快照历史</h3>
+              <span class="code">笔记 7f2a…c91</span>
+              <span class="tag tag-info no-dot">5 次写入</span>
+            </div>
+            <span class="f11 t-mut">人工修正新建修订记录，不覆盖原始证据</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-3-2 card-split">
+              <div class="cs-main">
+                <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-camera-retro"></i>最新快照<span class="sec-sub">SNAP-005 · 观测 09-16 18:05</span></div>
+                <div class="snap">
+              <div class="snap-i">
+                <div class="row wrap mb6" style="gap:7px">
+                  <span class="tag tag-purple no-dot f10">SNAP-005</span>
+                  <span class="f12 fw6">观测 09-16 18:05</span>
+                  <span class="f10 t-mut">录入 09-16 18:06 · 渠道 A · 任务 JOB-2291</span>
+                </div>
+                <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                  <tbody>
+                    <tr><td style="width:130px">浏览量</td><td class="mono">1.2 万 <span class="fs fs-got f10">已获取</span> <span class="f10 t-warn">约数</span></td></tr>
+                    <tr><td>点赞数</td><td class="mono">1,284 <span class="fs fs-todo f10">待确认</span> <span class="f10 t-dan">与 SNAP-004 同时刻冲突</span></td></tr>
+                    <tr><td>收藏数</td><td class="mono">438 <span class="fs fs-got f10">已获取</span></td></tr>
+                    <tr><td>评论数</td><td class="mono">96 <span class="fs fs-got f10">已获取</span></td></tr>
+                    <tr><td>商品跳转</td><td class="mono t-warn">— <span class="fs fs-noauth f10">无权限</span></td></tr>
+                  </tbody>
+                </table></div></div>
+                <div class="conf mt10 f11">
+                  <b class="t-dan"><i class="fa-solid fa-triangle-exclamation"></i> 来源冲突未确认</b>
+                  <div class="mt6" style="color:var(--text-2)">
+                    截图识别（SNAP-005）1,284 与人工录入（SNAP-004）1,247 均标注观测时间 09-16 18:00±5min。
+                    系统<b>不自动取任一值</b>，最新视图保留冲突提示，待运营确认。
+                  </div>
+                  <div class="row mt10" style="gap:7px">
+                    <button class="btn btn-sm btn-purple" data-toast="演示环境：确认采用 1,284（截图识别），创建修订记录并保留原始证据">采用 1,284</button>
+                    <button class="btn btn-sm btn-ghost" data-toast="演示环境：确认采用 1,247（人工录入）">采用 1,247</button>
+                    <button class="btn btn-sm btn-ghost" data-toast="演示环境：重新采集该指标">重新采集</button>
+                  </div>
+                </div>
+              </div>
+                </div>
+              </div>
+              <div class="cs-side">
+                <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-clock-rotate-left"></i>历史快照<span class="sec-sub">4 次写入 · 不覆盖较新数据</span></div>
+                <div class="snap">
+              <div class="snap-i old">
+                <div class="row wrap mb6" style="gap:7px">
+                  <span class="tag no-dot f10">SNAP-004</span>
+                  <span class="f12 fw6">观测 09-16 18:00</span>
+                  <span class="f10 t-mut">录入 09-16 18:12 · 人工录入 · 林知远</span>
+                </div>
+                <div class="f11 t-sub">点赞 1,247 · 收藏 431 · 评论 94 · 浏览量未提供</div>
+                <div class="f10 t-mut mt4">证据：小红书创作中心截图 1 张（screenshot_0916.png）</div>
+              </div>
+
+              <div class="snap-i old">
+                <div class="row wrap mb6" style="gap:7px">
+                  <span class="tag no-dot f10">SNAP-003</span>
+                  <span class="f12 fw6">观测 09-16 12:00</span>
+                  <span class="f10 t-mut">录入 09-16 12:01 · 渠道 A · 任务 JOB-2274</span>
+                </div>
+                <div class="f11 t-sub">浏览量 9,860 · 点赞 1,102 · 收藏 388 · 评论 81</div>
+              </div>
+
+              <div class="snap-i old">
+                <div class="row wrap mb6" style="gap:7px">
+                  <span class="tag no-dot f10">SNAP-002</span>
+                  <span class="f12 fw6">观测 09-16 06:00</span>
+                  <span class="f10 t-mut">录入 09-16 06:02 · 渠道 A · 任务 JOB-2260</span>
+                </div>
+                <div class="f11 t-sub">浏览量 6,214 · 点赞 704 · 收藏 251 · 评论 52</div>
+              </div>
+
+              <div class="snap-i old">
+                <div class="row wrap mb6" style="gap:7px">
+                  <span class="tag no-dot f10">SNAP-001</span>
+                  <span class="f12 fw6">观测 09-16 11:20</span>
+                  <span class="f10 t-mut">录入 09-16 19:02 · 人工录入 · 陈嘉玥（补录）</span>
+                </div>
+                <div class="f11 t-sub">浏览量 8,900 · 点赞 1,050</div>
+                <div class="warnrow mt6" style="font-size:10.5px">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <b>较旧快照不覆盖较新数据。</b>该快照观测时间 11:20 早于 SNAP-003（12:00），虽录入时间最晚，最新视图仍取 SNAP-005/003 的值。
+                </div>
+              </div>
+                </div>
+              </div>
+              </div>
+            </div>
+        </section>
+<div class="col" style="gap:14px">
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-chart-column t-pur"></i>
+                <h3 class="card-title">项目汇总</h3>
+              </div>
+              <span class="tag tag-warn no-dot f10">仅口径一致指标</span>
+            </div>
+            <div class="card-body">
+              <div class="pc-2col-even">
+
+              <div class="pc-col" style="gap:0">
+              <div class="pc-fields-2 mb14">
+                <div class="field">
+                  <span class="label">覆盖笔记数</span>
+                  <div class="f16 fw6 mono">31 / 36</div>
+                  <span class="hint mt4">5 条无有效数据（2 链接失效 · 1 已删除 · 2 待采集）</span>
+                </div>
+                <div class="field">
+                  <span class="label">时间范围</span>
+                  <div class="f13 fw6 mono">09-13 15:22 ~ 09-16 18:05</div>
+                  <span class="hint mt4">跨度 3 天 2 小时 43 分</span>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact mb14">
+                <thead>
+                  <tr><th>指标</th><th class="num" style="width:96px">汇总值</th><th style="width:74px">可汇总</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>点赞数</td><td class="num mono">21,486</td><td><span class="tag tag-ok no-dot f10">是</span></td></tr>
+                  <tr><td>收藏数</td><td class="num mono">7,204</td><td><span class="tag tag-ok no-dot f10">是</span></td></tr>
+                  <tr><td>评论数</td><td class="num mono">1,893</td><td><span class="tag tag-ok no-dot f10">是</span></td></tr>
+                  <tr class="tr-warn">
+                    <td>浏览 / 阅读量</td>
+                    <td class="num mono t-warn">不汇总</td>
+                    <td><span class="tag tag-warn no-dot f10">否</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td>商品链接跳转</td>
+                    <td class="num mono t-warn">不汇总</td>
+                    <td><span class="tag tag-warn no-dot f10">否</span></td>
+                  </tr>
+                </tbody>
+              </table></div></div></div></div></div>
+
+              <div class="note note-warn f11">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                  <b>浏览量不汇总</b>：12 条为约数（"1.2万"），19 条为精确值，口径不一致。<br />
+                  <b>商品链接跳转不汇总</b>：各笔记统计窗口不同（1 天 / 3 天 / 7 天）。
+                </div>
+              </div>
+              </div>
+
+              <div class="pc-col" style="gap:0">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-arrow-trend-down"></i>累计值下降提示</div>
+              <div class="conf f11">
+                <b class="t-dan"><i class="fa-solid fa-triangle-exclamation"></i> 笔记 6a05…8f2 点赞数下降</b>
+                <div class="mt6" style="color:var(--text-2)">
+                  09-16 12:00 记录 1,102 → 09-16 18:05 记录 1,088（-14）。<br />
+                  系统<b>保留原值并提示核对，不强制抹平</b>（可能为平台清理虚假互动，也可能为采集异常）。
+                </div>
+                <div class="row mt10" style="gap:7px">
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：标记为已核对，保留两个快照">已核对</button>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：重新采集该笔记">重新采集</button>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="sec-title"><i class="fa-solid fa-flask"></i>轻量实验登记<span class="sec-sub">PRD §12.6</span></div>
+              <div class="col" style="gap:8px">
+                <div class="list-item">
+                  <span class="li-icon purple"><i class="fa-solid fa-flask"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">EXP-001 开头形式对互动的影响</div>
+                    <div class="li-sub">假设：痛点式开头优于场景式 · 主指标：点赞数 · 窗口 72h · 参与 12 条</div>
+                  </div>
+                  <div class="li-right"><span class="tag tag-warn no-dot f10">证据不足</span></div>
+                </div>
+                <div class="list-item">
+                  <span class="li-icon purple"><i class="fa-solid fa-flask"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">EXP-002 Live 图是否提升收藏</div>
+                    <div class="li-sub">假设：含 Live 提升收藏率 · 主指标：收藏数 · 窗口 7d · 参与 18 条</div>
+                  </div>
+                  <div class="li-right"><span class="tag tag-info no-dot f10">观察中</span></div>
+                </div>
+              </div>
+              <div class="note note-info mt14 f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  EXP-001 标记<b>证据不足</b>：样本 12 条中 5 条存在「实际版本未核对」、3 条投流条件不同、窗口不一致。<b>输出关联发现而非因果结论</b>。
+                </div>
+              </div>
+              </div>
+
+              </div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-list-check t-pur"></i>
+                <h3 class="card-title">其他笔记的字段状态示例</h3>
+                <span class="tag tag-info no-dot f10">六种状态均在真实数据中出现</span>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="grid g-2-1 card-split">
+              <div class="table-wrap">
+                <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                  <thead>
+                    <tr><th style="width:110px">笔记</th><th style="width:100px">浏览量</th><th style="width:100px">点赞数</th><th style="width:100px">收藏数</th><th style="width:120px">商品链接跳转</th><th>业务标签</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="mono f11">63b1…4de</td>
+                      <td><span class="fs fs-got">8,432</span></td>
+                      <td><span class="fs fs-got">762</span></td>
+                      <td><span class="fs fs-got">204</span></td>
+                      <td><span class="fs fs-na">不适用</span><div class="f10 t-mut mt4">未挂商品组件</div></td>
+                      <td><span class="bt bt-good"><i class="fa-solid fa-star"></i>优质</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">6a05…8f2</td>
+                      <td><span class="fs fs-got">3,190</span></td>
+                      <td><span class="fs fs-got">88</span></td>
+                      <td><span class="fs fs-none">未提供</span></td>
+                      <td><span class="fs fs-got">142 次</span><div class="f10 t-mut mt4">窗口 09-15~09-16</div></td>
+                      <td><span class="bt bt-pot"><i class="fa-solid fa-seedling"></i>潜力</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">5c8e…a13</td>
+                      <td><span class="fs fs-fail">获取失败</span><div class="f10 t-dan mt4">笔记已删除</div></td>
+                      <td><span class="fs fs-fail">获取失败</span></td>
+                      <td><span class="fs fs-fail">获取失败</span></td>
+                      <td><span class="fs fs-fail">获取失败</span></td>
+                      <td><span class="bt bt-wait"><i class="fa-solid fa-hourglass"></i>待获取</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">4b17…7c0</td>
+                      <td><span class="fs fs-got">1,024</span></td>
+                      <td><span class="fs fs-got">31</span></td>
+                      <td><span class="fs fs-got">12</span></td>
+                      <td><span class="fs fs-na">不适用</span></td>
+                      <td><span class="bt bt-low"><i class="fa-solid fa-minus"></i>未达阈值</span></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">2d9f…b58</td>
+                      <td><span class="fs fs-got"><span class="approx">1.1 万</span></span></td>
+                      <td><span class="fs fs-got"><span class="approx">约 100</span></span></td>
+                      <td><span class="fs fs-noauth">无权限</span></td>
+                      <td><span class="fs fs-none">未提供</span></td>
+                      <td><span class="bt bt-conf"><i class="fa-solid fa-question"></i>待确认</span></td>
+                    </tr>
+                  </tbody>
+                </table></div></div>
+              </div>
+              <div class="cs-side">
+                <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-tags"></i>业务标签口径<span class="sec-sub">互斥 · 随快照重算</span></div>
+                <div class="col" style="gap:10px">
+                  <div>
+                    <div class="row between"><span class="bt bt-good"><i class="fa-solid fa-star"></i>优质</span><span class="f11 mono t-mut">点赞 &gt; 100</span></div>
+                  </div>
+                  <div>
+                    <div class="row between"><span class="bt bt-pot"><i class="fa-solid fa-seedling"></i>潜力</span><span class="f11 mono t-mut">50 &lt; 点赞 ≤ 100</span></div>
+                  </div>
+                  <div>
+                    <div class="row between"><span class="bt bt-low"><i class="fa-solid fa-minus"></i>未达阈值</span><span class="f11 mono t-mut">点赞 ≤ 50</span></div>
+                  </div>
+                  <div>
+                    <div class="row between"><span class="bt bt-wait"><i class="fa-solid fa-hourglass"></i>待获取</span><span class="f11 mono t-mut">无有效点赞数</span></div>
+                    <div class="f10 t-mut mt4">不归为低表现，缺失不填 0</div>
+                  </div>
+                  <div>
+                    <div class="row between"><span class="bt bt-conf"><i class="fa-solid fa-question"></i>待确认</span><span class="f11 mono t-mut">约数跨阈值</span></div>
+                    <div class="f10 t-mut mt4">不判优也不判劣，待运营确认</div>
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+          </section>
+</div>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'data-snapshot', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '快照与汇总'] });
+</script>
+</body>
+</html>

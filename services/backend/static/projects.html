@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>项目中心 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">项目中心</h1>
+          <p class="page-desc" id="plDesc">共 14 个项目 · 我负责 4 · 我协作 2 · 其余仅管理者可见。项目操作按成员隔离，知识资料跨项目全员可见。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出功能未接入"><i class="fa-solid fa-download"></i>导出列表</button>
+          <a class="btn btn-primary" href="brief.html"><i class="fa-solid fa-plus"></i>新建项目</a>
+        </div>
+      </div>
+
+      <div class="grid pc-filter-list">
+
+        <aside class="col pc-filter-side" style="gap:14px">
+          <!-- 筛选 -->
+          <section class="card">
+            <div class="card-body" style="padding:13px 16px">
+              <div class="filters mb10" data-chipgroup id="plChips">
+                <span class="chip is-active">全部 14</span>
+                <span class="chip">我负责 4</span>
+                <span class="chip">我协作 2</span>
+                <span class="chip">准备期 5</span>
+                <span class="chip">投产期 4</span>
+                <span class="chip">数据回收期 2</span>
+                <span class="chip">已结束 3</span>
+                <span class="chip"><i class="fa-solid fa-triangle-exclamation t-dan"></i>逾期 1</span>
+              </div>
+              <div class="filters">
+                <label class="search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="plKeyword" placeholder="搜索项目名称、编号、品牌、产品…" />
+                </label>
+                <select class="select">
+                  <option>全部品牌</option><option>素与 Su&</option><option>初见 Chuu</option>
+                  <option>木野 MUYE</option><option>光屿 Glowis</option><option>茶栖 Chaqi</option>
+                </select>
+                <select class="select">
+                  <option>全部负责人</option><option>林知远</option><option>周予桐</option><option>陈默</option><option>许南嘉</option>
+                </select>
+                <select class="select">
+                  <option>排序：截止日期 ↑</option><option>排序：交付进度 ↓</option>
+                  <option>排序：更新时间 ↓</option><option>排序：项目编号 ↑</option>
+                </select>
+                <button class="btn btn-ghost btn-sm"><i class="fa-solid fa-rotate-left"></i>重置</button>
+              </div>
+            </div>
+          </section>
+          <div class="note note-info">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+              <b>权限说明（AC-01）：</b>非项目运营不能操作项目，列表中带锁图标的项目仅管理者与其成员可进入；
+              但所有内部成员均可访问<a class="t-pur" href="knowledge.html">全员知识库</a>。前端禁用按钮不代替后端权限校验。
+            </div>
+          </div>
+        </aside>
+
+        <!-- 列表 -->
+        <section class="card">
+          <div class="card-head">
+            <span class="card-title">项目列表</span>
+            <span class="card-sub" id="plSub">第 1—8 条，共 14 条</span>
+            <div class="card-head-actions">
+              <div class="seg">
+                <span class="seg-item is-active"><i class="fa-solid fa-list"></i></span>
+                <span class="seg-item"><i class="fa-solid fa-table-cells-large"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:32px"></th>
+                  <th>项目 / 编号</th>
+                  <th>品牌 · 产品</th>
+                  <th>负责人</th>
+                  <th>阶段</th>
+                  <th style="min-width:160px">交付进度</th>
+                  <th class="num">已发布</th>
+                  <th>截止日期</th>
+                  <th class="num">操作</th>
+                </tr>
+              </thead>
+              <tbody id="plBody">
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">素与 Su& 氨基酸洁面<div class="f10 t-fai mono">PRJ-2026-0037</div></td>
+                  <td>素与 Su&<div class="f10 t-fai">氨基酸氨基洁面乳 120g</div></td>
+                  <td>林知远<div class="f10 t-fai">+2 协作</div></td>
+                  <td><span class="tag tag-purple">准备期 · 步骤 5</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill" data-w="12%"></span></span>
+                      <span class="bar-num">6 / 50</span>
+                    </div>
+                    <div class="f10 t-fai mt6">生成 10 · 通过 6 · 交付 6</div>
+                  </td>
+                  <td class="num">0</td>
+                  <td><span class="t-warn">2026-09-24</span><div class="f10 t-fai">剩 8 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="project-overview.html">进入</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">初见 Chuu 精华水<div class="f10 t-fai mono">PRJ-2026-0034</div></td>
+                  <td>初见 Chuu<div class="f10 t-fai">寡肽修护精华水 100ml</div></td>
+                  <td>林知远<div class="f10 t-fai">+3 协作</div></td>
+                  <td><span class="tag tag-info">投产期 · 步骤 7</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill ok" data-w="72%"></span></span>
+                      <span class="bar-num">36 / 50</span>
+                    </div>
+                    <div class="f10 t-fai mt6">生成 48 · 通过 40 · 交付 36</div>
+                  </td>
+                  <td class="num">22</td>
+                  <td><span class="t-dan">2026-09-18</span><div class="f10 t-fai">剩 2 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="scale-batch.html">进入</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">木野 MUYE 蒸汽眼罩<div class="f10 t-fai mono">PRJ-2026-0041</div></td>
+                  <td>木野 MUYE<div class="f10 t-fai">石墨烯蒸汽眼罩 12片装</div></td>
+                  <td>林知远</td>
+                  <td><span class="tag tag-muted">准备期 · 步骤 1</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill" data-w="0%"></span></span>
+                      <span class="bar-num">0 / 30</span>
+                    </div>
+                    <div class="f10 t-warn mt6">Brief 核心字段待补充</div>
+                  </td>
+                  <td class="num na">—</td>
+                  <td>2026-10-08<div class="f10 t-fai">剩 22 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="brief.html">进入</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">光屿 Glowis 防晒霜<div class="f10 t-fai mono">PRJ-2026-0029</div></td>
+                  <td>光屿 Glowis<div class="f10 t-fai">轻透养护防晒乳 SPF50+</div></td>
+                  <td>林知远<div class="f10 t-fai">+1 协作</div></td>
+                  <td><span class="tag tag-ok">数据回收期 · 步骤 8</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill ok" data-w="100%"><span class="bar-over"></span></span></span>
+                      <span class="bar-num t-gold">52 / 50</span>
+                    </div>
+                    <div class="f10 t-gold mt6">超额 104% · 实际值不隐藏</div>
+                  </td>
+                  <td class="num">47</td>
+                  <td>2026-09-30<div class="f10 t-fai">剩 14 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="data-feedback.html">进入</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">茶栖 Chaqi 冷萃茶<div class="f10 t-fai mono">PRJ-2026-0031</div></td>
+                  <td>茶栖 Chaqi<div class="f10 t-fai">冷萃白桃乌龙 10条装</div></td>
+                  <td>周予桐<div class="f10 t-fai">我是协作者</div></td>
+                  <td><span class="tag tag-info">投产期 · 步骤 6</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill" data-w="40%"></span></span>
+                      <span class="bar-num">12 / 30</span>
+                    </div>
+                    <div class="f10 t-fai mt6">生成 22 · 通过 14 · 交付 12</div>
+                  </td>
+                  <td class="num">9</td>
+                  <td>2026-10-02<div class="f10 t-fai">剩 16 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="scale-batch.html">进入</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">屿见 Yujian 身体乳<div class="f10 t-fai mono">PRJ-2026-0026</div></td>
+                  <td>屿见 Yujian<div class="f10 t-fai">神经酰胺身体乳 250ml</div></td>
+                  <td>陈默</td>
+                  <td><span class="tag tag-danger no-dot"><i class="fa-solid fa-clock"></i> 投产期 · 已逾期 6 天</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill warn" data-w="53%"></span></span>
+                      <span class="bar-num">16 / 30</span>
+                    </div>
+                    <div class="f10 t-dan mt6">逾期提示标签，阶段不倒退</div>
+                  </td>
+                  <td class="num">11</td>
+                  <td><span class="t-dan">2026-09-10</span><div class="f10 t-dan">逾期 6 天</div></td>
+                  <td class="num"><div class="row-act">
+                    <span class="btn btn-sm is-disabled" title="非项目成员不可操作"><i class="fa-solid fa-lock"></i></span>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">叁物 SANWU 香薰<div class="f10 t-fai mono">PRJ-2026-0022</div></td>
+                  <td>叁物 SANWU<div class="f10 t-fai">雪松鼠尾草香薰 200ml</div></td>
+                  <td>许南嘉<div class="f10 t-fai">我是协作者</div></td>
+                  <td><span class="tag tag-muted no-dot"><i class="fa-solid fa-lock"></i> 已结束</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill ok" data-w="100%"></span></span>
+                      <span class="bar-num">40 / 40</span>
+                    </div>
+                    <div class="f10 t-fai mt6">已结项 · 可查看下载补录</div>
+                  </td>
+                  <td class="num">38</td>
+                  <td class="t-fai">2026-08-29<div class="f10 t-fai">已结项</div></td>
+                  <td class="num"><div class="row-act">
+                    <a class="btn btn-sm" href="report.html">看报告</a>
+                  </div></td>
+                </tr>
+
+                <tr>
+                  <td><span class="check"></span></td>
+                  <td class="strong">砚白 Yanbai 手霜<div class="f10 t-fai mono">PRJ-2026-0019</div></td>
+                  <td>砚白 Yanbai<div class="f10 t-fai">烟酰胺嫩肤手霜 50g</div></td>
+                  <td>周予桐</td>
+                  <td><span class="tag tag-muted no-dot"><i class="fa-solid fa-lock"></i> 已结束</span></td>
+                  <td>
+                    <div class="bar-row">
+                      <span class="bar"><span class="bar-fill ok" data-w="100%"></span></span>
+                      <span class="bar-num">25 / 25</span>
+                    </div>
+                  </td>
+                  <td class="num">25</td>
+                  <td class="t-fai">2026-08-15<div class="f10 t-fai">已结项</div></td>
+                  <td class="num"><div class="row-act">
+                    <span class="btn btn-sm is-disabled" title="非项目成员不可操作"><i class="fa-solid fa-lock"></i></span>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card-foot">
+            <span class="f12 t-mut" id="plSel">已选 0 项</span>
+            <div class="ml-auto pager" id="plPager">
+              <span class="pg"><i class="fa-solid fa-chevron-left"></i></span>
+              <span class="pg is-active">1</span>
+              <span class="pg">2</span>
+              <span class="pg"><i class="fa-solid fa-chevron-right"></i></span>
+              <span class="f12" style="margin-left:6px">每页 8 条</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="api.js"></script>
+<script>
+  initPage({ active: 'projects', crumb: ['Rednote 系统', '项目中心'] });
+
+  // 接线（A-4）：后端可达且已登录 -> 用 GET /projects 的真实数据替换列表；
+  // 否则保留上面的静态演示行，仅在页首给出说明（不白屏）。
+  (function () {
+    var PHASE = {
+      PREPARATION: ['准备期', 'tag-purple'], PRODUCTION: ['投产期', 'tag-info'],
+      DATA_COLLECTION: ['数据回收期', 'tag-ok'], CLOSED: ['已结束', 'tag-muted']
+    };
+    var $ = function (id) { return document.getElementById(id); };
+    var state = { me: null, brands: {}, products: {}, rows: [], keyword: '' };
+
+    function esc(v) {
+      return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function banner(kind, text) {
+      var old = $('liveBanner'); if (old) old.remove();
+      var canvas = document.querySelector('.canvas');
+      var n = document.createElement('div');
+      n.className = 'note note-' + kind;
+      n.id = 'liveBanner';
+      n.style.marginBottom = '14px';
+      n.innerHTML = '<i class="fa-solid fa-circle-info"></i><div></div>';
+      n.lastChild.textContent = text;
+      canvas.insertBefore(n, canvas.firstChild);
+    }
+    function rowHtml(p) {
+      var ph = PHASE[p.phase] || [p.phase, 'tag-muted'];
+      var brand = state.brands[p.brandId], product = state.products[p.productId];
+      var owner = state.me && state.me.id === p.ownerId ? state.me.displayName : '—';
+      return '<tr>' +
+        '<td><span class="check"></span></td>' +
+        '<td class="strong">' + esc(p.name) + '<div class="f10 t-fai mono">' + esc(p.projectCode) + '</div></td>' +
+        '<td>' + esc(brand ? brand.name : '—') + '<div class="f10 t-fai">' + esc(product ? product.name : '—') + '</div></td>' +
+        '<td>' + esc(owner) + '</td>' +
+        '<td><span class="tag ' + ph[1] + '">' + esc(ph[0]) + '</span></td>' +
+        '<td>计划交付 ' + esc(p.targetDeliveryCount) + ' 篇<div class="f10 t-fai">交付进度待接线</div></td>' +
+        '<td class="num na">—</td>' +
+        '<td>' + esc(p.dueDate) + '</td>' +
+        '<td class="num"><div class="row-act"><a class="btn btn-sm" href="project-overview.html?projectId=' +
+        encodeURIComponent(p.id) + '">进入</a></div></td></tr>';
+    }
+    function paint(page) {
+      $('plBody').innerHTML = state.rows.length ? state.rows.map(rowHtml).join('') :
+        '<tr><td colspan="9" class="t-mut">没有符合条件的项目</td></tr>';
+      $('plSub').textContent = '已加载 ' + state.rows.length + ' 条' + (page && page.hasMore ? '，还有更多' : '');
+      $('plDesc').textContent = '已加载 ' + state.rows.length + ' 个项目 · 仅显示你有权访问的项目。';
+      $('plSel').textContent = '';
+      var pg = $('plPager');
+      pg.innerHTML = '';
+      if (page && page.hasMore && page.nextCursor) {
+        var b = document.createElement('button');
+        b.className = 'btn btn-sm btn-ghost'; b.textContent = '加载更多';
+        b.onclick = function () { b.disabled = true; load(page.nextCursor); };
+        pg.appendChild(b);
+      }
+    }
+    function load(cursor) {
+      return api.list('/projects', { limit: 20, cursor: cursor, keyword: state.keyword }).then(function (r) {
+        state.rows = cursor ? state.rows.concat(r.data) : r.data;
+        paint(r.page);
+      }).catch(function (err) {
+        banner('warn', '加载项目列表失败：' + (err && err.code ? err.code + ' ' : '') + (err && err.message || err));
+      });
+    }
+    function index(list) {
+      var m = {}; list.forEach(function (x) { m[x.id] = x; }); return m;
+    }
+    function run() {
+      if (!window.api) { banner('info', '演示样例：api.js 未加载。'); return; }
+      api.probe().then(function (pr) {
+        if (pr.state === 'unreachable') { banner('info', '演示样例：后端不可达，以下为静态演示数据。'); return; }
+        if (pr.state === 'unauthenticated') { banner('info', '演示样例：尚未登录，以下为静态演示数据。'); return; }
+        if (pr.state !== 'ok') { banner('warn', '演示样例：会话检查失败（' + (pr.error && pr.error.message) + '）。'); return; }
+        state.me = pr.me;
+        return Promise.all([
+          api.get('/brands', { limit: 100 }).catch(function () { return []; }),
+          api.get('/products', { limit: 100 }).catch(function () { return []; }),
+          api.list('/projects', { limit: 20 })
+        ]).then(function (rs) {
+          state.brands = index(rs[0]); state.products = index(rs[1]);
+          state.rows = rs[2].data;
+          // 筛选条的计数/选项是静态样例，真实筛选未接线：只保留关键字搜索
+          $('plChips').style.display = 'none';
+          document.querySelectorAll('.pc-filter-side select.select, .pc-filter-side .btn-sm').forEach(function (e) { e.style.display = 'none'; });
+          var kw = $('plKeyword');
+          kw.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') { state.keyword = kw.value.trim(); load(); }
+          });
+          paint(rs[2].page);
+          banner('ok', '已接入后端：列表为真实项目数据；交付进度、协作者数、已发布等指标尚无对应接口，暂以「—」显示。');
+        });
+      }).catch(function (err) {
+        banner('warn', '演示样例：接口取数失败（' + (err && err.code ? err.code + '：' : '') + (err && err.message || err) + '），以下为静态演示数据。');
+      });
+    }
+    run();
+  })();
+</script>
+</body>
+</html>

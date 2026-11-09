@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认可用主张与拟用策略 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="cl-head">
+          <h1 class="page-title">正在读取可用主张…</h1>
+          <p class="page-desc">GET /projects/{id}/information-draft</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="baseline.v2.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="trial-config.html">下一步：试产配置 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4" id="cl-metrics" data-stagger></div>
+      <div id="cl-claims" aria-live="polite"></div>
+
+      <div class="grid g-1-1 mb14">
+        <div id="cl-conflicts" aria-live="polite"></div>
+        <div id="cl-boundaries" aria-live="polite"></div>
+      </div>
+
+      <div class="grid g-1-1">
+        <div id="cl-selection" aria-live="polite"></div>
+        <div class="note note-info" style="align-self:start">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>
+            <b>字段口径：</b>information-draft 的 claims 只有
+            <code class="code f10">claimId / statement / source / state</code>。
+            证据强度、体验缺口与拟用策略没有对应字段，页面统一标「接口未提供」，
+            不以 Brief 或其他页面的数据代替。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/claims.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'claims', crumb: ['项目中心', '可用主张'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/claims.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.claims;
+    var head = document.getElementById('cl-head'), metrics = document.getElementById('cl-metrics');
+    var claims = document.getElementById('cl-claims'), conflicts = document.getElementById('cl-conflicts');
+    var boundaries = document.getElementById('cl-boundaries'), selection = document.getElementById('cl-selection');
+    var keepId = document.querySelectorAll('[data-keep-id]');
+    var regions = [metrics, claims, conflicts, boundaries, selection];
+    function renderAll(project, draft) {
+      head.innerHTML = R.renderHead(project, draft);
+      metrics.innerHTML = R.renderMetrics(draft);
+      claims.innerHTML = R.renderClaimsCard(draft);
+      conflicts.innerHTML = R.renderConflictsCard(draft);
+      boundaries.innerHTML = R.renderBoundariesCard(draft);
+      selection.innerHTML = R.renderSelectionCard(draft);
+    }
+    async function load() {
+      head.innerHTML = '<div><h1 class="page-title">正在读取可用主张…</h1><p class="page-desc">GET /projects/{id}/information-draft</p></div>';
+      regions.forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取主张数据…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目。' };
+        keepId.forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(id); });
+        var base = '/projects/' + encodeURIComponent(id);
+        var res = await Promise.all([API.get(base), API.get(base + '/information-draft')]);
+        renderAll(res[0], res[1]);
+      } catch (err) {
+        head.innerHTML = '<div><h1 class="page-title">主张数据读取失败</h1><p class="page-desc">请检查后端与项目 ID 后重试。</p></div>';
+        regions.forEach(function (el) { el.innerHTML = R.renderCardError(err); });
+      }
+    }
+    claims.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

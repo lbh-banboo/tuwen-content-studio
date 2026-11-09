@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>阅读 Brief 原文与结构化拆解 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .doc {
+    font-size: 12px; line-height: 1.85; color: var(--text-2);
+    background: rgba(0,0,0,0.28); border-radius: var(--r-sm);
+    padding: 14px 16px; max-height: 620px; overflow-y: auto;
+  }
+  .doc h4 { margin: 16px 0 6px; font-size: 12.5px; color: #fff; font-weight: 600; }
+  .doc h4:first-child { margin-top: 0; }
+  .doc p { margin: 0 0 8px; }
+  .doc .pg { font-family: var(--mono); font-size: 10px; color: var(--faint); }
+  .hl {
+    background: rgba(160,107,255,0.2);
+    border-bottom: 1px solid var(--purple-line);
+    border-radius: 3px; padding: 0 2px; color: #fff; cursor: pointer;
+  }
+  .hl-warn { background: rgba(251,191,36,0.18); border-bottom-color: rgba(251,191,36,0.5); }
+  .fld { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .fld:last-child { border-bottom: 0; }
+  .fld-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .fld-n { font-size: 12px; font-weight: 500; color: var(--text); }
+  .fld-v { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .fld-src {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 10px; color: var(--purple);
+    margin-top: 4px; cursor: pointer;
+  }
+  .fld-src:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-1"></i> 步骤 1 / 8</span>
+            <span class="code">Brief v2</span>
+            <span class="tag tag-ok">已批准 · 09-11 11:05</span>
+          </div>
+          <h1 class="page-title">阅读 Brief 原文与结构化拆解</h1>
+          <p class="page-desc">左侧原文与右侧结构化拆解逐字段对照。缺失字段显示「待补充」，AI 不得填成确定事实；点击字段可定位到原文页码与段落。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：新上传 Brief 将形成 v3，不覆盖旧版"><i class="fa-solid fa-upload"></i>上传新版本</button>
+          <button class="btn btn-ghost" data-toast="演示环境：共 2 个版本"><i class="fa-solid fa-clock-rotate-left"></i>版本历史</button>
+          <a class="btn btn-primary" href="brief-thicken.html">下一步：确认加厚输出 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g2 mb14">
+
+<!-- 左：原文 -->
+<section class="card">
+<div class="card-head">
+<span class="card-title">Brief 原文</span>
+<span class="card-sub">素与Su&_洁面乳_内容brief_v2.pdf · 24 页 · 3.8 MB</span>
+<div class="card-head-actions">
+<button class="btn btn-sm btn-ghost" data-toast="演示环境：下载原文件"><i class="fa-solid fa-download"></i></button>
+</div>
+</div>
+<div class="card-body">
+<div class="doc">
+<div class="pg">— P.3 产品基础信息 —</div>
+<h4>1. 产品概况</h4>
+<p>产品名称：<span class="hl">素与 Su& 氨基酸洁面乳</span>，规格 <span class="hl">120g</span>，型号 <span class="hl">SU-CL-120</span>。
+定位敏感肌可用的日常温和洁面，2026 年 Q3 主推单品。</p>
+
+<div class="pg">— P.5 卖点与原理 —</div>
+<h4>2. 核心卖点（按优先级）</h4>
+<p>① <span class="hl">氨基酸表活占比 62%</span>，弱酸性配方 pH 5.5±0.5；<br>
+② <span class="hl">洗后不紧绷</span>，添加 3% 泛醇与神经酰胺 NP；<br>
+③ <span class="hl">一泵即出绵密泡</span>，无需搓揉起泡。</p>
+<p>原理说明：氨基酸表活以椰油酰甘氨酸钾为主，清洁力温和，
+<span class="hl-warn">配方备案编号见附件（附件未随本 Brief 提供）</span>。</p>
+
+<div class="pg">— P.8 人群与场景 —</div>
+<h4>3. 目标人群</h4>
+<p>核心：<span class="hl">18—30 岁女性，油皮及混油皮</span>，关注成分与温和度；
+次要：初次接触氨基酸洁面的学生党。</p>
+<p>使用场景：<span class="hl">早晚日常洁面</span>、<span class="hl">运动后清洁</span>、
+<span class="hl">带妆日二次清洁（需配合卸妆）</span>。</p>
+
+<div class="pg">— P.12 痛点与话术 —</div>
+<h4>4. 解决痛点</h4>
+<p>皂基洁面洗后干燥紧绷；氨基酸洁面普遍<span class="hl">泡沫少、清洁力不足</span>的顾虑；
+价格与容量不成正比。</p>
+<p>选购话术：适合<span class="hl">换季泛红</span>、<span class="hl">早C晚A 期间屏障脆弱</span>时使用。</p>
+
+<div class="pg">— P.16 合规要求 —</div>
+<h4>5. 必须提及 / 禁止提及</h4>
+<p>必须提及：<span class="hl">氨基酸表活</span>、<span class="hl">弱酸性</span>、<span class="hl">敏感肌可用</span>。</p>
+<p>禁止提及：<span class="hl">「医美级」「抗炎」「祛痘」等功效性表述</span>；
+不得与竞品直接比较；不得暗示替代药品。</p>
+
+<div class="pg">— P.19 话题标签 —</div>
+<h4>6. 话题标签示例</h4>
+<p><span class="hl">#氨基酸洁面 #温和清洁 #敏感肌护肤 #洗脸这件小事</span></p>
+
+<div class="pg">— P.22 素材 —</div>
+<h4>7. 产品图片</h4>
+<p>随附产品图 8 张（白底图 3 张、场景图 5 张）。
+<span class="hl-warn">图片使用权限与授权期限未在本 Brief 中说明。</span></p>
+</div>
+</div>
+</section>
+
+<!-- 右：结构化拆解 -->
+<section class="card">
+<div class="card-head">
+<span class="card-title">结构化拆解</span>
+<span class="card-sub">10 类必覆盖字段</span>
+<div class="card-head-actions">
+<div class="seg">
+<span class="seg-item is-active">全部 10</span>
+<span class="seg-item">待补充 2</span>
+</div>
+</div>
+</div>
+<div class="card-body" style="max-height:620px;overflow-y:auto">
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">1. 产品图片及使用权限</span>
+<span class="tag tag-warn">待补充</span>
+</div>
+<div class="fld-v">
+已获取 8 张产品图（白底 3 / 场景 5）。<br>
+<span class="t-warn">使用权限与授权期限未提供 — AI 不填写推测值。</span>
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.22 第 7 节</div>
+<div class="mt6"><button class="btn btn-sm" data-toast="演示环境：可填写权限说明或标记不适用">补充信息</button></div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">2. 产品名称 / 品牌 / 型号</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">素与 Su& 氨基酸洁面乳 · 120g · 型号 SU-CL-120</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.3 第 1 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">3. 选购话术及购买场景</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">换季泛红期、早C晚A 屏障脆弱期；早晚日常、运动后、带妆日二次清洁</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.12 第 4 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">4. 解决的痛点</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">皂基洗后干燥紧绷 · 氨基酸洁面泡沫少清洁力不足的顾虑 · 价格容量不成正比</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.12 第 4 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">5. 核心卖点及优先级</span>
+<span class="tag tag-ok">3 项摘要</span>
+</div>
+<div class="fld-v">
+① 氨基酸表活占比 62%，pH 5.5±0.5<br>
+② 洗后不紧绷（3% 泛醇 + 神经酰胺 NP）<br>
+③ 一泵即出绵密泡
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.5 第 2 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">6. 原理与功效及支持材料</span>
+<span class="tag tag-danger">证据冲突</span>
+</div>
+<div class="fld-v">
+椰油酰甘氨酸钾为主表活，清洁力温和。<br>
+<span class="t-dan">冲突：Brief 称表活占比「62%」，研究资料 R-014 品牌官方页表述为「≥60%」。</span><br>
+<span class="t-warn">配方备案编号附件未提供。</span>
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.5 第 2 节</div>
+<div class="mt6"><a class="btn btn-sm btn-danger" href="info-review.html">去处置冲突</a></div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">7. 话题标签示例</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">
+<div class="row wrap" style="gap:5px">
+<span class="code">#氨基酸洁面</span><span class="code">#温和清洁</span>
+<span class="code">#敏感肌护肤</span><span class="code">#洗脸这件小事</span>
+</div>
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.19 第 6 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">8. 产品参数 / 单位 / 适用型号</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">净含量 120 g · pH 5.5±0.5 · 泛醇 3% · 适用型号 SU-CL-120</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.3 / P.5</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">9. 目标人群 / 场景 / 限制</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">
+18—30 岁女性，油皮及混油皮；次要学生党。<br>
+限制：带妆需配合卸妆，不可替代卸妆步骤。
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.8 第 3 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">10. 必须提及与禁止提及</span>
+<span class="tag tag-ok">原文事实</span>
+</div>
+<div class="fld-v">
+<span class="t-ok">必须：</span>氨基酸表活、弱酸性、敏感肌可用<br>
+<span class="t-dan">禁止：</span>医美级、抗炎、祛痘等功效表述；不与竞品直接比较；不暗示替代药品
+</div>
+<div class="fld-src"><i class="fa-solid fa-crosshairs"></i>定位 P.16 第 5 节</div>
+</div>
+
+<div class="fld">
+<div class="fld-h">
+<span class="fld-n">附：竞品对比维度</span>
+<span class="tag tag-muted no-dot"><i class="fa-solid fa-ban"></i> 不适用</span>
+</div>
+<div class="fld-v t-mut">
+运营标记原因：品牌合规要求「不得与竞品直接比较」，本项目不生产对比向内容。
+</div>
+<div class="f10 t-fai mt6">标记人 林知远 · 09-11 10:48</div>
+</div>
+
+</div>
+</section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'brief', crumb: ['项目中心', '素与 Su& 氨基酸洁面', 'Brief 解析'] });
+</script>
+</body>
+</html>

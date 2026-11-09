@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认可用主张与拟用策略 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-3"></i> 步骤 3 / 8</span>
+            <span class="code code-purple">基线 BL-v3</span>
+            <span class="tag tag-ok">7 条主张已确认</span>
+          </div>
+          <h1 class="page-title">确认可用主张与拟用策略</h1>
+          <p class="page-desc">每条主张必须能回答「哪份资料支持它、缺什么、打算怎么用」。批准口径一旦生成，步骤 4 起不再改写。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="baseline.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="trial-config.html">下一步：试产配置 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-2-1 mt14">
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-quote-left t-pur"></i>
+              <h3 class="card-title">可用主张与拟用策略</h3>
+              <span class="tag tag-purple no-dot">主张级 · 逐条绑证据</span>
+            </div>
+            <span class="card-sub">批准的是「生产依据」，不是一篇样例</span>
+          </div>
+          <div class="table-wrap">
+            <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+              <thead>
+                <tr>
+                  <th style="width:186px">主张</th>
+                  <th style="width:196px">证据来源</th>
+                  <th style="width:96px">证据强度</th>
+                  <th style="width:172px">体验缺口</th>
+                  <th>拟用策略</th>
+                  <th style="width:96px">状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="strong">氨基酸表活占比 ≥60%</td>
+                  <td class="f11">R-014 品牌官方页<br>Brief v2 P.5</td>
+                  <td><span class="tag tag-ok no-dot f10">强 · 书面</span></td>
+                  <td class="f11 t-mut">无</td>
+                  <td class="f11">参数直引，保留区间表述，不写具体小数</td>
+                  <td><span class="tag tag-ok">可用</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">pH 5.5±0.5 弱酸性</td>
+                  <td class="f11">Brief v2 P.5</td>
+                  <td><span class="tag tag-ok no-dot f10">强 · 书面</span></td>
+                  <td class="f11 t-mut">无</td>
+                  <td class="f11">参数直引，须带波动区间</td>
+                  <td><span class="tag tag-ok">可用</span></td>
+                </tr>
+                <tr>
+                  <td class="strong">无皂基配方</td>
+                  <td class="f11">Brief v2 P.6</td>
+                  <td><span class="tag tag-ok no-dot f10">强 · 书面</span></td>
+                  <td class="f11 t-mut">无</td>
+                  <td class="f11">可与其他成分主张并列出现</td>
+                  <td><span class="tag tag-ok">可用</span></td>
+                </tr>
+                <tr class="tr-warn">
+                  <td class="strong">添加泛醇 3% 与神经酰胺 NP</td>
+                  <td class="f11">Brief v2 P.5<br><span class="t-warn">供应商口头提供</span></td>
+                  <td><span class="tag tag-warn no-dot f10">中 · 待书面</span></td>
+                  <td class="f11 t-mut">无</td>
+                  <td class="f11">可用，但须标注来源并等待书面确认</td>
+                  <td><span class="tag tag-warn">待补证据</span></td>
+                </tr>
+                <tr class="tr-danger">
+                  <td class="strong">洗脸后不紧绷</td>
+                  <td class="f11 t-dan">无书面资料</td>
+                  <td><span class="tag tag-danger no-dot f10">弱 · 仅经验</span></td>
+                  <td class="f11 t-dan"><b>缺 12 名 KOC 实际使用记录</b></td>
+                  <td class="f11">按体验可用性选择叙述方式；无体验资料时改用产品说明结构</td>
+                  <td><span class="tag tag-danger">不可用</span></td>
+                </tr>
+                <tr class="tr-danger">
+                  <td class="strong">敏感肌可长期使用</td>
+                  <td class="f11 t-dan">无</td>
+                  <td><span class="tag tag-danger no-dot f10">弱 · 无依据</span></td>
+                  <td class="f11 t-dan"><b>缺敏感肌测试</b></td>
+                  <td class="f11">禁用；改为「日常清洁可长期使用」等范围更窄的表述</td>
+                  <td><span class="tag tag-danger">禁用</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="6" class="f11 t-2">
+                    <i class="fa-solid fa-circle-info t-info"></i>
+                    每条主张必须能回答「哪份资料支持它、缺什么、打算怎么用」。<b>批准口径一旦生成，步骤 4 起不再改写。</b>
+                  </td>
+                </tr>
+              </tfoot>
+            </table></div></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-user-check t-pur"></i>
+              <h3 class="card-title">体验资料可用性</h3>
+            </div>
+            <span class="card-sub">决定叙述方式，不决定内容好坏</span>
+          </div>
+          <div class="card-body">
+            <div class="col" style="gap:9px">
+              <div class="list-item" style="padding:10px 0">
+                <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+                <div class="li-main">
+                  <div class="li-title">有真实体验记录</div>
+                  <div class="li-sub">可用第一人称叙述，须能定位到具体记录</div>
+                </div>
+                <div class="li-right"><span class="tag tag-ok no-dot f10">本项目部分</span></div>
+              </div>
+              <div class="list-item" style="padding:10px 0">
+                <span class="li-icon danger"><i class="fa-solid fa-xmark"></i></span>
+                <div class="li-main">
+                  <div class="li-title">无体验资料</div>
+                  <div class="li-sub">改用产品说明结构，按参数与适用边界说明</div>
+                </div>
+                <div class="li-right"><span class="tag tag-danger no-dot f10">禁写亲历</span></div>
+              </div>
+              <div class="list-item" style="padding:10px 0">
+                <span class="li-icon warn"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                <div class="li-main">
+                  <div class="li-title">资料缺条件</div>
+                  <div class="li-sub">有参数但缺测试条件时，不得扩大为结论</div>
+                </div>
+                <div class="li-right"><span class="tag tag-warn no-dot f10">须标条件</span></div>
+              </div>
+              <div class="list-item" style="padding:10px 0">
+                <span class="li-icon info"><i class="fa-solid fa-clone"></i></span>
+                <div class="li-main">
+                  <div class="li-title">相似型号</div>
+                  <div class="li-sub">不得跨型号搬用参数；需单独确认</div>
+                </div>
+                <div class="li-right"><span class="tag tag-info no-dot f10">需确认</span></div>
+              </div>
+            </div>
+
+            <div class="note note-danger mt14 f11">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <div>
+                事实不足时，<b>允许生成诚实的产品说明或要求补充资料</b>；
+                不能为了满足「真实体验型」模板，把空白补成一段使用经历。
+              </div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="sec-title" style="font-size:12.5px;margin-bottom:10px">
+              <i class="fa-solid fa-ban"></i>三条硬规则
+            </div>
+            <div class="col f11 t-2" style="gap:7px">
+              <div><b class="t-dan">01</b> 无依据主张不得进入生成链，不做「提示后放行」</div>
+              <div><b class="t-dan">02</b> 不把实验参数扩大为绝对结论（「≥60%」不写「62%」精确值）</div>
+              <div><b class="t-dan">03</b> 不跨型号、不跨人群搬用适用范围</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'claims', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '可用主张'] });
+</script>
+</body>
+</html>

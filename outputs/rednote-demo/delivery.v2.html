@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认交付进度与下载包结构 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .tree { font-family: var(--mono); font-size: 11.5px; line-height: 1.95; color: var(--text-2); }
+  .tree .d { color: #c4a5ff; }
+  .tree .f { color: var(--text-2); }
+  .tree .c { color: var(--faint); }
+  .tree .n { color: var(--ok); }
+  .tree .ind { color: rgba(255,255,255,0.14); }
+  .zipbox { border: 1px solid var(--purple-line); border-radius: 12px; padding: 15px 17px; background: linear-gradient(165deg, rgba(160,107,255,0.09), rgba(160,107,255,0.02)); }
+  .koc { display: flex; gap: 11px; align-items: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); }
+  .kav { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: linear-gradient(150deg, rgba(160,107,255,0.34), rgba(160,107,255,0.12)); color: #e2d1ff; }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-7"></i> 步骤 7 / 8</span>
+            <span class="code code-purple">BATCH-B01</span>
+            <span class="tag no-dot">v2 · 纯函数渲染</span>
+            <span class="tag tag-warn">52 / 50 已交付（超额）</span>
+          </div>
+          <h1 class="page-title">确认交付进度与下载包结构</h1>
+          <p class="page-desc">正式交付只允许下载批准版本；草稿导出明确标记「未审核」且不计交付。下载不自动等于已交付，需运营显式标记（AC-16）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：已导出交付清单 CSV"><i class="fa-solid fa-file-export"></i>导出交付清单</button>
+          <a class="btn btn-primary" href="delivery-koc.html">下一步：KOC 与交付记录 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g3" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-box-open"></i>可交付内容</div>
+              <div class="metric-value t-ok" data-count="61">0</div>
+              <div class="metric-foot">全部为已批准版本</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-truck"></i>已显式标记交付</div>
+              <div class="metric-value t-ok" data-count="52">0</div>
+              <div class="metric-foot">交付记录 58 条（含重复分配）</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-download"></i>已下载未标记</div>
+              <div class="metric-value t-warn" data-count="7">0</div>
+              <div class="metric-foot t-warn">下载 ≠ 已交付</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-users"></i>KOC 数量</div>
+              <div class="metric-value" data-count="23">0</div>
+              <div class="metric-foot">无登录账号 · 轻量记录</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-copy"></i>重复分配提示</div>
+              <div class="metric-value t-warn" data-count="4">0</div>
+              <div class="metric-foot t-warn">同内容多 KOC，存在表达风险</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-file-zipper"></i>导出包</div>
+              <div class="metric-value" data-count="9">0</div>
+              <div class="metric-foot">正式 6 · 草稿预览 3</div>
+            </div>
+          </div>
+
+<div class="grid g-3-2">
+<div class="col" style="gap:14px">
+
+          <!-- 交付超额提示 —— 演示 bar-over -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-gauge-high t-pur"></i>
+                <h3 class="card-title">交付进度</h3>
+              </div>
+              <span class="f11 t-mut">目标交付量以项目 BRIEF 约定 50 条为准</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g3 gap14">
+                <div>
+                  <div class="row between mb6"><span class="f12">已交付 / 目标</span><span class="f12 mono t-gold fw6">52 / 50</span></div>
+                  <div class="bar bar-lg"><div class="bar-fill bar-over" style="width:100%"></div></div>
+                  <div class="f10 t-gold mt6"><i class="fa-solid fa-circle-exclamation"></i> 超额 2 条 —— 因 4 条内容分配给多个 KOC 产生额外交付记录</div>
+                </div>
+                <div>
+                  <div class="row between mb6"><span class="f12">已批准 / 已生成</span><span class="f12 mono t-ok fw6">61 / 88</span></div>
+                  <div class="bar bar-lg"><div class="bar-fill" style="width:69.3%"></div></div>
+                  <div class="f10 t-mut mt6">通过率 69.3% · 淘汰 16 条 · 待审 11 条</div>
+                </div>
+                <div>
+                  <div class="row between mb6"><span class="f12">已发布 / 已交付</span><span class="f12 mono t-warn fw6">38 / 52</span></div>
+                  <div class="bar bar-lg"><div class="bar-fill" style="width:73.1%"></div></div>
+                  <div class="f10 t-mut mt6">14 条待发布 · 详见步骤 8 发布登记</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+        </div>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-file-zipper t-pur"></i>
+              <h3 class="card-title">下载包结构预览</h3>
+            </div>
+            <div class="row" style="gap:8px">
+              <span id="delivery-source" class="tag no-dot f10">读取中…</span>
+              <span class="tag tag-purple no-dot">正式交付 · 已批准版本</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="zipbox mb14">
+              <div class="row between mb10">
+                <span class="f12 fw6 mono">PRJ-2026-0037_BATCH-B01_20260916T1918.zip</span>
+                <span class="tag tag-ok no-dot f10">已生成 · 184.6MB</span>
+              </div>
+              <div class="tree">
+<span class="d">PRJ-2026-0037_BATCH-B01_20260916T1918/</span>
+<span class="ind">├─ </span><span class="f">交付清单.csv</span><span class="c">　# 含版本与校验信息</span>
+<span class="ind">├─ </span><span class="d">C-0037-B01-001/</span>
+<span class="ind">│   ├─ </span><span class="f">文案.txt</span><span class="c">　# 选定标题 + 正文 + 话题标签</span>
+<span class="ind">│   ├─ </span><span class="f">内容说明.md</span><span class="c">　# 版本、建议顺序、设备导入说明</span>
+<span class="ind">│   ├─ </span><span class="f">01_封面.jpg</span>
+<span class="ind">│   ├─ </span><span class="f">02_图片.jpg</span>
+<span class="ind">│   ├─ </span><span class="f">…03–06_图片.jpg</span>
+<span class="ind">│   └─ </span><span class="d">live/</span><span class="c">　# 按已验证格式输出</span>
+<span class="ind">│       ├─ </span><span class="f">01_live.mov</span><span class="c">　# HEVC + 静态帧配对</span>
+<span class="ind">│       └─ </span><span class="f">01_live.heic</span>
+<span class="ind">├─ </span><span class="d">C-0037-B01-002/</span><span class="c">　# 仅文案形式，无 live/ 目录</span>
+<span class="ind">│   ├─ </span><span class="f">文案.txt</span>
+<span class="ind">│   └─ </span><span class="f">内容说明.md</span>
+<span class="ind">└─ </span><span class="d">…C-0037-B01-029/</span><span class="c">　# 共 29 个已批准内容</span>
+              </div>
+            </div>
+
+            <div class="sec-title"><i class="fa-solid fa-shield-halved"></i>交付包内容约束</div>
+            <div class="col mb14" style="gap:8px">
+              <div class="list-item">
+                <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+                <div class="li-main">
+                  <div class="li-title">仅包含已批准版本</div>
+                  <div class="li-sub">29 个内容均为审核通过版本；草稿与淘汰内容不入正式包</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-ban"></i></span>
+                <div class="li-main">
+                  <div class="li-title">不包含内部信息</div>
+                  <div class="li-sub">已排除：AI 反馈意见、费用明细、知识库原文、审核记录</div>
+                </div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon purple"><i class="fa-solid fa-film"></i></span>
+                <div class="li-main">
+                  <div class="li-title">Live 按已验证格式输出</div>
+                  <div class="li-sub">HEVC 视频 + HEIC 静态帧配对；<b class="t-dan">不得仅导出预览视频代替正式交付格式</b></div>
+                </div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon info"><i class="fa-solid fa-file-signature"></i></span>
+                <div class="li-main">
+                  <div class="li-title">文件名特殊字符已处理</div>
+                  <div class="li-sub">中文保留；<code class="code f10">/ \ : * ? " &lt; &gt; |</code> 替换为下划线；清单保存 SHA-256 校验值</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-title"><i class="fa-solid fa-list"></i>交付记录
+              <span class="sec-sub">按内容聚合 · 数据源 GET /deliveries</span>
+            </div>
+            <div id="delivery-table" aria-live="polite"></div>
+            <div class="warnrow mt14">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              草稿包文件名与包内 <span class="mono">内容说明.md</span> 均明确标记「未审核」，系统不计入交付统计（PRD §11.3）。
+            </div>
+          </div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = 'http://127.0.0.1:8799/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/delivery.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'delivery', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '交付管理'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/delivery.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI;
+    var R = window.RednoteRender.delivery;
+    var mount = document.getElementById('delivery-table');
+    var source = document.getElementById('delivery-source');
+
+    /* 静态降级样例：连不上 mock 时仍可渲染，避免白屏（形状与 /deliveries 一致） */
+    API.registerStatic('/deliveries', [
+      { id: 'demo-1', contentItemId: 'cccccccc-demo-4000-8000-000000000001', kocRecordId: 'aaaaaaaa-demo-4000-8000-000000000001', state: 'DELIVERED', deliveredAt: '2026-10-08T10:00:00+08:00' },
+      { id: 'demo-2', contentItemId: 'cccccccc-demo-4000-8000-000000000002', kocRecordId: null, state: 'PREPARED', deliveredAt: null }
+    ]);
+
+    function setSource(label, cls) {
+      if (!source) return;
+      source.textContent = label;
+      source.className = ['tag', cls, 'no-dot', 'f10'].filter(Boolean).join(' ');
+    }
+
+    async function load() {
+      mount.innerHTML = R.renderDeliveryLoading();
+      try {
+        var res = await API.page('/deliveries', { limit: 100 });
+        mount.innerHTML = R.renderDeliveryList(R.groupDeliveries(res.items));
+        setSource(
+          res.static ? '演示数据 · 静态降级' : '实时数据 · ' + res.items.length + ' 条',
+          res.static ? 'tag-warn' : 'tag-ok'
+        );
+      } catch (err) {
+        mount.innerHTML = R.renderDeliveryError(err);
+        setSource('读取失败', 'tag-danger');
+      }
+    }
+
+    mount.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+
+    load();
+  })();
+</script>
+</body>
+</html>

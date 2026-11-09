@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认加厚输出与版本规则 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .doc {
+    font-size: 12px; line-height: 1.85; color: var(--text-2);
+    background: rgba(0,0,0,0.28); border-radius: var(--r-sm);
+    padding: 14px 16px; max-height: 620px; overflow-y: auto;
+  }
+  .doc h4 { margin: 16px 0 6px; font-size: 12.5px; color: #fff; font-weight: 600; }
+  .doc h4:first-child { margin-top: 0; }
+  .doc p { margin: 0 0 8px; }
+  .doc .pg { font-family: var(--mono); font-size: 10px; color: var(--faint); }
+  .hl {
+    background: rgba(160,107,255,0.2);
+    border-bottom: 1px solid var(--purple-line);
+    border-radius: 3px; padding: 0 2px; color: #fff; cursor: pointer;
+  }
+  .hl-warn { background: rgba(251,191,36,0.18); border-bottom-color: rgba(251,191,36,0.5); }
+  .fld { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .fld:last-child { border-bottom: 0; }
+  .fld-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .fld-n { font-size: 12px; font-weight: 500; color: var(--text); }
+  .fld-v { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .fld-src {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 10px; color: var(--purple);
+    margin-top: 4px; cursor: pointer;
+  }
+  .fld-src:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-1"></i> 步骤 1 / 8</span>
+            <span class="code">Brief v2</span>
+            <span class="tag tag-ok">加厚完成 · 09-11</span>
+          </div>
+          <h1 class="page-title">确认加厚输出与版本规则</h1>
+          <p class="page-desc">四类加厚输出严格区分来源与状态、可追溯（AC-05）。右侧给出本步骤完成条件与版本规则。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="brief.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <button class="btn btn-ghost" data-toast="演示环境：已导出加厚输出 v2"><i class="fa-solid fa-download"></i>导出加厚稿</button>
+          <a class="btn btn-primary" href="research.html">下一步：项目研究 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-3-2">
+  <!-- 加厚输出四分类 —— PRD §5.2 -->
+  <section class="card">
+  <div class="card-head">
+  <span class="card-title">加厚输出</span>
+  <span class="card-sub">四类严格区分，可追溯（AC-05）</span>
+  <div class="card-head-actions">
+  <span class="tag tag-ok">原文事实 12</span>
+  <span class="tag tag-info">外部证据 7</span>
+  <span class="tag tag-purple">策略建议 9</span>
+  <span class="tag tag-warn">待确认 3</span>
+  </div>
+  </div>
+
+  <div class="table-wrap">
+  <div class="table-wrap"><div class="table-wrap"><table class="tbl">
+  <thead>
+  <tr>
+  <th style="width:92px">分类</th>
+  <th>内容</th>
+  <th style="width:200px">来源 / 出处</th>
+  <th style="width:96px">生效规则</th>
+  <th class="num" style="width:96px">操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td><span class="tag tag-ok">原文事实</span></td>
+  <td class="strong">氨基酸表活以椰油酰甘氨酸钾为主，pH 5.5±0.5</td>
+  <td class="f11">Brief v2 · P.5 第 2 节</td>
+  <td class="f11">展示出处，人工确认</td>
+  <td class="num"><span class="tag tag-ok" style="height:20px">已确认</span></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-info">外部证据</span></td>
+  <td class="strong">品牌官方页表述表活占比「≥60%」，与 Brief「62%」不一致</td>
+  <td class="f11">研究资料 R-014 · 采集 09-12 · 适用 SU-CL-120</td>
+  <td class="f11">保存来源与时间</td>
+  <td class="num"><span class="tag tag-danger" style="height:20px">冲突</span></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-info">外部证据</span></td>
+  <td class="strong">同类氨基酸洁面评论高频关注「泡沫是否绵密」，占比约 34%</td>
+  <td class="f11">研究资料 R-008 · 评论摘要 218 条 · 采集 09-12</td>
+  <td class="f11">保存来源与时间</td>
+  <td class="num"><span class="tag tag-ok" style="height:20px">已确认</span></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-purple">策略建议</span></td>
+  <td class="strong">建议增加「换季泛红期」人群角度，与卖点②洗后不紧绷强关联</td>
+  <td class="f11">AI 建议 · 基于 R-008 / R-011</td>
+  <td class="f11">不当作产品事实</td>
+  <td class="num"><button class="btn btn-sm" data-toast="演示环境：已选用为场景候选">选用</button></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-purple">策略建议</span></td>
+  <td class="strong">建议表达方向：以「早C晚A 期间洗脸不敢用力」切入痛点，避免功效性词汇</td>
+  <td class="f11">AI 建议 · 基于禁止提及清单</td>
+  <td class="f11">运营选用</td>
+  <td class="num"><button class="btn btn-sm" data-toast="演示环境：已选用为场景候选">选用</button></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-warn">待确认</span></td>
+  <td class="strong">产品图片使用权限与授权期限</td>
+  <td class="f11 na">缺失 — 未提供</td>
+  <td class="f11 t-warn">核心阻断项</td>
+  <td class="num"><button class="btn btn-sm" data-toast="演示环境：需运营补充或标记不适用">补充</button></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-warn">待确认</span></td>
+  <td class="strong">配方备案编号（Brief 称见附件，附件未随文档提供）</td>
+  <td class="f11 na">缺失 — 附件未提供</td>
+  <td class="f11">非阻断，可后补</td>
+  <td class="num"><button class="btn btn-sm" data-toast="演示环境：已加入待办">跟进</button></td>
+  </tr>
+  <tr>
+  <td><span class="tag tag-warn">待确认</span></td>
+  <td class="strong">「一泵即出绵密泡」是否为泵头结构支持，缺少结构说明</td>
+  <td class="f11 na">无法验证</td>
+  <td class="f11">非阻断，标注限制</td>
+  <td class="num"><button class="btn btn-sm" data-toast="演示环境：已加入待办">跟进</button></td>
+  </tr>
+  </tbody>
+  </table></div></div>
+  </div>
+
+  <div class="card-foot">
+  <div class="note note-purple" style="flex:1">
+  <i class="fa-solid fa-circle-info"></i>
+  <div>
+  外部检索不可用时，可基于已有知识提出<b>带出处</b>的建议，缺失部分列为待确认，<b>不伪造来源</b>。
+  核心阻断项（图片使用权限）解决后才可推进。
+  </div>
+  </div>
+  </div>
+  </section>
+
+        <div class="col" style="gap:14px">
+          <!-- 完成条件 —— PRD §5.3 -->
+          <section class="card mb14">
+          <div class="card-body" style="padding:13px 16px">
+          <div class="row wrap" style="gap:18px">
+          <div class="row" style="gap:8px">
+          <span class="tag tag-ok no-dot"><i class="fa-solid fa-circle-check"></i></span>
+          <span class="f12"><b>8 / 10</b> 必填字段已填写</span>
+          </div>
+          <div class="row" style="gap:8px">
+          <span class="tag tag-muted no-dot"><i class="fa-solid fa-ban"></i></span>
+          <span class="f12"><b>2</b> 项标记「不适用」并填写原因</span>
+          </div>
+          <div class="row" style="gap:8px">
+          <span class="tag tag-ok no-dot"><i class="fa-solid fa-circle-check"></i></span>
+          <span class="f12">核心卖点已形成 <b>3</b> 项摘要</span>
+          </div>
+          <div class="row" style="gap:8px">
+          <span class="tag tag-warn no-dot"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <span class="f12"><b class="t-warn">1</b> 项事实冲突待处理</span>
+          </div>
+          <div class="ml-auto row" style="gap:8px">
+          <span class="f11 t-mut">上传人 林知远 · 09-10 16:42 · 解析版本 P-v2</span>
+          <span class="tag tag-purple">解析成功 24 页</span>
+          </div>
+          </div>
+          </div>
+          </section>
+          <div class="note note-warn">
+          <i class="fa-solid fa-code-branch"></i>
+          <div>
+          <b>版本规则：</b>新上传 Brief 形成新版本，不覆盖旧版。新版本批准前继续保留现有生产基线；
+          核心事实变更将触发影响检查，标记受影响的未交付内容为「需重新确认」。
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'brief-thicken', crumb: ['项目中心', '素与 Su& 氨基酸洁面', 'Brief 加厚输出'] });
+</script>
+</body>
+</html>

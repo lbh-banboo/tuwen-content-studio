@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>核对交付稿→发布稿差异与四段留痕 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fs { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .fs-got { color: var(--ok); background: var(--ok-dim); border-color: rgba(52,211,153,0.28); }
+  .fs-none { color: var(--muted); background: rgba(255,255,255,0.05); border-color: var(--line-strong); }
+  .fs-noauth { color: var(--warn); background: var(--warn-dim); border-color: rgba(251,191,36,0.28); }
+  .fs-na { color: var(--faint); background: rgba(255,255,255,0.03); border-color: var(--line); }
+  .fs-fail { color: var(--danger); background: var(--danger-dim); border-color: rgba(251,113,133,0.28); }
+  .fs-todo { color: var(--info); background: var(--info-dim); border-color: rgba(96,165,250,0.28); }
+  .approx { color: var(--warn); border-bottom: 1px dashed var(--warn); cursor: help; }
+  .snap { border-left: 2px solid var(--purple-line); padding: 0 0 0 13px; position: relative; }
+  .snap-i { position: relative; padding-bottom: 15px; }
+  .snap-i::before { content: ''; position: absolute; left: -19px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--purple); box-shadow: 0 0 0 3px rgba(160,107,255,0.18); }
+  .snap-i.old::before { background: var(--faint); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+  .conf { border: 1px solid rgba(251,113,133,0.36); background: rgba(251,113,133,0.06); border-radius: 10px; padding: 11px 12px; }
+  .bt { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .bt-good { color: #34d399; background: rgba(52,211,153,0.14); }
+  .bt-pot { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .bt-low { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .bt-wait { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .bt-conf { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-8"></i> 步骤 8 / 8</span>
+            <span class="code code-purple">持续工作区</span>
+            <span class="tag no-dot">v2 · 纯函数渲染</span>
+            <span class="tag tag-warn">四段留痕无数据源</span>
+          </div>
+          <h1 class="page-title">核对交付稿→发布稿差异与四段留痕</h1>
+          <p class="page-desc">逐条核对交付稿与发布稿的差异及变动来源，并确认策略是否保留。当前 mock 未提供 /audit-events，四段留痕区块明确标注无数据源，不展示示例数据。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="data-snapshot.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="report.html">生成项目报告 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-code-compare t-pur"></i>
+              <h3 class="card-title">发布登记核对</h3>
+              <span class="code">发布登记 · GET /publications</span>
+            </div>
+            <span id="trace-source" class="tag no-dot f10">读取中…</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-2-1 card-split">
+            <div id="publication-check"></div>
+            <div class="cs-side">
+              <div id="identity-summary"></div>
+            </div>
+            </div>
+          </div>
+        </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-layer-group t-pur"></i>
+              <h3 class="card-title">策略是否保留 · 计划 → 发布四段留痕</h3>
+            </div>
+            <span class="tag tag-warn no-dot">无数据源</span>
+          </div>
+          <div class="card-body"><div id="trace-unavailable"></div></div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = 'http://127.0.0.1:8799/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/shared.js"></script>
+<script src="render/data-trace.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'data-trace', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '差异与留痕'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/data-trace.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI;
+    var R = window.RednoteRender.dataTrace;
+    var tableEl = document.getElementById('publication-check');
+    var identityEl = document.getElementById('identity-summary');
+    var traceEl = document.getElementById('trace-unavailable');
+    var source = document.getElementById('trace-source');
+
+    API.registerStatic('/publications', [{ id: 'demo-pub-1', deliveryId: 'demo-delivery-1', publicationKey: 'PUB-DEMO-0001', noteId: 'note-demo-0001', noteUrl: 'https://www.xiaohongshu.com/explore/abc123', urlCanonical: 'https://www.xiaohongshu.com/explore/abc123', state: 'PUBLISHED', contentState: 'VERIFIED', publishedAt: '2026-10-08T12:00:00+08:00' }]);
+
+    async function load() {
+      tableEl.innerHTML = R.renderPublicationCheckLoading();
+      try {
+        var res = await API.page('/publications', { limit: 100 });
+        tableEl.innerHTML = R.renderPublicationCheckList(res.items);
+        identityEl.innerHTML = R.renderIdentitySummary(res.items);
+        source.textContent = res.static ? '演示数据 · 静态降级' : '实时数据 · ' + res.items.length + ' 条';
+        source.className = 'tag ' + (res.static ? 'tag-warn' : 'tag-ok') + ' no-dot f10';
+      } catch (err) {
+        tableEl.innerHTML = R.renderPublicationCheckError(err);
+        identityEl.innerHTML = '';
+        source.textContent = '读取失败';
+        source.className = 'tag tag-danger no-dot f10';
+      }
+    }
+
+    tableEl.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    traceEl.innerHTML = R.renderTraceUnavailable('mock 未实现 GET /audit-events（404）；GET /events 是 SSE 流，不能当作列表。');
+    load();
+  })();
+</script>
+</body>
+</html>

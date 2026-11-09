@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>审核产品事实、人群与表达边界 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="ir-head">
+          <h1 class="page-title">正在读取信息审核草稿…</h1>
+          <p class="page-desc">GET /projects/{id}/information-draft</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="research-files.v2.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" data-keep-id href="baseline.v2.html">下一步：生产基线 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4" id="ir-metrics" data-stagger></div>
+      <div id="ir-readiness" aria-live="polite"></div>
+
+      <div class="grid g-1-1 mb14">
+        <div id="ir-claims" aria-live="polite"></div>
+        <div id="ir-scenes" aria-live="polite"></div>
+      </div>
+
+      <div class="grid g-1-1 mb14">
+        <div id="ir-conflicts" aria-live="polite"></div>
+        <div id="ir-boundaries" aria-live="polite"></div>
+      </div>
+
+      <div class="grid g-1-1">
+        <div id="ir-selection" aria-live="polite"></div>
+        <div id="ir-meta" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/info-review.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'info-review', crumb: ['项目中心', '信息审核'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/info-review.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.infoReview;
+    var head = document.getElementById('ir-head'), metrics = document.getElementById('ir-metrics');
+    var readiness = document.getElementById('ir-readiness'), claims = document.getElementById('ir-claims');
+    var scenes = document.getElementById('ir-scenes'), conflicts = document.getElementById('ir-conflicts');
+    var boundaries = document.getElementById('ir-boundaries'), selection = document.getElementById('ir-selection');
+    var meta = document.getElementById('ir-meta'), keepId = document.querySelectorAll('[data-keep-id]');
+    var regions = [metrics, readiness, claims, scenes, conflicts, boundaries, selection, meta];
+    function renderAll(project, draft) {
+      head.innerHTML = R.renderHead(project, draft);
+      metrics.innerHTML = R.renderMetrics(draft);
+      readiness.innerHTML = R.renderReadinessCard(draft);
+      claims.innerHTML = R.renderClaimsCard(draft);
+      scenes.innerHTML = R.renderScenesCard(draft);
+      conflicts.innerHTML = R.renderConflictsCard(draft);
+      boundaries.innerHTML = R.renderBoundariesCard(draft);
+      selection.innerHTML = R.renderResearchSelectionCard(draft);
+      meta.innerHTML = R.renderMetaCard(draft);
+    }
+    async function load() {
+      head.innerHTML = '<div><h1 class="page-title">正在读取信息审核草稿…</h1><p class="page-desc">GET /projects/{id}/information-draft</p></div>';
+      regions.forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取审核草稿…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目。' };
+        keepId.forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(id); });
+        var base = '/projects/' + encodeURIComponent(id);
+        var res = await Promise.all([API.get(base), API.get(base + '/information-draft')]);
+        renderAll(res[0], res[1]);
+      } catch (err) {
+        head.innerHTML = '<div><h1 class="page-title">审核草稿读取失败</h1><p class="page-desc">请检查后端与项目 ID 后重试。</p></div>';
+        regions.forEach(function (el) { el.innerHTML = R.renderCardError(err); });
+      }
+    }
+    readiness.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

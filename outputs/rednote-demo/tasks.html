@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>任务与通知 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .jstate { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .js-queue { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .js-run { color: #c4a5ff; background: rgba(160,107,255,0.16); }
+  .js-part { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .js-ok { color: #34d399; background: rgba(52,211,153,0.14); }
+  .js-fail { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .js-cing { color: #f59e0b; background: rgba(245,158,11,0.13); }
+  .js-cd { color: var(--faint); background: rgba(255,255,255,0.035); }
+
+  .sm { display: flex; align-items: stretch; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .sm-n { flex: 1; min-width: 0; padding: 12px 10px; text-align: center; border-right: 1px solid var(--line); position: relative; }
+  .sm-n:last-child { border-right: 0; }
+  .sm-t { font-size: 11.5px; font-weight: 600; margin-bottom: 5px; }
+  .sm-c { font-family: var(--mono); font-size: 17px; font-weight: 700; }
+  .sm-d { font-size: 9.5px; color: var(--faint); margin-top: 4px; line-height: 1.5; }
+  .sm-term { background: rgba(255,255,255,0.015); }
+
+  .todo { display: flex; gap: 11px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); transition: border-color .18s ease; }
+  .todo:hover { border-color: var(--line-strong); }
+  .todo-done { opacity: 0.48; }
+  .todo-ic { width: 28px; height: 28px; flex: none; border-radius: 8px; display: grid; place-items: center; font-size: 11.5px; }
+  .ti-fail { color: #fb7185; background: rgba(251,113,133,0.13); border: 1px solid rgba(251,113,133,0.24); }
+  .ti-need { color: #fbbf24; background: rgba(251,191,36,0.13); border: 1px solid rgba(251,191,36,0.24); }
+  .ti-info { color: #60a5fa; background: rgba(96,165,250,0.13); border: 1px solid rgba(96,165,250,0.24); }
+  .ti-ok { color: #34d399; background: rgba(52,211,153,0.13); border: 1px solid rgba(52,211,153,0.24); }
+  .ti-pur { color: var(--purple); background: var(--purple-dim); border: 1px solid var(--purple-line); }
+  .merged { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 7px 9px; background: rgba(0,0,0,0.22); font-size: 10.5px; color: var(--muted); }
+  .retry { display: inline-flex; gap: 3px; align-items: center; }
+  .retry i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; font-style: normal; }
+  .rd-1 { background: #fb7185; }
+  .rd-2 { background: #fbbf24; }
+  .rd-0 { background: rgba(255,255,255,0.16); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-bell"></i> 任务与通知</span>
+            <span class="tag tag-running">4 运行中</span>
+            <span class="tag tag-danger">3 失败待处理</span>
+          </div>
+          <h1 class="page-title">AI 任务队列与站内待办</h1>
+          <p class="page-desc">批次状态聚合子任务，单篇状态独立。可恢复错误默认最多 <b>2 次</b>自动重试；已明确计费或结果未知的生成请求<b class="t-warn">先查状态再决定</b>，避免重复收费。第一版仅站内待办，不外发聊天或邮箱（PRD §17.2 / §21.1）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：仅重做失败部分，成功媒体复用"><i class="fa-solid fa-rotate-right"></i>重做失败部分</button>
+          <button class="btn btn-ghost" data-toast="演示环境：全部待办标记为处理完成"><i class="fa-solid fa-check-double"></i>全部标记已处理</button>
+          <button class="btn btn-primary" data-toast="演示环境：按项目 / 类型 / 状态导出任务台账"><i class="fa-solid fa-download"></i>导出任务台账</button>
+        </div>
+      </div>
+
+      <!-- ============ 看板收窄至左主区，与下方内容对齐 ============ -->
+      <div class="grid g-3-2 mb18">
+
+        <!-- 左主区：概览指标 -->
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 概览指标 ============ -->
+          <section class="grid g3">
+            <div class="metric">
+              <div class="metric-label">今日任务</div>
+              <div class="metric-value">147 <span class="unit">个</span></div>
+              <div class="metric-foot t-mut">13 类任务类型 · 4 个项目</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">运行中</div>
+              <div class="metric-value t-pur">4 <span class="unit">个</span></div>
+              <div class="metric-foot t-mut">最长已运行 8 分 12 秒</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">部分成功</div>
+              <div class="metric-value t-warn">2 <span class="unit">个</span></div>
+              <div class="metric-foot t-warn">仅重做失败部分，成功媒体复用</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">失败待处理</div>
+              <div class="metric-value t-dan">3 <span class="unit">个</span></div>
+              <div class="metric-foot t-dan">2 个已达重试上限</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">结果未知</div>
+              <div class="metric-value t-warn">2 <span class="unit">个</span></div>
+              <div class="metric-foot t-warn">费用标记待核对，不记 0</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">未读待办</div>
+              <div class="metric-value">7 <span class="unit">条</span></div>
+              <div class="metric-foot t-mut">同批次已合并，非逐张一条</div>
+            </div>
+          </section>
+
+        </div><!-- /左主区 -->
+
+        <!-- 右辅助栏：异常提示 -->
+        <div class="col" style="gap:14px">
+
+          <div class="note note-warn">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <b>2 个任务结果未知：</b><span class="code">JOB-2276</span> 与 <span class="code">JOB-2281</span> 在供应商侧已明确计费但未返回结果。系统<b class="t-warn">不自动重试</b>，
+              先通过供应商请求标识查询状态；查询期间费用记为「待核对 ¥74.80」，<b>不按无费用处理</b>（AC-23 / §17.2）。
+            </div>
+          </div>
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-3-2 -->
+
+      <!-- ============ 任务状态机 / AI 任务队列 · 站内待办（主区 + 右轨） ============ -->
+      <div class="grid g-5-2">
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 任务状态机 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-diagram-project"></i>任务状态机</h2>
+                <p class="card-sub">7 种状态。批次状态由子任务聚合，单篇状态独立维护（PRD §17.2）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-muted">按请求标识去重</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="sm mb14">
+                <div class="sm-n">
+                  <div class="sm-t t-mut">排队</div>
+                  <div class="sm-c t-mut">31</div>
+                  <div class="sm-d">提交即返回排队状态<br>并发由队列控制</div>
+                </div>
+                <div class="sm-n">
+                  <div class="sm-t t-pur">运行</div>
+                  <div class="sm-c t-pur">4</div>
+                  <div class="sm-d">外部生成时长单独统计<br>不混为页面响应</div>
+                </div>
+                <div class="sm-n">
+                  <div class="sm-t t-warn">部分成功</div>
+                  <div class="sm-c t-warn">2</div>
+                  <div class="sm-d">批次内部分子任务失败<br>成功媒体保留复用</div>
+                </div>
+                <div class="sm-n sm-term">
+                  <div class="sm-t t-ok">成功</div>
+                  <div class="sm-c t-ok">105</div>
+                  <div class="sm-d">终态<br>费用记为实际</div>
+                </div>
+                <div class="sm-n sm-term">
+                  <div class="sm-t t-dan">失败</div>
+                  <div class="sm-c t-dan">3</div>
+                  <div class="sm-d">终态<br>保存错误分类</div>
+                </div>
+                <div class="sm-n">
+                  <div class="sm-t" style="color:#f59e0b">取消中</div>
+                  <div class="sm-c" style="color:#f59e0b">1</div>
+                  <div class="sm-d">停止未执行部分<br>已运行部分继续查询</div>
+                </div>
+                <div class="sm-n sm-term">
+                  <div class="sm-t t-fai">已取消</div>
+                  <div class="sm-c t-fai">1</div>
+                  <div class="sm-d">终态<br>已计费部分不退</div>
+                </div>
+              </div>
+
+              <div class="grid g-1-1-fix gap14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-list-check"></i>13 类任务类型<span class="sec-sub">§17.1</span></div>
+                  <div class="grid g4" style="gap:7px">
+                    <div class="fcard"><div class="f11 fw6">Brief 解析</div><div class="f10 t-mut mt4">4 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">资料解析</div><div class="f10 t-mut mt4">18 个 · 1 部分成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">信息整理</div><div class="f10 t-mut mt4">6 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">方案建议</div><div class="f10 t-mut mt4">7 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">文案生成</div><div class="f10 t-mut mt4">32 个 · 1 失败</div></div>
+                    <div class="fcard"><div class="f11 fw6">静态图生成</div><div class="f10 t-mut mt4">28 个 · 1 部分成功</div></div>
+                    <div class="fcard fcard-on"><div class="f11 fw6">Live 生成与封装</div><div class="f10 t-dan mt4">12 个 · <b>1 失败</b></div></div>
+                    <div class="fcard"><div class="f11 fw6">自检</div><div class="f10 t-mut mt4">12 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">反馈归因</div><div class="f10 t-mut mt4">5 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">数据采集</div><div class="f10 t-warn mt4">9 个 · <b>2 失败</b></div></div>
+                    <div class="fcard"><div class="f11 fw6">策略分析</div><div class="f10 t-mut mt4">3 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">报告</div><div class="f10 t-mut mt4">2 个 · 全部成功</div></div>
+                    <div class="fcard"><div class="f11 fw6">ZIP 导出</div><div class="f10 t-mut mt4">9 个 · 1 重试成功</div></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-shield-halved"></i>重试与恢复规则<span class="sec-sub">§17.2</span></div>
+                  <div class="grid" style="gap:8px">
+                    <div class="list-item">
+                      <span class="li-icon purple"><i class="fa-solid fa-fingerprint"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">重复提交去重</div>
+                        <div class="li-sub">同一请求标识重复提交直接返回既有任务，不产生二次计费</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-ok no-dot">已去重 1</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon" style="color:var(--warn);background:rgba(251,191,36,0.12);border-color:rgba(251,191,36,0.24)"><i class="fa-solid fa-rotate"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">可恢复错误有限重试</div>
+                        <div class="li-sub">默认最多 2 次自动重试；超限转失败终态，交人工决定</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-warn no-dot">2 个已超限</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon" style="color:var(--danger);background:rgba(251,113,133,0.12);border-color:rgba(251,113,133,0.24)"><i class="fa-solid fa-ban"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">采集限制与认证错误不连续重试</div>
+                        <div class="li-sub">验证码 / 访问限制 / 认证失效类错误立即停止，避免触发风控</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-danger no-dot">命中 2</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon" style="color:var(--info);background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.24)"><i class="fa-solid fa-recycle"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">仅重做失败部分</div>
+                        <div class="li-sub">批次内已成功的文案与媒体版本复用，不重复计费</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-info no-dot">节省 ¥94.20</span></div>
+                    </div>
+                    <div class="list-item">
+                      <span class="li-icon" style="color:#f59e0b;background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.24)"><i class="fa-solid fa-circle-stop"></i></span>
+                      <div class="li-main">
+                        <div class="li-title">取消语义</div>
+                        <div class="li-sub">停止尚未执行部分；供应商不支持取消的已运行部分继续查询并说明状态</div>
+                      </div>
+                      <div class="li-right"><span class="tag tag-warn no-dot">取消中 1</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 任务队列 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-list-ol"></i>AI 任务队列</h2>
+                <p class="card-sub">每项保存任务编号、请求人、项目、批次 / 内容、输入版本、供应商、模型、状态、起止时间、费用与错误分类（PRD §17.1）</p>
+              </div>
+              <div class="card-head-actions">
+                <div class="seg">
+                  <span class="seg-item is-active">全部</span>
+                  <span class="seg-item">运行中</span>
+                  <span class="seg-item">异常</span>
+                  <span class="seg-item">已完成</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th style="width:96px">任务编号</th>
+                      <th style="width:126px">类型</th>
+                      <th style="width:150px">对象 / 输入版本</th>
+                      <th style="width:126px">供应商 · 模型</th>
+                      <th style="width:104px">状态</th>
+                      <th style="width:74px">重试</th>
+                      <th style="width:108px">耗时</th>
+                      <th style="width:84px">费用</th>
+                      <th>错误分类 / 说明</th>
+                      <th style="width:88px">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="tr-danger">
+                      <td class="mono f11">JOB-2290</td>
+                      <td class="f11">Live 生成与封装</td>
+                      <td class="f11 t-2">C-0247<div class="f10 t-fai">CV-v2 · PLAN-v3</div></td>
+                      <td class="f11 t-2">Vendor-L<div class="f10 t-fai">live-pack-1.4</div></td>
+                      <td><span class="jstate js-fail"><i class="fa-solid fa-circle-xmark"></i>失败</span></td>
+                      <td><span class="retry"><i class="rd-1"></i><i class="rd-2"></i></span><div class="f10 t-fai">2/2 已满</div></td>
+                      <td class="mono f11 t-2">3分12秒</td>
+                      <td class="mono f11 t-2">¥12.40</td>
+                      <td class="f11 t-dan">格式校验失败 · 首帧尺寸 1080×1440 与规格不符<div class="f10 t-mut">不静默降级为静态图，需人工决定</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：人工确认后手动重做该单篇"><i class="fa-solid fa-rotate-right"></i>重做</button></td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono f11">JOB-2289</td>
+                      <td class="f11">静态图生成</td>
+                      <td class="f11 t-2">BATCH-B03<div class="f10 t-fai">批次 · 18 张</div></td>
+                      <td class="f11 t-2">Vendor-A<div class="f10 t-fai">img-x2</div></td>
+                      <td><span class="jstate js-part"><i class="fa-solid fa-circle-half-stroke"></i>部分成功</span></td>
+                      <td><span class="retry"><i class="rd-1"></i><i class="rd-0"></i></span><div class="f10 t-fai">1/2</div></td>
+                      <td class="mono f11 t-2">6分48秒</td>
+                      <td class="mono f11 t-2">¥86.40</td>
+                      <td class="f11 t-warn">16 成功 / 2 超时失败<div class="f10 t-mut">成功媒体已复用，重做仅针对 2 张</div></td>
+                      <td><button class="btn btn-sm btn-purple" data-toast="演示环境：仅重做 2 张失败图片，成功 16 张复用不计费"><i class="fa-solid fa-recycle"></i>重做 2</button></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">JOB-2288</td>
+                      <td class="f11">Live 生成与封装</td>
+                      <td class="f11 t-2">BATCH-B03<div class="f10 t-fai">批次 · 6 条</div></td>
+                      <td class="f11 t-2">Vendor-L<div class="f10 t-fai">live-pack-1.4</div></td>
+                      <td><span class="jstate js-run"><span class="spinner"></span>运行</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-pur">8分12秒</td>
+                      <td class="mono f11 t-mut">预估 ¥74.60</td>
+                      <td class="f11 t-mut">已完成 4/6 · 外部生成时长单独统计<div class="f10 t-fai">页面响应 P95 不含此时长</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：取消将停止未执行部分；已运行部分继续查询状态"><i class="fa-solid fa-circle-stop"></i>取消</button></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">JOB-2287</td>
+                      <td class="f11">文案生成</td>
+                      <td class="f11 t-2">BATCH-B03<div class="f10 t-fai">批次 · 12 条</div></td>
+                      <td class="f11 t-2">Vendor-T<div class="f10 t-fai">txt-pro</div></td>
+                      <td><span class="jstate js-run"><span class="spinner"></span>运行</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-pur">1分34秒</td>
+                      <td class="mono f11 t-mut">预估 ¥18.20</td>
+                      <td class="f11 t-mut">输入 / 输出 / 缓存 token 分别记录<div class="f10 t-fai">上下文快照 CTX-0442</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看该任务实际组装的上下文快照"><i class="fa-solid fa-eye"></i>上下文</button></td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono f11">JOB-2286</td>
+                      <td class="f11">数据采集</td>
+                      <td class="f11 t-2">52 篇发布记录<div class="f10 t-fai">SNAP-005</div></td>
+                      <td class="f11 t-2">Vendor-D<div class="f10 t-fai">collect-v2</div></td>
+                      <td><span class="jstate js-fail"><i class="fa-solid fa-circle-xmark"></i>失败</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-dan">不重试</div></td>
+                      <td class="mono f11 t-2">42秒</td>
+                      <td class="mono f11 t-2">¥8.60</td>
+                      <td class="f11 t-dan">访问限制 · 触发验证码<div class="f10 t-mut">该类错误不自动连续重试，转人工录入</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：转为人工录入 / 截图识别通道"><i class="fa-solid fa-keyboard"></i>转人工</button></td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono f11">JOB-2281</td>
+                      <td class="f11">静态图生成</td>
+                      <td class="f11 t-2">C-0231<div class="f10 t-fai">CV-v3</div></td>
+                      <td class="f11 t-2">Vendor-A<div class="f10 t-fai">img-x2</div></td>
+                      <td><span class="jstate js-part"><i class="fa-solid fa-question"></i>结果未知</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-warn">先查状态</div></td>
+                      <td class="mono f11 t-2">— </td>
+                      <td class="mono f11 t-warn">待核对 ¥32.40</td>
+                      <td class="f11 t-warn">供应商已确认计费，结果未返回<div class="f10 t-mut">按请求标识查询中，禁止直接重发避免重复收费</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：按供应商请求标识查询结果状态"><i class="fa-solid fa-magnifying-glass"></i>查状态</button></td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="mono f11">JOB-2276</td>
+                      <td class="f11">Live 生成与封装</td>
+                      <td class="f11 t-2">C-0219<div class="f10 t-fai">CV-v2</div></td>
+                      <td class="f11 t-2">Vendor-L<div class="f10 t-fai">live-pack-1.3</div></td>
+                      <td><span class="jstate js-part"><i class="fa-solid fa-question"></i>结果未知</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-warn">先查状态</div></td>
+                      <td class="mono f11 t-2">—</td>
+                      <td class="mono f11 t-warn">待核对 ¥42.40</td>
+                      <td class="f11 t-warn">供应商不支持取消，已运行部分继续<div class="f10 t-mut">结项时须携带「费用待核对」标记</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：按供应商请求标识查询结果状态"><i class="fa-solid fa-magnifying-glass"></i>查状态</button></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">JOB-2275</td>
+                      <td class="f11">ZIP 导出</td>
+                      <td class="f11 t-2">BATCH-B02<div class="f10 t-fai">30 条 · 正式包</div></td>
+                      <td class="f11 t-2">内部<div class="f10 t-fai">pack-svc</div></td>
+                      <td><span class="jstate js-cing"><i class="fa-solid fa-hourglass-half"></i>取消中</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-2">1分02秒</td>
+                      <td class="mono f11 t-2">¥0.00</td>
+                      <td class="f11 t-warn">已停止未执行部分 · 已打包 12 条继续落盘<div class="f10 t-mut">取消完成后状态转「已取消」</div></td>
+                      <td><span class="f10 t-fai">—</span></td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td class="mono f11">JOB-2270</td>
+                      <td class="f11">文案生成</td>
+                      <td class="f11 t-2">C-0208<div class="f10 t-fai">CV-v1</div></td>
+                      <td class="f11 t-2">Vendor-T<div class="f10 t-fai">txt-pro</div></td>
+                      <td><span class="jstate js-cd"><i class="fa-solid fa-circle-minus"></i>已取消</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-2">18秒</td>
+                      <td class="mono f11 t-2">¥1.80</td>
+                      <td class="f11 t-mut">人工取消 · 已计费部分不退<div class="f10 t-fai">取消原因：方案比例调整</div></td>
+                      <td><span class="f10 t-fai">—</span></td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td class="mono f11">JOB-2268</td>
+                      <td class="f11">静态图生成</td>
+                      <td class="f11 t-2">C-0205<div class="f10 t-fai">CV-v2</div></td>
+                      <td class="f11 t-2">Vendor-A<div class="f10 t-fai">img-x2</div></td>
+                      <td><span class="jstate js-queue"><i class="fa-solid fa-clock"></i>排队</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-fai">等待 26 秒</td>
+                      <td class="mono f11 t-mut">预估 ¥4.80</td>
+                      <td class="f11 t-mut">并发上限 6，队列位置 3<div class="f10 t-fai">重复提交已按请求标识去重 1 次</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：从队列中移除该任务"><i class="fa-solid fa-xmark"></i>移除</button></td>
+                    </tr>
+                    <tr>
+                      <td class="mono f11">JOB-2261</td>
+                      <td class="f11">报告</td>
+                      <td class="f11 t-2">阶段报告 v6<div class="f10 t-fai">RPT-TPL-v2.3</div></td>
+                      <td class="f11 t-2">Vendor-T<div class="f10 t-fai">txt-pro</div></td>
+                      <td><span class="jstate js-ok"><i class="fa-solid fa-circle-check"></i>成功</span></td>
+                      <td><span class="retry"><i class="rd-0"></i><i class="rd-0"></i></span><div class="f10 t-fai">0/2</div></td>
+                      <td class="mono f11 t-2">51秒</td>
+                      <td class="mono f11 t-2">¥14.20</td>
+                      <td class="f11 t-ok">缺失指标 12 项已标注「数据缺失」<div class="f10 t-mut">未补造数值</div></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：跳转到报告 v6"><i class="fa-solid fa-arrow-right"></i>查看</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左 -->
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 站内待办 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-inbox"></i>站内待办</h2>
+                <p class="card-sub">7 类通知事件：任务完成 / 失败 · 需人工确认 · 负责人变更 · 预算提醒 · 数据回收受阻 · 接近截止 · 事实纠错。<b class="t-ok">同批次合并</b>，不逐张一条（PRD §21.1）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-muted">第一版仅站内，不外发聊天 / 邮箱</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="grid" style="gap:9px">
+
+                <div class="todo">
+                  <span class="todo-ic ti-fail"><i class="fa-solid fa-circle-xmark"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">Live 生成失败 · 已达重试上限</span>
+                      <span class="f10 t-fai mono">2 分钟前</span>
+                    </div>
+                    <div class="f11 t-mut mb6">BATCH-B03 · C-0247 · JOB-2290 首帧尺寸不符规格。<b class="t-warn">未静默降级为静态图</b>，需人工决定重做或改规格。</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：跳转到 C-0247 内容详情"><i class="fa-solid fa-arrow-right"></i>处理</button>
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：标记该待办处理完成"><i class="fa-solid fa-check"></i>标记已处理</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-need"><i class="fa-solid fa-user-check"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">需要人工确认 · 事实变更影响未交付内容</span>
+                      <span class="f10 t-fai mono">18 分钟前</span>
+                    </div>
+                    <div class="f11 t-mut mb6">事实 <span class="code">FACT-0113</span> 更新至 v3（氨基酸复配比例表述），命中 <b>7 条</b>未交付内容引用。<b class="t-dan">受影响内容已阻止正式导出</b>，需逐条确认。</div>
+                    <div class="merged mb6"><i class="fa-solid fa-layer-group t-pur"></i> 已合并 7 条同源通知为 1 条（原逐条通知会产生 7 条）</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-purple" data-toast="演示环境：批量确认 7 条受影响内容的事实引用"><i class="fa-solid fa-list-check"></i>批量确认</button>
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：查看引用明细"><i class="fa-solid fa-eye"></i>查看引用</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-need"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">预算提醒 · 已用 98.1%</span>
+                      <span class="f10 t-fai mono">34 分钟前</span>
+                    </div>
+                    <div class="f11 t-mut mb6">项目预算 ¥4,000.00，已用（实际 + 进行中占用）¥3,923.72。当前为<b class="t-dan">硬限制模式</b>，新任务提交前核算超限将被阻止；已计费的外部任务不强行停止。</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：跳转费用账本"><i class="fa-solid fa-coins"></i>查看费用</button>
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：仅管理者可调整预算与模式"><i class="fa-solid fa-lock"></i>申请调额</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-fail"><i class="fa-solid fa-tower-broadcast"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">数据回收受阻 · 采集通道触发验证码</span>
+                      <span class="f10 t-fai mono">1 小时前</span>
+                    </div>
+                    <div class="f11 t-mut mb6">JOB-2286 采集 52 篇失败，错误分类「访问限制」。该类错误<b class="t-warn">不自动连续重试</b>，建议改用人工录入或截图识别。</div>
+                    <div class="merged mb6"><i class="fa-solid fa-layer-group t-pur"></i> 已合并 2 次同通道失败为 1 条</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：转人工录入通道"><i class="fa-solid fa-keyboard"></i>转人工录入</button>
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：标记该待办处理完成"><i class="fa-solid fa-check"></i>标记已处理</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-need"><i class="fa-solid fa-clock"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">接近截止 · 2 个项目</span>
+                      <span class="f10 t-fai mono">今天 09:00</span>
+                    </div>
+                    <div class="f11 t-mut mb6">PRJ-2026-0037 素与 Su&（剩 1 天，交付 64.4%）· PRJ-2026-0041 沐野（剩 3 天，交付 21.0%）</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：跳转项目列表并按截止排序"><i class="fa-solid fa-arrow-right"></i>查看项目</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-info"><i class="fa-solid fa-user-pen"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">负责人变更 · PRJ-2026-0039</span>
+                      <span class="f10 t-fai mono">昨天 17:22</span>
+                    </div>
+                    <div class="f11 t-mut mb6">管理者 周执 将负责人由 陈见 变更为 <b>林知远</b>。原负责人未认领待办 <b>4 条</b>已转交；明确分配给其他协作者的 2 条待办保留。已运行任务继续，<b class="t-warn">创建人与费用归属未重写</b>。</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：查看转交明细与变更原因"><i class="fa-solid fa-eye"></i>查看明细</button>
+                      <button class="btn btn-sm btn-ghost" data-toast="演示环境：标记该待办处理完成"><i class="fa-solid fa-check"></i>标记已处理</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo">
+                  <span class="todo-ic ti-fail"><i class="fa-solid fa-file-circle-exclamation"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">事实纠错 · 已发布内容</span>
+                      <span class="f10 t-fai mono">昨天 14:05</span>
+                    </div>
+                    <div class="f11 t-mut mb6">C-0197（已发布）功效表述与最新事实不一致。系统创建跟进待办，<b class="t-dan">不自动替用户删帖</b>，需运营登记处理结果。</div>
+                    <div class="row gap6">
+                      <button class="btn btn-sm btn-purple" data-toast="演示环境：登记处理结果（改写 / 删除 / 保留说明）"><i class="fa-solid fa-pen"></i>登记处理结果</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="todo todo-done">
+                  <span class="todo-ic ti-ok"><i class="fa-solid fa-circle-check"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">批次生成完成 · BATCH-B02（30 条）</span>
+                      <span class="f10 t-fai mono">09-15 20:14</span>
+                    </div>
+                    <div class="f11 t-mut">已标记处理完成 · 处理人 林知远 · 关联对象 BATCH-B02<div class="f10 t-fai mt4">同批 30 条内容 + 96 张媒体合并为 1 条通知</div></div>
+                  </div>
+                </div>
+
+                <div class="todo todo-done">
+                  <span class="todo-ic ti-pur"><i class="fa-solid fa-recycle"></i></span>
+                  <div class="f1">
+                    <div class="row between mb4">
+                      <span class="f12 fw6">ZIP 导出重试成功 · BATCH-B01</span>
+                      <span class="f10 t-fai mono">09-15 11:02</span>
+                    </div>
+                    <div class="f11 t-mut">首次失败（存储写入超时）→ 第 1 次自动重试成功 · 已标记处理完成</div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="note note-info mt14 mb0">
+                <i class="fa-solid fa-bell-slash"></i>
+                <div>
+                  <b>合并口径：</b>同一批次、同一错误分类、同一通知事件在 <b>10 分钟</b>窗口内合并为一条，展示受影响对象数量。
+                  待办可标记处理完成并关联具体对象（批次 / 内容 / 任务 / 项目），已处理项默认折叠但不删除。
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /右 -->
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'tasks', crumb: ['导航', '任务与通知'] });
+</script>
+</body>
+</html>

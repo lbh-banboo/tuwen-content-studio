@@ -1,0 +1,138 @@
+# WP47② 告警规则（ADR-11 C6）
+#
+# 真验收：`promtool check rules deploy/monitoring/rules/*.yml`
+#
+# ============================ 指标名是契约 ============================
+# 本文件里出现的每个指标名都必须是**真实可抓**的。
+# Prometheus 对"引用不存在的指标"**不报错** —— 表达式静默返回空向量，
+# 告警永不触发，且没有任何日志提示。这是最危险的一类假告警：
+# 看起来规则齐备，出了故障却什么都不响。
+#
+# 因此本轮（WP47②）刻意**只写当前真能抓到指标的规则**：
+#
+#   可用（WP47① 实测，5 个）：
+#     up / scrape 相关（Prometheus 自带）
+#     python_gc_objects_collected_total / python_gc_objects_uncollectable_total
+#     python_gc_collections_total / python_info
+#     rednote_build_info
+#
+#   ⚠️ 计划 §4.2 任务 ② 列的五个业务告警（队列积压 / 任务失败率 / 预算异常 /
+#   磁盘 / 备份失败）本轮**故意不写**，因为对应埋点在代码里**还不存在**：
+#     - 队列积压      → 需 RabbitMQ 埋点（C2），代码里零埋点
+#     - 任务失败率    → 需 job 状态机埋点（WP13/14），代码里零埋点
+#     - 预算异常      → 需账本/预算埋点（M2），代码里零埋点
+#     - 磁盘          → 需 node_exporter，尚未部署（ADR-11 C6 未列该组件）
+#     - 备份失败      → 需备份脚本上报，backup_pg.py 当前无出口埋点
+#   写这五条就是写五条**永不触发的假告警**，违反"声称有防线比没有防线更危险"。
+#   它们登记在 docs/m5/WP47-告警规则说明.md 的"待补清单"，随埋点落地逐条增补。
+#   **增补时只能新增，不能改名** —— 改名会让既有告警静默失效（同上）。
+# =======================================================================
+
+groups:
+  # -------------------------------------------------------------------
+  # 组 1：抓取可达性（最高优先级 —— 抓不到就什么都测不到）
+  # -------------------------------------------------------------------
+  - name: rednote-scrape
+    interval: 30s
+    rules:
+      - alert: RednoteApiDown
+        expr: up{job="rednote-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: rednote-api
+        annotations:
+          summary: "Rednote API 实例抓取失败（up=0）"
+          description: >-
+            实例 {{ $labels.instance }} 已连续 2 分钟无法被抓取。
+            双实例部署下若两台同时 up=0，业务已完全不可用。
+            注意：up=0 也可能是网络/证书/网关问题，未必是进程本身挂了。
+          runbook: ① 确认进程存活 ② 确认 /metrics 可直连 ③ 确认网关未拦截 /metrics
+
+      - alert: RednoteApiAllDown
+        expr: sum(up{job="rednote-api"}) == 0
+        for: 1m
+        labels:
+          severity: emergency
+          service: rednote-api
+        annotations:
+          summary: "Rednote API 全部实例不可达（业务完全中断）"
+          description: >-
+            rednote-api 的所有抓取目标 up 均为 0，持续 1 分钟。
+            这是 P0：业务面已无任何健康实例。
+
+  # -------------------------------------------------------------------
+  # 组 2：构建信息（部署正确性 —— 版本漂移是"看不见的故障"）
+  # -------------------------------------------------------------------
+  - name: rednote-build
+    interval: 60s
+    rules:
+      - alert: RednoteBuildInfoMissing
+        expr: absent(rednote_build_info)
+        for: 5m
+        labels:
+          severity: warning
+          service: rednote-api
+        annotations:
+          summary: "rednote_build_info 缺失（应用侧指标出口未生效）"
+          description: >-
+            该指标恒为 1，信息在标签里（service/version/environment）。
+            完全 absent 说明 /metrics 拿到的是**另一个未装配本模块的进程**，
+            或抓到了非 Rednote 服务。这是"指标出口本身坏了"的信号 ——
+            此时本文件其余依赖应用指标的规则都会失效。
+
+      - alert: RednoteVersionSkew
+        expr: count(count by (version) (rednote_build_info)) > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: rednote-api
+        annotations:
+          summary: "双实例版本不一致（滚动发布未完成或发布中断）"
+          description: >-
+            两台 API 实例上报了 {{ $value }} 个不同的 version。
+            ADR-11 C8 为双实例部署，版本必须一致 ——
+            不一致意味着滚动发布卡在中途，或有实例长期没更新。
+
+  # -------------------------------------------------------------------
+  # 组 3：Python 运行时健康（内存泄漏与 GC 停顿）
+  #
+  # 阈值来源说明（⚠️ 无 ADR 依据，是本轮显式给出的工程判断）：
+  # ADR-11 只给了 RPO ≤ 24h / RTO ≤ 8h，未规定运行时阈值。
+  # 下列取值来自 CPython 常见实践，且**必须在真实数据量下校准**
+  # （登记在 docs/m5/WP47-告警规则说明.md 的"待校准清单"）。
+  # ⚠️ 内网未跑真实负载前，这些规则只能读作"机制可用"，不是"阈值正确"。
+  # -------------------------------------------------------------------
+  - name: rednote-runtime
+    interval: 30s
+    rules:
+      - alert: RednoteGcUncollectableHigh
+        expr: python_gc_objects_uncollectable_total{job="rednote-api"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: rednote-api
+        annotations:
+          summary: "不可回收 GC 对象偏高（疑似内存泄漏早期信号）"
+          description: >-
+            uncollectable 对象数持续 5 分钟高于 1000。
+            该值持续单调上升通常意味着对象被循环引用困住 ——
+            本仓有长生命周期对象（SSE 连接、DB session、exposition registry），
+            出现泄漏时这是最先看到的信号。
+            阈值 1000 为工程判断值，待内网校准。
+
+      - alert: RednoteGcCollectionBurst
+        # 注意分母：这里是 _total 后缀的 exposition 名，不是 collect() 的名字
+        # （metrics.py 的 docstring 明确记录了这个差异）。
+        expr: |
+          rate(python_gc_collections_total{job="rednote-api"}[5m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          service: rednote-api
+        annotations:
+          summary: "GC 频率异常升高（分配速率过大或存在循环引用）"
+          description: >-
+            5 分钟窗口内每秒回收超过 10 次。频繁 GC 通常意味着
+            大量短生命周期对象（如每请求新建容器），会吃掉可观的 CPU。
+            阈值待内网校准。

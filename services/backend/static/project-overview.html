@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>项目总览 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="code" data-bind="code">PRJ-2026-0037</span>
+            <span class="tag tag-purple" data-bind="phase">准备期</span>
+            <span class="tag tag-muted no-dot" data-bind="due"><i class="fa-regular fa-clock"></i> 截止 09-24 · 剩 8 天</span>
+          </div>
+          <h1 class="page-title" data-bind="name">素与 Su& 氨基酸洁面</h1>
+          <p class="page-desc" data-bind="desc">品牌 素与 Su& · 氨基酸氨基洁面乳 120g · 主负责人 林知远 · 协作者 周予桐、陈默 · 计划交付 50 篇</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：结项需填写处置说明"><i class="fa-solid fa-flag-checkered"></i>结项</button>
+          <a class="btn btn-ghost" href="report.html"><i class="fa-solid fa-file-contract"></i>生成报告</a>
+          <a class="btn btn-primary" href="content-feedback.html"><i class="fa-solid fa-arrow-right"></i>继续步骤 5</a>
+        </div>
+      </div>
+
+      <div class="grid g-3-2">
+        <div class="col" style="gap:14px">
+
+          <!-- 关口解锁条件（原通栏卡片，收进左主栏首项，与分栏对齐） -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-lock t-pur"></i>
+                <h3 class="card-title" data-demo>关口解锁条件</h3>
+              </div>
+              <span class="f11 t-mut">PRD §4.3</span>
+            </div>
+            <div class="card-body">
+              <div class="note note-warn">
+                <i class="fa-solid fa-lock"></i>
+                <div>
+                  <b>步骤 6 未解锁：</b>本轮试产尚有 8 条未完成处置。进入扩产要求当前轮所有内容完成处置、无待处理阻断意见，
+                  且每个准备扩产的方向至少有一条已通过样例。<b>不允许仅点击全通过绕过。</b>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 数量指标 —— PRD §4.4 口径（收窄至左主区，与下方分栏对齐） -->
+          <div class="grid g3" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-wand-magic-sparkles"></i>生成数</div>
+              <div class="metric-value" data-count="10">0</div>
+              <div class="metric-foot">重生成不重复计数</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-circle-check"></i>通过数</div>
+              <div class="metric-value t-ok" data-count="6">0</div>
+              <div class="metric-foot">当前有效版本已人工通过</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-box-open"></i>已交付内容</div>
+              <div class="metric-value" data-count="6">0</div>
+              <div class="metric-foot">交付次数 8（1 篇给 2 KOC 计 2 次）</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-paper-plane"></i>已发布次数</div>
+              <div class="metric-value na">—</div>
+              <div class="metric-foot">尚无有效笔记发布记录</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-database"></i>已回收数据</div>
+              <div class="metric-value na">—</div>
+              <div class="metric-foot">完整覆盖率 0%</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-coins"></i>单篇通过成本</div>
+              <div class="metric-value" data-count="214.67" data-dec="2" data-pre="¥">¥0</div>
+              <div class="metric-foot">生产费用 ¥1,288 / 通过 6 条</div>
+            </div>
+          </div>
+
+          <!-- 交付进度 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title" data-demo>交付与阶段进度</span>
+              <span class="card-sub">两者并列展示，不用八步完成比例替代交付完成率</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g2">
+                <div>
+                  <div class="row between f12 mb6">
+                    <span class="t-2">交付进度</span>
+                    <span class="mono">6 / 50 · 12%</span>
+                  </div>
+                  <span class="bar bar-lg"><span class="bar-fill" data-w="12%"></span></span>
+                  <div class="f10 t-fai mt6">已交付内容数 / 计划交付篇数</div>
+                </div>
+                <div>
+                  <div class="row between f12 mb6">
+                    <span class="t-2">八步阶段进展</span>
+                    <span class="mono">4 / 8 · 50%</span>
+                  </div>
+                  <span class="bar bar-lg"><span class="bar-fill ok" data-w="50%"></span></span>
+                  <div class="f10 t-fai mt6">已完成关口数 / 总关口数</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr><th>指标</th><th class="num">数值</th><th>口径说明</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="strong">生成数</td><td class="num">10</td><td class="f11">成功生成至少一个完整版本的唯一内容数</td></tr>
+                    <tr><td class="strong">通过数</td><td class="num t-ok">6</td><td class="f11">当前有效版本已经人工通过的唯一内容数</td></tr>
+                    <tr><td class="strong">已淘汰</td><td class="num">2</td><td class="f11">本轮不用，保留历史，可被替代内容关联</td></tr>
+                    <tr><td class="strong">待处置</td><td class="num t-warn">8</td><td class="f11">含 3 条阻断意见，未解决不能通过</td></tr>
+                    <tr><td class="strong">交付次数</td><td class="num">8</td><td class="f11">有效交付记录数，一篇给两名 KOC 计两次</td></tr>
+                    <tr><td class="strong">已发布次数</td><td class="num na">—</td><td class="f11">去重后有效笔记发布记录数，暂无</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 项目待办 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title" data-demo>项目待办</span>
+              <span class="tag tag-danger">3 项阻断</span>
+            </div>
+            <div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-shield-halved"></i></span>
+                <div class="li-main">
+                  <div class="li-title">事实冲突：氨基酸表活占比表述不一致</div>
+                  <div class="li-sub">Brief 原文「62%」vs 研究资料 R-014「≥60%」 · 影响 4 条内容</div>
+                </div>
+                <div class="li-right"><a class="btn btn-sm" href="info-review.html">处置</a></div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-image"></i></span>
+                <div class="li-main">
+                  <div class="li-title">媒体一致性：C-007 第 2 张图产品瓶身文字不可读</div>
+                  <div class="li-sub">阻断项 · 须修改或局部重做后方可通过</div>
+                </div>
+                <div class="li-right"><a class="btn btn-sm" href="content-feedback.html">处置</a></div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                <div class="li-main">
+                  <div class="li-title">待补充真实体验未标记解决：C-009</div>
+                  <div class="li-sub">未解决前不能作为成稿交付</div>
+                </div>
+                <div class="li-right"><a class="btn btn-sm" href="content-feedback.html">处置</a></div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon warn"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                <div class="li-main">
+                  <div class="li-title">方向「熬夜党急救」尚无通过样例</div>
+                  <div class="li-sub">该方向 2 条全部淘汰 · 须补充试产或从扩产方案移除</div>
+                </div>
+                <div class="li-right"><a class="btn btn-sm" href="trial-config.html">补试产</a></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col" style="gap:14px">
+
+          <!-- 项目字段 -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">项目信息</span>
+              <div class="card-head-actions"><button class="btn btn-sm btn-ghost" data-toast="演示环境：修改将保留留痕记录">编辑</button></div>
+            </div>
+            <div class="card-body">
+              <table class="tbl tbl-compact" style="font-size:12px">
+                <tbody>
+                  <tr><td class="t-mut" style="width:88px">项目编号</td><td class="strong mono" data-bind="code">PRJ-2026-0037</td></tr>
+                  <tr><td class="t-mut">品牌 / 产品</td><td class="strong" data-bind="brandProduct">素与 Su& · 氨基酸洁面乳 120g</td></tr>
+                  <tr><td class="t-mut">主负责人</td><td class="strong" data-bind="owner">林知远</td></tr>
+                  <tr><td class="t-mut">协作者</td><td class="strong" data-bind="collab">周予桐、陈默</td></tr>
+                  <tr><td class="t-mut">计划交付</td><td class="strong" data-bind="target">50 篇</td></tr>
+                  <tr><td class="t-mut">计划发布</td><td class="strong" data-bind="targetPub">60 次</td></tr>
+                  <tr><td class="t-mut">截止日期</td><td class="strong" data-bind="dueDate">2026-09-24 <span class="f10 t-fai">Asia/Shanghai</span></td></tr>
+                  <tr><td class="t-mut">项目预算</td><td class="strong" data-demo>¥15,000 <span class="tag tag-muted" style="height:18px">提醒模式</span></td></tr>
+                  <tr><td class="t-mut">Brief 主文档</td><td class="strong" data-demo>v2 <span class="f10 t-fai">（共 2 版）</span></td></tr>
+                  <tr><td class="t-mut">参考素材</td><td class="strong t-ok" data-demo>8 张已确认可用</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 费用 -->
+          <section class="card">
+            <div class="card-head"><span class="card-title" data-demo>本项目费用</span>
+              <div class="card-head-actions"><a class="btn btn-sm btn-ghost" href="cost.html">明细</a></div>
+            </div>
+            <div class="card-body">
+              <div class="row between mb10">
+                <span class="metric-value" style="font-size:22px">¥1,542</span>
+                <span class="f11 t-mut">预算 ¥15,000 · 已用 10.3%</span>
+              </div>
+              <span class="bar mb14"><span class="bar-fill" data-w="10.3%"></span></span>
+
+              <div class="col" style="gap:8px">
+                <div class="row between f12"><span class="t-mut">生产费用</span><span class="mono">¥1,288</span></div>
+                <div class="row between f12"><span class="t-mut">研究费用</span><span class="mono">¥186</span></div>
+                <div class="row between f12"><span class="t-mut">报告费用</span><span class="mono">¥68</span></div>
+                <div class="divider" style="margin:6px 0"></div>
+                <div class="row between f12"><span class="t-mut">实际</span><span class="mono t-ok">¥1,404</span></div>
+                <div class="row between f12"><span class="t-mut">待核对</span><span class="mono t-warn">¥138</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 八步记录 -->
+          <section class="card">
+            <div class="card-head"><span class="card-title" data-demo>阶段记录</span></div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="tl-item purple">
+                  <div class="tl-time">09-16 10:20</div>
+                  <div class="tl-title">步骤 4 完成，试产 10 条已生成</div>
+                  <div class="tl-desc">方案 P-v2 · 8 完整成功 · 2 部分成功</div>
+                </div>
+                <div class="tl-item ok">
+                  <div class="tl-time">09-15 18:22</div>
+                  <div class="tl-title">步骤 3 完成，基线 BL-v3 已批准</div>
+                  <div class="tl-desc">林知远 · 绑定 Brief v2 + 12 项事实 + 4 条风格资产</div>
+                </div>
+                <div class="tl-item ok">
+                  <div class="tl-time">09-13 15:40</div>
+                  <div class="tl-title">步骤 2 完成，研究资料确认充分</div>
+                  <div class="tl-desc">24 份 · 218 MB / 300 MB · 3 份未解析已归档</div>
+                </div>
+                <div class="tl-item ok">
+                  <div class="tl-time">09-11 11:05</div>
+                  <div class="tl-title">步骤 1 完成，Brief v2 已批准</div>
+                  <div class="tl-desc">2 个字段标记「不适用」并填写原因</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time">09-09 09:30</div>
+                  <div class="tl-title">项目创建</div>
+                  <div class="tl-desc">管理者 许南嘉 分配负责人 林知远</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="api.js"></script>
+<script>
+  initPage({ active: 'project-overview', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '项目总览'] });
+
+  // 接线（A-2）：后端可达且已登录 -> 用接口数据替换页头与「项目信息」；
+  // 不可达 / 未登录 / 接口报错 -> 保留上面的静态演示样例，仅在页首给出一条说明（不白屏）。
+  (function () {
+    var PHASE = {
+      PREPARATION: ['准备期', 'tag-purple'], PRODUCTION: ['投产期', 'tag-info'],
+      DATA_COLLECTION: ['数据回收期', 'tag-ok'], CLOSED: ['已结束', 'tag-muted']
+    };
+    function bind(key, text) {
+      document.querySelectorAll('[data-bind="' + key + '"]').forEach(function (el) { el.textContent = text; });
+    }
+    function banner(kind, text) {
+      var canvas = document.querySelector('.canvas');
+      if (!canvas) return;
+      var n = document.createElement('div');
+      n.className = 'note note-' + kind;
+      n.id = 'liveBanner';
+      n.style.marginBottom = '14px';
+      n.innerHTML = '<i class="fa-solid fa-circle-info"></i><div></div>';
+      n.lastChild.textContent = text;
+      canvas.insertBefore(n, canvas.firstChild);
+    }
+    function markDemo() {
+      document.querySelectorAll('[data-demo]').forEach(function (el) {
+        var b = document.createElement('span');
+        b.className = 'tag tag-muted no-dot';
+        b.style.cssText = 'height:18px;margin-left:6px';
+        b.textContent = '样例';
+        el.appendChild(b);
+      });
+    }
+    function daysLeft(iso) {
+      var t = new Date(iso + 'T00:00:00');
+      var now = new Date(); now = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((t - now) / 86400000);
+    }
+    function render(p, me, brand, product) {
+      var ph = PHASE[p.phase] || [p.phase, 'tag-muted'];
+      var phEl = document.querySelector('[data-bind="phase"]');
+      phEl.className = 'tag ' + ph[1];
+      phEl.textContent = ph[0];
+      bind('code', p.projectCode);
+      bind('name', p.name);
+      var d = daysLeft(p.dueDate);
+      var dueEl = document.querySelector('[data-bind="due"]');
+      dueEl.textContent = p.phase === 'CLOSED' ? '已结项' :
+        ('截止 ' + p.dueDate.slice(5) + (d >= 0 ? ' · 剩 ' + d + ' 天' : ' · 已逾期 ' + (-d) + ' 天'));
+      var owner = me && me.id === p.ownerId ? me.displayName : '—';
+      var bp = (brand ? brand.name : '—') + ' · ' + (product ? product.name : '—');
+      bind('brandProduct', bp);
+      bind('owner', owner);
+      bind('collab', '—');
+      bind('target', p.targetDeliveryCount + ' 篇');
+      bind('targetPub', p.targetPublicationCount == null ? '—' : p.targetPublicationCount + ' 次');
+      bind('dueDate', p.dueDate + ' ' + p.timezone);
+      var descEl = document.querySelector('[data-bind="desc"]');
+      descEl.textContent = '品牌 ' + (brand ? brand.name : '—') + ' · ' + (product ? product.name : '—') +
+        ' · 主负责人 ' + owner + ' · 计划交付 ' + p.targetDeliveryCount + ' 篇' + (p.description ? ' · ' + p.description : '');
+      document.title = p.name + ' · 项目总览';
+    }
+    function find(list, id) {
+      for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+      return null;
+    }
+    function run() {
+      if (!window.api) { banner('info', '演示样例：api.js 未加载。'); return; }
+      api.probe().then(function (pr) {
+        if (pr.state === 'unreachable') { banner('info', '演示样例：后端不可达，以下为静态演示数据。'); return; }
+        if (pr.state === 'unauthenticated') { banner('info', '演示样例：尚未登录，以下为静态演示数据。'); return; }
+        if (pr.state !== 'ok') { banner('warn', '演示样例：会话检查失败（' + (pr.error && pr.error.message) + '）。'); return; }
+        var id = new URLSearchParams(location.search).get('projectId');
+        var getProject = id ? api.get('/projects/' + encodeURIComponent(id))
+          : api.list('/projects', { limit: 1 }).then(function (r) {
+              if (!r.data.length) { var e = new Error('EMPTY'); e.empty = true; throw e; }
+              return api.get('/projects/' + encodeURIComponent(r.data[0].id));
+            });
+        return getProject.then(function (p) {
+          return Promise.all([
+            api.get('/brands', { limit: 100 }).catch(function () { return []; }),
+            api.get('/products', { brandId: p.brandId, limit: 100 }).catch(function () { return []; })
+          ]).then(function (rs) {
+            render(p, pr.me, find(rs[0], p.brandId), find(rs[1], p.productId));
+            markDemo();
+            banner('ok', '已接入后端：页头与「项目信息」为真实数据；标记「样例」的区块及数量指标仍为演示样例，尚未接线。');
+          });
+        });
+      }).catch(function (err) {
+        if (err && err.empty) { banner('info', '演示样例：后端暂无项目，以下为静态演示数据。'); return; }
+        var m = err && err.code ? err.code + '：' + err.message : (err && err.message) || '未知错误';
+        banner('warn', '演示样例：接口取数失败（' + m + '），以下为静态演示数据。');
+      });
+    }
+    run();
+  })();
+</script>
+</body>
+</html>

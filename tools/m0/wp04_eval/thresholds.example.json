@@ -1,0 +1,15 @@
+{
+  "version": "0.1-draft",
+  "locked": false,
+  "signed_by": "",
+  "signed_at": "",
+  "_note": "草案，W2 由运营负责人签字锁定；签字前所有数值不得作为验收结论引用。",
+  "_source": "outputs/Rednote研发执行计划_V2.0_2026-09-19.md §2.2（AQ-01~03）",
+  "_change_rule": "锁定后任何变更需运营负责人同等签字，并同步更新 version 与 _note。",
+  "aq01_fact_accuracy": 0.95,
+  "blocking_error_count": 0,
+  "cross_brand_contamination": 0,
+  "aq03_product_consistency": 0.9,
+  "aq02_first_draft_pass": 0.5,
+  "adversarial_pass_rate": null
+}

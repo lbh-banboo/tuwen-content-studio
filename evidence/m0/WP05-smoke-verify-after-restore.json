@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "wp05.smoke.v1",
+  "stage": "verify",
+  "startedAt": "2026-09-20T13:56:25.514687+00:00",
+  "startedAtLocal": "2026-09-20T21:56:25.514687+08:00",
+  "tool": {
+    "python": "3.13.12",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "hostname": "leedeMacBook-Pro.local",
+    "cwd": "/Users/<user>/内容运营AI Native/rednote-production",
+    "script": "/Users/<user>/内容运营AI Native/rednote-production/tools/m0/wp05_smoke/smoke.py"
+  },
+  "pg": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "rednote",
+    "database": "postgres",
+    "passwordProvided": false,
+    "serverVersion": "PostgreSQL 17.10 (Homebrew) on aarch64-apple-darwin25.6.0, compiled by Apple clang version 21.0.0 (clang-2100.1.1.101), 64-bit",
+    "extensionsInstalled": {
+      "plpgsql": "1.0"
+    },
+    "extensionsAvailable": [
+      "pg_trgm",
+      "pgcrypto",
+      "uuid-ossp"
+    ]
+  },
+  "runId": "9969e6c6-140e-425a-82d7-90a094c434b1",
+  "contentDigest": "a7ed573fcfbb0f2aaed79d431722f847e15ea0e8a7ee8c842a21a0a2593823fc",
+  "contentBytes": 65647,
+  "writtenAt": "2026-09-19T23:38:37.228492+08:00",
+  "writtenBackend": "fs",
+  "blob": {
+    "backend": "fs",
+    "degraded": true,
+    "degradedNote": "本机 Docker/colima 不可用，无法启动 MinIO；仅用于验证脚本与 PG 腿。",
+    "root": "/Users/<user>/内容运营AI Native/rednote-production/evidence/m0/blobs",
+    "rootExists": true,
+    "objectKey": "wp05/smoke/9969e6c6-140e-425a-82d7-90a094c434b1.bin",
+    "bytesRead": 65647
+  },
+  "finishedAt": "2026-09-20T13:56:25.592632+00:00",
+  "durationMs": 77,
+  "checks": [
+    {
+      "name": "pg.connect",
+      "ok": true,
+      "blocking": true,
+      "detail": "已连接 localhost:5432/postgres"
+    },
+    {
+      "name": "pg.smoke_meta_survived_restart",
+      "ok": true,
+      "blocking": true,
+      "detail": "smoke_meta 表在重启后仍然存在"
+    },
+    {
+      "name": "pg.row_count_positive",
+      "ok": true,
+      "blocking": true,
+      "detail": "smoke_meta 行数=2"
+    },
+    {
+      "name": "pg.fetch_latest",
+      "ok": true,
+      "blocking": true,
+      "detail": "最近一次写入 run_id=9969e6c6-140e-425a-82d7-90a094c434b1"
+    },
+    {
+      "name": "backend.consistency",
+      "ok": true,
+      "blocking": true,
+      "detail": "写入后端=fs 校验后端=fs"
+    },
+    {
+      "name": "blob.exists_after_restart",
+      "ok": true,
+      "blocking": true,
+      "detail": "object_key=wp05/smoke/9969e6c6-140e-425a-82d7-90a094c434b1.bin"
+    },
+    {
+      "name": "blob.digest_matches",
+      "ok": true,
+      "blocking": true,
+      "detail": "对象 sha256=a7ed573fcfbb0f2aaed79d431722f847e15ea0e8a7ee8c842a21a0a2593823fc 库中期望=a7ed573fcfbb0f2aaed79d431722f847e15ea0e8a7ee8c842a21a0a2593823fc"
+    },
+    {
+      "name": "blob.size_matches",
+      "ok": true,
+      "blocking": true,
+      "detail": "对象 65647 字节 / 库中 65647 字节"
+    },
+    {
+      "name": "pg.verify_is_read_only",
+      "ok": true,
+      "blocking": true,
+      "detail": "verify 前后行数 2 -> 2"
+    }
+  ],
+  "counts": {
+    "total": 9,
+    "blockingPassed": 9,
+    "blockingFailed": 0,
+    "info": 0
+  },
+  "passed": true
+}

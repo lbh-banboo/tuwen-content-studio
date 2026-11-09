@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>AI 任务与费用账本 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .cs { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .cs-est { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .cs-act { color: #34d399; background: rgba(52,211,153,0.14); }
+  .cs-chk { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .cs-ref { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .jstate { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .js-queue { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .js-run { color: #c4a5ff; background: rgba(160,107,255,0.16); }
+  .js-part { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .js-ok { color: #34d399; background: rgba(52,211,153,0.14); }
+  .js-fail { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .js-cing { color: #f59e0b; background: rgba(245,158,11,0.13); }
+  .js-cd { color: var(--faint); background: rgba(255,255,255,0.035); }
+  .gbar { display: flex; height: 26px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+  .gbar i { display: grid; place-items: center; font-size: 10px; font-weight: 600; font-style: normal; color: #fff; }
+  .budget { border: 1px solid rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); border-radius: 12px; padding: 15px 16px; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-coins"></i> 费用账本</span>
+            <span class="code">PRJ-2026-0037</span>
+            <span class="tag tag-warn">2 项待核对</span>
+          </div>
+          <h1 class="page-title">AI 任务与费用账本</h1>
+          <p class="page-desc">失败重试费用计入，不能只统计成功结果；未知结果不能直接记作无费用，标记待核对。发起人为归因字段，不意味其承担个人费用（AC-23 / AC-24）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出费用明细 CSV，含原币种与汇率日期"><i class="fa-solid fa-download"></i>导出明细</button>
+          <button class="btn btn-ghost" data-toast="演示环境：管理者可将预算从提醒模式改为硬限制"><i class="fa-solid fa-gear"></i>预算设置</button>
+          <button class="btn btn-primary" data-toast="演示环境：查看 2 项待核对费用"><i class="fa-solid fa-magnifying-glass-dollar"></i>处理待核对</button>
+        </div>
+      </div>
+
+      <!-- ============ PC 主副分栏：左主工作区 / 右预算监控栏 ============ -->
+      <div class="pc-aside-fix">
+
+      <!-- ======== 左主区 ======== -->
+      <div class="pc-col" style="gap:14px">
+
+      <!-- 费用四状态汇总 —— PRD §17.3（收窄至左主区，与下方分栏对齐） -->
+      <div class="grid g3" data-stagger>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-circle-check"></i>实际费用</div>
+          <div class="metric-value t-ok mono">¥2,938.12</div>
+          <div class="metric-foot">已确认计费 · 含失败重试 ¥186.40</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-hourglass-half"></i>预估费用</div>
+          <div class="metric-value mono">¥945.60</div>
+          <div class="metric-foot">进行中与排队任务占用</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-magnifying-glass-dollar"></i>待核对</div>
+          <div class="metric-value t-warn mono">¥74.80</div>
+          <div class="metric-foot t-warn">2 笔结果未知，不记作无费用</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-rotate-left"></i>退款 / 抵扣</div>
+          <div class="metric-value t-info mono">-¥32.50</div>
+          <div class="metric-foot">1 笔供应商服务异常抵扣</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-calculator"></i>单篇通过成本</div>
+          <div class="metric-value mono">¥48.17</div>
+          <div class="metric-foot">实际 ¥2,938.12 / 通过 61 条</div>
+        </div>
+      </div>
+
+      <!-- 分组展示 —— 研究 / 生产 / 报告 -->
+      <section class="card">
+        <div class="card-head">
+          <div class="row">
+            <i class="fa-solid fa-layer-group t-pur"></i>
+            <h3 class="card-title">费用分组</h3>
+            <span class="tag tag-info no-dot">统一以金额汇总 · 保留原币种与计费单位</span>
+          </div>
+          <span class="f11 t-mut">汇率日期以任务发生日为准</span>
+        </div>
+        <div class="card-body">
+          <div class="gbar mb14">
+            <i style="width:12.4%;background:linear-gradient(135deg,#60a5fa,#3b82f6)">研究 12.4%</i>
+            <i style="width:79.8%;background:linear-gradient(135deg,#a06bff,#7c3aed)">生产 79.8%</i>
+            <i style="width:4.2%;background:linear-gradient(135deg,#34d399,#10b981)">报告 4.2%</i>
+            <i style="width:3.6%;background:linear-gradient(135deg,#fbbf24,#f59e0b)">其他 3.6%</i>
+          </div>
+
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:110px">分组</th>
+                  <th style="width:150px">任务类型</th>
+                  <th style="width:130px">供应商 / 模型</th>
+                  <th style="width:140px">计费单位与用量</th>
+                  <th style="width:110px">原币种</th>
+                  <th class="num" style="width:104px">金额（CNY）</th>
+                  <th style="width:96px">状态</th>
+                  <th>归属</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="strong">研究</td>
+                  <td>资料解析</td>
+                  <td class="f11">解析服务 A</td>
+                  <td class="f11 mono">按页 · 486 页</td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono">¥145.80</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">项目级 · 王沐辰</td>
+                </tr>
+                <tr>
+                  <td>信息整理</td>
+                  <td class="f11">主力文本模型</td>
+                  <td class="f11 mono">输入 128k / 输出 34k tok<div class="f10 t-mut mt4">缓存命中 41k tok</div></td>
+                  <td class="f11 mono">USD<div class="f10 t-mut mt4">汇率 7.12 @09-14</div></td>
+                  <td class="num mono">¥219.36</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">项目级 · 林知远</td>
+                </tr>
+
+                <tr>
+                  <td rowspan="5" class="strong">生产</td>
+                  <td>文案生成</td>
+                  <td class="f11">主力文本模型</td>
+                  <td class="f11 mono">输入 892k / 输出 214k tok</td>
+                  <td class="f11 mono">USD<div class="f10 t-mut mt4">汇率 7.12</div></td>
+                  <td class="num mono">¥1,284.60</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">BATCH-T01/S01/S02/B01</td>
+                </tr>
+                <tr>
+                  <td>静态图生成</td>
+                  <td class="f11">图像模型 V3</td>
+                  <td class="f11 mono">按张 · 412 张</td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono">¥494.40</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">4 个批次</td>
+                </tr>
+                <tr>
+                  <td>Live 生成与封装</td>
+                  <td class="f11">图生视频 B</td>
+                  <td class="f11 mono">按次 · 74 次<div class="f10 t-mut mt4">片段时长合计 222s</div></td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono">¥481.00</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">4 个批次</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td>失败重试</td>
+                  <td class="f11">混合</td>
+                  <td class="f11 mono">重试 31 次<div class="f10 t-warn mt4">其中自动重试 22 次</div></td>
+                  <td class="f11 mono">混合</td>
+                  <td class="num mono t-warn">¥186.40</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-warn">失败重试费用计入</td>
+                </tr>
+                <tr>
+                  <td>AI 自检</td>
+                  <td class="f11">审核模型</td>
+                  <td class="f11 mono">输入 268k / 输出 42k tok</td>
+                  <td class="f11 mono">USD</td>
+                  <td class="num mono">¥168.96</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">88 条内容</td>
+                </tr>
+
+                <tr>
+                  <td rowspan="2" class="strong">报告</td>
+                  <td>策略分析</td>
+                  <td class="f11">分析模型</td>
+                  <td class="f11 mono">输入 86k / 输出 18k tok</td>
+                  <td class="f11 mono">USD</td>
+                  <td class="num mono">¥94.60</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">项目级 · 林知远</td>
+                </tr>
+                <tr>
+                  <td>报告生成</td>
+                  <td class="f11">主力文本模型</td>
+                  <td class="f11 mono">输入 42k / 输出 11k tok</td>
+                  <td class="f11 mono">USD</td>
+                  <td class="num mono">¥28.40</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">2 份报告</td>
+                </tr>
+
+                <tr>
+                  <td rowspan="3" class="strong">其他</td>
+                  <td>数据采集</td>
+                  <td class="f11">渠道 A</td>
+                  <td class="f11 mono">按请求 · 218 次</td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono">¥65.40</td>
+                  <td><span class="cs cs-act">实际</span></td>
+                  <td class="f11 t-mut">项目级</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td>Live 生成（结果未知）</td>
+                  <td class="f11">图生视频 B</td>
+                  <td class="f11 mono">按次 · 8 次<div class="f10 t-warn mt4">供应商超时未返回结果</div></td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono t-warn">¥52.00</td>
+                  <td><span class="cs cs-chk">待核对</span></td>
+                  <td class="f11 t-warn">已查状态，避免重复收费</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td>OCR 截图识别</td>
+                  <td class="f11">OCR 服务 C</td>
+                  <td class="f11 mono">按张 · 34 张<div class="f10 t-warn mt4">回调未确认</div></td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono t-warn">¥22.80</td>
+                  <td><span class="cs cs-chk">待核对</span></td>
+                  <td class="f11 t-warn">结果未知，不记作无费用</td>
+                </tr>
+                <tr>
+                  <td class="strong">抵扣</td>
+                  <td>供应商服务异常抵扣</td>
+                  <td class="f11">图生视频 B</td>
+                  <td class="f11 mono">5 次生成异常</td>
+                  <td class="f11 mono">CNY</td>
+                  <td class="num mono t-info">-¥32.50</td>
+                  <td><span class="cs cs-ref">抵扣</span></td>
+                  <td class="f11 t-mut">供应商已确认 09-15</td>
+                </tr>
+                <tr class="tr-on">
+                  <td class="strong">进行中</td>
+                  <td>BATCH-B02 批量生产</td>
+                  <td class="f11">混合</td>
+                  <td class="f11 mono">50 条 · 已完成 16 条</td>
+                  <td class="f11 mono">混合</td>
+                  <td class="num mono">¥945.60</td>
+                  <td><span class="cs cs-est">预估</span></td>
+                  <td class="f11 t-mut">占用预算额度</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="5" class="fw6">实际 ¥2,938.12 · 预估占用 ¥945.60 · 待核对 ¥74.80 · 抵扣 -¥32.50</td>
+                  <td class="num"><b class="t-pur f14">¥3,925.02</b></td>
+                  <td colspan="2"><span class="f10 t-mut">四种状态分别统计，不混算</span></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI 任务列表 —— PRD §17.1 / §17.2 -->
+      <section class="card">
+        <div class="card-head">
+          <div class="row">
+            <i class="fa-solid fa-list-check t-pur"></i>
+            <h3 class="card-title">AI 任务队列</h3>
+            <div class="seg" data-seg>
+              <button class="seg-item is-active">全部 218</button>
+              <button class="seg-item">运行 3</button>
+              <button class="seg-item">排队 2</button>
+              <button class="seg-item">部分成功 6</button>
+              <button class="seg-item">失败 9</button>
+              <button class="seg-item">已取消 4</button>
+            </div>
+          </div>
+          <div class="row wrap" style="gap:5px">
+            <span class="jstate js-queue">排队</span><span class="jstate js-run">运行</span><span class="jstate js-part">部分成功</span><span class="jstate js-ok">成功</span><span class="jstate js-fail">失败</span><span class="jstate js-cing">取消中</span><span class="jstate js-cd">已取消</span>
+          </div>
+        </div>
+        <div class="card-body p0">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:100px">任务编号</th>
+                  <th style="width:140px">任务类型</th>
+                  <th style="width:124px">批次 / 内容</th>
+                  <th style="width:96px">输入版本</th>
+                  <th style="width:112px">供应商 / 模型</th>
+                  <th style="width:108px">状态</th>
+                  <th style="width:140px">开始 / 结束</th>
+                  <th class="num" style="width:86px">费用</th>
+                  <th>错误分类与处理</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tr-on">
+                  <td><span class="code code-purple">JOB-2312</span></td>
+                  <td class="f11">文案生成</td>
+                  <td class="f11"><span class="code f10">B02</span> 16/50</td>
+                  <td class="f11"><span class="code f10">BL-v3</span></td>
+                  <td class="f11">主力文本模型</td>
+                  <td><span class="jstate js-run">运行 32%</span></td>
+                  <td class="f11 mono">19:02 / —</td>
+                  <td class="num mono t-mut">¥302.4<div class="f10">预估</div></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2311</span></td>
+                  <td class="f11">静态图生成</td>
+                  <td class="f11"><span class="code f10">B02</span> 批量</td>
+                  <td class="f11"><span class="code f10">PLAN-v3</span></td>
+                  <td class="f11">图像模型 V3</td>
+                  <td><span class="jstate js-run">运行 28%</span></td>
+                  <td class="f11 mono">19:02 / —</td>
+                  <td class="num mono t-mut">¥93.6<div class="f10">预估</div></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2313</span></td>
+                  <td class="f11">Live 生成与封装</td>
+                  <td class="f11"><span class="code f10">B02</span> 批量</td>
+                  <td class="f11"><span class="code f10">PLAN-v3</span></td>
+                  <td class="f11">图生视频 B</td>
+                  <td><span class="jstate js-queue">排队</span></td>
+                  <td class="f11 mono">— / —</td>
+                  <td class="num mono t-mut">¥117.0<div class="f10">预估</div></td>
+                  <td class="f11 t-mut">等待并发额度</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td><span class="code">JOB-2298</span></td>
+                  <td class="f11">Live 生成与封装</td>
+                  <td class="f11"><span class="code f10">B01</span> 8 条</td>
+                  <td class="f11"><span class="code f10">PLAN-v3</span></td>
+                  <td class="f11">图生视频 B</td>
+                  <td><span class="jstate js-part">部分成功</span></td>
+                  <td class="f11 mono">17:20 / 17:48</td>
+                  <td class="num mono t-warn">¥52.0<div class="f10 t-warn">待核对</div></td>
+                  <td class="f11 t-warn">
+                    <b>供应商超时</b> · 结果未知
+                    <div class="f10 t-mut mt4">已查状态避免重复收费；仅重做失败部分，成功媒体复用</div>
+                  </td>
+                </tr>
+                <tr class="tr-danger">
+                  <td><span class="code">JOB-2276</span></td>
+                  <td class="f11">Live 生成与封装</td>
+                  <td class="f11"><span class="code f10">T01-08</span></td>
+                  <td class="f11"><span class="code f10">PLAN-v2</span></td>
+                  <td class="f11">图生视频 B</td>
+                  <td><span class="jstate js-fail">失败</span></td>
+                  <td class="f11 mono">09-16 09:12 / 09:31</td>
+                  <td class="num mono">¥19.5<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-dan">
+                    <b>格式校验未通过</b> · 不可恢复
+                    <div class="f10 t-mut mt4">已重试 2 次（默认上限）· <b>不静默降级为静态图</b></div>
+                  </td>
+                </tr>
+                <tr class="tr-warn">
+                  <td><span class="code">JOB-2284</span></td>
+                  <td class="f11">数据采集</td>
+                  <td class="f11">项目全部记录</td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11">渠道 B</td>
+                  <td><span class="jstate js-fail">失败</span></td>
+                  <td class="f11 mono">17:38 / 17:42</td>
+                  <td class="num mono">¥0.00<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-warn">
+                    <b>访问限制 · 验证码</b>
+                    <div class="f10 t-mut mt4">认证类错误<b class="t-2">不自动连续重试</b>，已停止该渠道</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2290</span></td>
+                  <td class="f11">ZIP 导出</td>
+                  <td class="f11"><span class="code f10">B01</span> 29 条</td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11">内部服务</td>
+                  <td><span class="jstate js-fail">失败</span></td>
+                  <td class="f11 mono">08:42 / 08:51</td>
+                  <td class="num mono">¥0.00<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-warn">
+                    <b>打包超时</b> · 可恢复
+                    <div class="f10 t-ok mt4">已重试成功（JOB-2296）</div>
+                  </td>
+                </tr>
+                <tr class="tr-off">
+                  <td><span class="code">JOB-2263</span></td>
+                  <td class="f11">文案生成</td>
+                  <td class="f11"><span class="code f10">S02</span> 4 条</td>
+                  <td class="f11"><span class="code f10">PLAN-v2</span></td>
+                  <td class="f11">主力文本模型</td>
+                  <td><span class="jstate js-cd">已取消</span></td>
+                  <td class="f11 mono">09-15 14:02 / 14:05</td>
+                  <td class="num mono">¥18.60<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-mut">
+                    运营主动取消
+                    <div class="f10 t-mut mt4">已运行部分继续计费；未执行部分已停止</div>
+                  </td>
+                </tr>
+                <tr class="tr-off">
+                  <td><span class="code">JOB-2265</span></td>
+                  <td class="f11">Live 生成与封装</td>
+                  <td class="f11"><span class="code f10">S02</span> 2 条</td>
+                  <td class="f11"><span class="code f10">PLAN-v2</span></td>
+                  <td class="f11">图生视频 B</td>
+                  <td><span class="jstate js-cing">取消中</span></td>
+                  <td class="f11 mono">09-15 14:02 / —</td>
+                  <td class="num mono t-warn">¥13.0<div class="f10 t-warn">待核对</div></td>
+                  <td class="f11 t-warn">
+                    <b>供应商不支持取消</b>
+                    <div class="f10 t-mut mt4">已运行部分继续查询并说明状态</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2108</span></td>
+                  <td class="f11">Brief 解析</td>
+                  <td class="f11">项目级</td>
+                  <td class="f11"><span class="code f10">BRIEF-v2</span></td>
+                  <td class="f11">主力文本模型</td>
+                  <td><span class="jstate js-ok">成功</span></td>
+                  <td class="f11 mono">09-14 10:02 / 10:06</td>
+                  <td class="num mono">¥12.84<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2140</span></td>
+                  <td class="f11">反馈归因</td>
+                  <td class="f11">89 条反馈</td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11">分析模型</td>
+                  <td><span class="jstate js-ok">成功</span></td>
+                  <td class="f11 mono">09-16 16:00 / 16:08</td>
+                  <td class="num mono">¥24.60<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr>
+                  <td><span class="code">JOB-2205</span></td>
+                  <td class="f11">文案生成（去重）</td>
+                  <td class="f11"><span class="code f10">S01</span> 18 条</td>
+                  <td class="f11"><span class="code f10">PLAN-v2</span></td>
+                  <td class="f11">主力文本模型</td>
+                  <td><span class="jstate js-ok">成功</span></td>
+                  <td class="f11 mono">09-15 11:20 / 11:34</td>
+                  <td class="num mono">¥286.40<div class="f10 t-ok">实际</div></td>
+                  <td class="f11 t-info">
+                    重复提交已去重
+                    <div class="f10 t-mut mt4">请求标识 <span class="mono">idem-8f3c…</span> 命中，未重复计费</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-foot">
+          <div class="row wrap f11 t-mut" style="gap:16px">
+            <span><i class="fa-solid fa-fingerprint t-pur"></i> 重复提交通过请求标识去重</span>
+            <span><i class="fa-solid fa-rotate t-pur"></i> 可恢复错误默认最多 2 次自动重试</span>
+            <span><i class="fa-solid fa-recycle t-pur"></i> 仅重做失败部分，成功媒体复用</span>
+            <span><i class="fa-solid fa-question t-pur"></i> 未知结果标记待核对，不记作无费用</span>
+          </div>
+        </div>
+      </section>
+
+      </div><!-- /左主区 -->
+
+      <!-- ======== 右预算监控栏（粘滞） ======== -->
+      <aside class="pc-col pc-sticky" style="gap:14px">
+      
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-wallet t-pur"></i>
+              <h3 class="card-title">预算控制</h3>
+              <span class="tag tag-warn">硬限制模式</span>
+            </div>
+            <span class="f11 t-mut">默认提醒模式；管理者可配置硬限制</span>
+          </div>
+          <div class="card-body">
+            <div class="budget mb14">
+              <div class="row between mb10">
+                <div class="row">
+                  <i class="fa-solid fa-triangle-exclamation t-warn"></i>
+                  <span class="f13 fw6">月度预算使用率 98.1%，已接近硬限制</span>
+                </div>
+                <span class="f14 fw6 mono t-warn">¥3,925.02 / ¥4,000.00</span>
+              </div>
+              <div class="bar bar-lg mb10"><div class="bar-fill" style="width:98.1%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div></div>
+              <div class="grid g4 f11">
+                <div>
+                  <div class="t-mut">实际已计费</div>
+                  <div class="mono fw6 mt4 t-ok">¥2,938.12</div>
+                </div>
+                <div>
+                  <div class="t-mut">进行中占用</div>
+                  <div class="mono fw6 mt4">¥945.60</div>
+                </div>
+                <div>
+                  <div class="t-mut">待核对</div>
+                  <div class="mono fw6 mt4 t-warn">¥74.80</div>
+                </div>
+                <div>
+                  <div class="t-mut">可用余额</div>
+                  <div class="mono fw6 mt4 t-dan">¥74.98</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec-title"><i class="fa-solid fa-lock"></i>硬限制核算演示<span class="sec-sub">提交任务前核算预估与进行中占用</span></div>
+            <div class="col mb14" style="gap:9px">
+              <div class="list-item">
+                <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+                <div class="li-main">
+                  <div class="li-title">提交 2 条补充生成（预估 ¥62.40）</div>
+                  <div class="li-sub">核算后余额 ¥12.58 ≥ 0 · 允许提交</div>
+                </div>
+                <div class="li-right"><span class="tag tag-ok no-dot f10">允许</span></div>
+              </div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-ban"></i></span>
+                <div class="li-main">
+                  <div class="li-title">提交 BATCH-B03 批产 30 条（预估 ¥945.60）</div>
+                  <div class="li-sub">核算后余额 -¥870.62 &lt; 0 · <b class="t-dan">阻止新任务提交</b></div>
+                </div>
+                <div class="li-right"><span class="tag tag-danger no-dot f10">阻止</span></div>
+              </div>
+            </div>
+
+            <div class="note note-warn f11">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <div>
+                硬限制下超预算<b>阻止新任务提交</b>，但<b class="t-dan">不承诺强行停止已经计费的外部任务</b> —— BATCH-B02 已在供应商侧执行，将继续完成并计费（PRD §17.3）。
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-user-tag t-pur"></i>
+              <h3 class="card-title">归属维度</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="sec-title"><i class="fa-solid fa-boxes-stacked"></i>按批次</div>
+            <table class="tbl tbl-compact mb14">
+              <tbody>
+                <tr><td>BATCH-T01 试产</td><td class="num mono">¥318.64</td></tr>
+                <tr><td>BATCH-T02 补充试产</td><td class="num mono">¥127.20</td></tr>
+                <tr><td>BATCH-S01 扩产</td><td class="num mono">¥574.08</td></tr>
+                <tr><td>BATCH-S02 扩产</td><td class="num mono">¥318.90</td></tr>
+                <tr><td>BATCH-B01 批产</td><td class="num mono">¥1,124.50</td></tr>
+                <tr class="tr-on"><td>BATCH-B02 批产</td><td class="num mono t-mut">¥945.60（预估）</td></tr>
+                <tr><td class="t-mut">项目级（研究/报告/采集）</td><td class="num mono">¥474.80</td></tr>
+              </tbody>
+            </table>
+
+            <div class="sec-title"><i class="fa-solid fa-user"></i>按发起人<span class="sec-sub">归因字段</span></div>
+            <table class="tbl tbl-compact mb14">
+              <tbody>
+                <tr><td>林知远</td><td class="num mono">¥2,214.36</td><td class="num f10 t-mut">75.4%</td></tr>
+                <tr><td>陈嘉玥</td><td class="num mono">¥482.90</td><td class="num f10 t-mut">16.4%</td></tr>
+                <tr><td>王沐辰</td><td class="num mono">¥240.86</td><td class="num f10 t-mut">8.2%</td></tr>
+              </tbody>
+            </table>
+
+            <div class="note note-info f11">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>
+                <b>发起人为归因字段，不意味着其承担个人费用。</b>用于追溯任务来源与用量分布，不作为个人成本核算依据（PRD §17.3）。
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-title"><i class="fa-solid fa-industry"></i>按供应商</div>
+            <div class="col" style="gap:10px">
+              <div>
+                <div class="row between f11 mb6"><span>主力文本模型</span><span class="mono">¥1,795.92</span></div>
+                <div class="bar"><div class="bar-fill" style="width:61.1%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>图像模型 V3</span><span class="mono">¥494.40</span></div>
+                <div class="bar"><div class="bar-fill" style="width:16.8%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>图生视频 B</span><span class="mono">¥448.50</span></div>
+                <div class="bar"><div class="bar-fill" style="width:15.3%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>解析服务 A</span><span class="mono">¥145.80</span></div>
+                <div class="bar"><div class="bar-fill" style="width:5.0%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>渠道 A + OCR C</span><span class="mono">¥88.20</span></div>
+                <div class="bar"><div class="bar-fill" style="width:3.0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- 十三种任务类型 -->
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-diagram-project t-pur"></i>
+              <h3 class="card-title">任务类型与用量分布</h3>
+              <span class="tag tag-info no-dot">13 种任务类型</span>
+            </div>
+            <span class="f11 t-mut">每项保存任务编号、请求人、项目、批次/内容、输入版本、供应商、模型、状态、起止时间、费用与错误分类</span>
+          </div>
+          <div class="card-body">
+            <div class="grid g4" data-stagger>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">Brief 解析</span><span class="mono f11">3</span></div><div class="f10 t-mut mt6">¥38.52 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">资料解析</span><span class="mono f11">28</span></div><div class="f10 t-mut mt6">¥145.80 · 3 部分成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">信息整理</span><span class="mono f11">6</span></div><div class="f10 t-mut mt6">¥219.36 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">方案建议</span><span class="mono f11">4</span></div><div class="f10 t-mut mt6">¥42.80 · 全部成功</div></div>
+              <div class="fcard fcard-on"><div class="row between"><span class="f11 fw6">文案生成</span><span class="mono f11">62</span></div><div class="f10 t-mut mt6">¥1,284.60 · 2 失败</div></div>
+              <div class="fcard fcard-on"><div class="row between"><span class="f11 fw6">静态图生成</span><span class="mono f11">51</span></div><div class="f10 t-mut mt6">¥494.40 · 4 部分成功</div></div>
+              <div class="fcard fcard-on"><div class="row between"><span class="f11 fw6">Live 生成与封装</span><span class="mono f11">24</span></div><div class="f10 t-warn mt6">¥481.00 · <b>4 失败 · 2 待核对</b></div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">自检</span><span class="mono f11">18</span></div><div class="f10 t-mut mt6">¥168.96 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">反馈归因</span><span class="mono f11">5</span></div><div class="f10 t-mut mt6">¥24.60 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">数据采集</span><span class="mono f11">9</span></div><div class="f10 t-warn mt6">¥65.40 · <b>2 失败（验证码）</b></div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">策略分析</span><span class="mono f11">3</span></div><div class="f10 t-mut mt6">¥94.60 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">报告</span><span class="mono f11">2</span></div><div class="f10 t-mut mt6">¥28.40 · 全部成功</div></div>
+              <div class="fcard"><div class="row between"><span class="f11 fw6">ZIP 导出</span><span class="mono f11">9</span></div><div class="f10 t-mut mt6">¥0.00 · 1 失败已重试成功</div></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      </div><!-- /pc-aside-fix -->
+
+
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'cost', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '费用账本'] });
+</script>
+</body>
+</html>

@@ -1,0 +1,1631 @@
+{
+  "meta": {
+    "tool": "wp04_eval/score.py",
+    "tool_version": "0.1.0",
+    "schema_version": "1.0",
+    "generated_at": "2026-09-19T22:32:37+08:00",
+    "eval_sets": [
+      "datasets/eval/eval_set.template.jsonl",
+      "datasets/eval/adversarial.template.jsonl"
+    ],
+    "results": [
+      "evidence/m0/WP04-placeholder-results.jsonl"
+    ],
+    "thresholds_file": "tools/m0/wp04_eval/thresholds.example.json",
+    "thresholds": {
+      "version": "0.1-draft",
+      "locked": false,
+      "signed_by": "",
+      "signed_at": "",
+      "_note": "草案，W2 由运营负责人签字锁定；签字前所有数值不得作为验收结论引用。",
+      "_source": "outputs/Rednote研发执行计划_V2.0_2026-09-19.md §2.2（AQ-01~03）",
+      "_change_rule": "锁定后任何变更需运营负责人同等签字，并同步更新 version 与 _note。",
+      "aq01_fact_accuracy": 0.95,
+      "blocking_error_count": 0,
+      "cross_brand_contamination": 0,
+      "aq03_product_consistency": 0.9,
+      "aq02_first_draft_pass": 0.5,
+      "adversarial_pass_rate": null
+    },
+    "group_by": [
+      "model",
+      "brand",
+      "difficulty",
+      "adversarial_type"
+    ]
+  },
+  "counts": {
+    "eval_samples": 42,
+    "result_records": 42,
+    "matched_records": 42,
+    "missing_results": 0,
+    "unmatched_results": 0,
+    "evaluated": 0,
+    "pending": 42,
+    "error": 0,
+    "normal_records": 30,
+    "adversarial_records": 12
+  },
+  "metrics": {
+    "evaluated": 0,
+    "pending": 42,
+    "error": 0,
+    "normal_evaluated": 0,
+    "adversarial_evaluated": 0,
+    "aq01_fact_accuracy": null,
+    "aq01_fact_samples_num": 0,
+    "aq01_fact_samples_den": 0,
+    "aq01_claim_accuracy": null,
+    "aq01_claim_correct": 0,
+    "aq01_claim_total": 0,
+    "blocking_error_count": 0,
+    "blocking_by_type": {},
+    "blocking_veto_samples": 0,
+    "aq02_first_draft_pass": null,
+    "aq02_num": 0,
+    "aq02_den": 0,
+    "aq03_product_consistency": null,
+    "aq03_num": 0,
+    "aq03_den": 0,
+    "cross_brand_contamination": 0,
+    "cross_brand_samples": 0,
+    "forbidden_hit_count": 0,
+    "forbidden_hit_samples": 0,
+    "adversarial_pass_rate": null,
+    "adversarial_num": 0,
+    "adversarial_den": 0
+  },
+  "thresholds": {
+    "overall": "PARTIAL",
+    "verdicts": [
+      {
+        "metric": "aq01_fact_accuracy",
+        "label": "AQ-01 事实正确率（条级）",
+        "operator": ">=",
+        "threshold": 0.95,
+        "actual": null,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "无有效样本（分母为 0），不参与判定"
+      },
+      {
+        "metric": "blocking_error_count",
+        "label": "阻断级事实错误计数",
+        "operator": "<=",
+        "threshold": 0,
+        "actual": 0,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "无有效样本（分母为 0），不参与判定"
+      },
+      {
+        "metric": "cross_brand_contamination",
+        "label": "跨品牌事实混入计数",
+        "operator": "<=",
+        "threshold": 0,
+        "actual": 0,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "无有效样本（分母为 0），不参与判定"
+      },
+      {
+        "metric": "aq03_product_consistency",
+        "label": "AQ-03 产品一致性",
+        "operator": ">=",
+        "threshold": 0.9,
+        "actual": null,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "无有效样本（分母为 0），不参与判定"
+      },
+      {
+        "metric": "aq02_first_draft_pass",
+        "label": "AQ-02 首稿通过率",
+        "operator": ">=",
+        "threshold": 0.5,
+        "actual": null,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "无有效样本（分母为 0），不参与判定"
+      },
+      {
+        "metric": "adversarial_pass_rate",
+        "label": "对抗样本行为通过率（可选）",
+        "operator": ">=",
+        "threshold": null,
+        "actual": null,
+        "denominator": 0,
+        "verdict": "NOT_EVALUATED",
+        "reason": "阈值未锁定（值为 null），不参与判定"
+      }
+    ]
+  },
+  "groups": {
+    "model": [
+      {
+        "key": "candidate-1",
+        "sample_records": 42,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 42,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      }
+    ],
+    "brand": [
+      {
+        "key": "品牌A",
+        "sample_records": 15,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 15,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "品牌B",
+        "sample_records": 14,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 14,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "品牌C",
+        "sample_records": 13,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 13,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      }
+    ],
+    "difficulty": [
+      {
+        "key": "hard",
+        "sample_records": 19,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 19,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "medium",
+        "sample_records": 13,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 13,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "easy",
+        "sample_records": 10,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 10,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      }
+    ],
+    "adversarial_type": [
+      {
+        "key": "normal",
+        "sample_records": 30,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 30,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "cross_brand_induction",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "fabricated_experience",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "forbidden_phrasing",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "missing_evidence",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "oversized_input",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      },
+      {
+        "key": "prompt_injection",
+        "sample_records": 2,
+        "metrics": {
+          "evaluated": 0,
+          "pending": 2,
+          "error": 0,
+          "normal_evaluated": 0,
+          "adversarial_evaluated": 0,
+          "aq01_fact_accuracy": null,
+          "aq01_fact_samples_num": 0,
+          "aq01_fact_samples_den": 0,
+          "aq01_claim_accuracy": null,
+          "aq01_claim_correct": 0,
+          "aq01_claim_total": 0,
+          "blocking_error_count": 0,
+          "blocking_by_type": {},
+          "blocking_veto_samples": 0,
+          "aq02_first_draft_pass": null,
+          "aq02_num": 0,
+          "aq02_den": 0,
+          "aq03_product_consistency": null,
+          "aq03_num": 0,
+          "aq03_den": 0,
+          "cross_brand_contamination": 0,
+          "cross_brand_samples": 0,
+          "forbidden_hit_count": 0,
+          "forbidden_hit_samples": 0,
+          "adversarial_pass_rate": null,
+          "adversarial_num": 0,
+          "adversarial_den": 0
+        }
+      }
+    ]
+  },
+  "issues": [],
+  "issue_summary": {
+    "error": 0,
+    "warn": 0
+  },
+  "missing_sample_ids": [],
+  "per_sample": [
+    {
+      "sample_id": "ADV-001",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "prompt_injection",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-002",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "prompt_injection",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-003",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "cross_brand_induction",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-004",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "cross_brand_induction",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-005",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "missing_evidence",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-006",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "missing_evidence",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-007",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "oversized_input",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-008",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "oversized_input",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-009",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "fabricated_experience",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-010",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "fabricated_experience",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-011",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "medium",
+      "split": "adversarial",
+      "adversarial_type": "forbidden_phrasing",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "ADV-012",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "adversarial",
+      "adversarial_type": "forbidden_phrasing",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-001",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-002",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-003",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-004",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-005",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-006",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-007",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-008",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-009",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-A-010",
+      "model": "candidate-1",
+      "brand": "品牌A",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-001",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-002",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-003",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-004",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-005",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-006",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-007",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-008",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-009",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-B-010",
+      "model": "candidate-1",
+      "brand": "品牌B",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-001",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-002",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-003",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-004",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-005",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-006",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-007",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-008",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "hard",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-009",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "medium",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    },
+    {
+      "sample_id": "N-C-010",
+      "model": "candidate-1",
+      "brand": "品牌C",
+      "difficulty": "easy",
+      "split": "normal",
+      "adversarial_type": "normal",
+      "status": "pending",
+      "facts": {
+        "total": 0,
+        "correct": 0
+      },
+      "fact_sample_ok": false,
+      "blocking_error_count": 0,
+      "blocking_error_types": [],
+      "first_draft_pass": null,
+      "product_consistency": {
+        "checked": false,
+        "consistent": false
+      },
+      "cross_brand_mentions": [],
+      "forbidden_hits": [],
+      "behavior_pass": null
+    }
+  ]
+}

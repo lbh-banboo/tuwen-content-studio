@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>配置场景比例与内容形式比例 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-4"></i> 步骤 4 / 8</span>
+            <span class="code code-purple">基线 BL-v3</span>
+            <span class="tag tag-warn">配置中 · 待提交</span>
+          </div>
+          <h1 class="page-title">配置场景比例与内容形式比例</h1>
+          <p class="page-desc">试产固定生成 10 条新内容。场景比例与形式比例各自合计必须为 100%，系统按最大余数法换算整数并展示实际数量（AC-10 / AC-11）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：已保存为草稿配置 DRAFT-0912"><i class="fa-solid fa-floppy-disk"></i>保存草稿</button>
+          <a class="btn btn-primary" href="trial-plan.html">下一步：生产清单与费用 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-3-2 mb14">
+
+        <!-- 左主区：配置校验 + 场景配置 -->
+        <div class="col" style="gap:14px">
+
+          <!-- 顶部配置校验状态 —— PRD §8.4 配置不完整阻止提交 -->
+          <div class="grid g4" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-layer-group"></i>启用场景</div>
+              <div class="metric-value t-ok" data-count="5">0</div>
+              <div class="metric-foot">共 7 个候选 · 停用 2 个</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-percent"></i>场景比例合计</div>
+              <div class="metric-value t-ok">100<span class="f14">%</span></div>
+              <div class="metric-foot t-ok"><i class="fa-solid fa-check"></i> 校验通过</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-images"></i>形式比例合计</div>
+              <div class="metric-value t-ok">100<span class="f14">%</span></div>
+              <div class="metric-foot t-ok"><i class="fa-solid fa-check"></i> 4 种形式已配置媒体数量</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-triangle-exclamation"></i>需运营确认</div>
+              <div class="metric-value t-warn" data-count="2">0</div>
+              <div class="metric-foot t-warn">1 项 0 条分配 · 1 项待补体验</div>
+            </div>
+          </div>
+
+          <div class="note note-warn">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>
+              <strong>本轮 10 条不能宣称覆盖所有非零比例。</strong>
+              「敏感肌换季」场景配置 6%，按最大余数法本轮分配为 <b class="t-warn">0 条</b>。可调整本轮计划提高比例，或在补充试产轮次中覆盖该方向（PRD §8.3）。
+            </div>
+          </div>
+
+          <!-- 场景配置 —— PRD §8.1 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-users-viewfinder t-pur"></i>
+                <h3 class="card-title">场景配置</h3>
+                <span class="tag tag-info no-dot">7 个候选 · 来自步骤 3 已确认人群场景</span>
+              </div>
+              <div class="row">
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：新增场景涉及新产品事实时将返回事实确认"><i class="fa-solid fa-plus"></i>新增场景</button>
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：已按建议比例重置"><i class="fa-solid fa-rotate-left"></i>恢复建议比例</button>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl">
+                <thead>
+                  <tr>
+                    <th style="width:34px"></th>
+                    <th>场景名称 / 人群</th>
+                    <th style="width:210px">痛点与叙述角度</th>
+                    <th style="width:150px">可用卖点</th>
+                    <th style="width:96px">事实来源</th>
+                    <th style="width:88px">建议比例</th>
+                    <th style="width:150px">运营比例</th>
+                    <th style="width:82px">本轮条数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td>
+                      <div class="fw6">早八通勤急救</div>
+                      <div class="f11 t-mut mt4">22–28 岁 一线城市通勤白领</div>
+                    </td>
+                    <td class="f11 t-sub">出门前 5 分钟脸发紧、上妆卡粉<br /><span class="t-mut">角度：时间紧迫下的洗后即刻状态</span></td>
+                    <td>
+                      <span class="tag tag-purple no-dot f10">氨基酸温和</span>
+                      <span class="tag no-dot f10">洗后不紧绷</span>
+                    </td>
+                    <td><span class="code f10">F-003 F-007</span></td>
+                    <td class="t-mut">28%</td>
+                    <td>
+                      <div class="row" style="gap:6px">
+                        <input class="input input-sm" style="width:66px" value="30" />
+                        <span class="f11 t-mut">%</span>
+                        <div class="bar" style="flex:1"><div class="bar-fill" style="width:30%"></div></div>
+                      </div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot fw6">3 条</span></td>
+                  </tr>
+                  <tr>
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td>
+                      <div class="fw6">卸妆后二次清洁</div>
+                      <div class="f11 t-mut mt4">24–32 岁 日常带妆人群</div>
+                    </td>
+                    <td class="f11 t-sub">卸妆油残留感、担心洗不干净又怕过度清洁<br /><span class="t-mut">角度：清洁力与温和的平衡取舍</span></td>
+                    <td>
+                      <span class="tag tag-purple no-dot f10">氨基酸温和</span>
+                      <span class="tag no-dot f10">起泡绵密</span>
+                    </td>
+                    <td><span class="code f10">F-003 F-011</span></td>
+                    <td class="t-mut">24%</td>
+                    <td>
+                      <div class="row" style="gap:6px">
+                        <input class="input input-sm" style="width:66px" value="25" />
+                        <span class="f11 t-mut">%</span>
+                        <div class="bar" style="flex:1"><div class="bar-fill" style="width:25%"></div></div>
+                      </div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot fw6">2 条</span></td>
+                  </tr>
+                  <tr>
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td>
+                      <div class="fw6">健身后油汗清洁</div>
+                      <div class="f11 t-mut mt4">20–30 岁 每周 3 次以上运动人群</div>
+                    </td>
+                    <td class="f11 t-sub">出汗后闷痘、清洁过度导致泛红<br /><span class="t-mut">角度：高频清洁场景的耐受性</span></td>
+                    <td>
+                      <span class="tag no-dot f10">洗后不紧绷</span>
+                      <span class="tag no-dot f10">pH 5.5</span>
+                    </td>
+                    <td><span class="code f10">F-007 F-014</span></td>
+                    <td class="t-mut">18%</td>
+                    <td>
+                      <div class="row" style="gap:6px">
+                        <input class="input input-sm" style="width:66px" value="20" />
+                        <span class="f11 t-mut">%</span>
+                        <div class="bar" style="flex:1"><div class="bar-fill" style="width:20%"></div></div>
+                      </div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot fw6">2 条</span></td>
+                  </tr>
+                  <tr>
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td>
+                      <div class="fw6">学生党性价比替换</div>
+                      <div class="f11 t-mut mt4">18–23 岁 在校学生</div>
+                    </td>
+                    <td class="f11 t-sub">预算有限、大牌洁面用不起又怕平价刺激<br /><span class="t-mut">角度：单次成本与用量测算</span></td>
+                    <td>
+                      <span class="tag no-dot f10">150g 大容量</span>
+                      <span class="tag no-dot f10">氨基酸温和</span>
+                    </td>
+                    <td><span class="code f10">F-002 F-003</span></td>
+                    <td class="t-mut">14%</td>
+                    <td>
+                      <div class="row" style="gap:6px">
+                        <input class="input input-sm" style="width:66px" value="15" />
+                        <span class="f11 t-mut">%</span>
+                        <div class="bar" style="flex:1"><div class="bar-fill" style="width:15%"></div></div>
+                      </div>
+                    </td>
+                    <td><span class="tag tag-ok no-dot fw6">1 条</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td>
+                      <div class="fw6">敏感肌换季维稳</div>
+                      <div class="f11 t-mut mt4">25–35 岁 屏障受损自述人群</div>
+                    </td>
+                    <td class="f11 t-sub">换季刺痛泛红、不敢换洁面<br /><span class="t-mut">角度：成分表逐条拆解</span></td>
+                    <td>
+                      <span class="tag tag-warn no-dot f10">无皂基</span>
+                      <span class="tag no-dot f10">pH 5.5</span>
+                    </td>
+                    <td><span class="code f10">F-014</span></td>
+                    <td class="t-mut">10%</td>
+                    <td>
+                      <div class="row" style="gap:6px">
+                        <input class="input input-sm" style="width:66px" value="6" />
+                        <span class="f11 t-mut">%</span>
+                        <div class="bar" style="flex:1"><div class="bar-fill" style="width:6%"></div></div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="tag tag-danger no-dot fw6">0 条</span>
+                      <div class="f10 t-warn mt4">数量不足未分配</div>
+                    </td>
+                  </tr>
+                  <tr class="tr-off">
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td>
+                      <div class="fw6 t-mut">男士懒人极简护理</div>
+                      <div class="f11 t-mut mt4">已停用 · 09-15 林知远</div>
+                    </td>
+                    <td class="f11 t-mut">停用原因：无对应已确认事实来源</td>
+                    <td><span class="f11 t-mut">—</span></td>
+                    <td><span class="f11 t-mut">—</span></td>
+                    <td class="t-mut">6%</td>
+                    <td><span class="f11 t-mut">0%（不进入本批次）</span></td>
+                    <td><span class="f11 t-mut">—</span></td>
+                  </tr>
+                  <tr class="tr-off">
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td>
+                      <div class="fw6 t-mut">医美术后清洁</div>
+                      <div class="f11 t-mut mt4">已停用 · 09-15 林知远</div>
+                    </td>
+                    <td class="f11 t-mut">停用原因：涉及功效宣称合规风险，待法务确认</td>
+                    <td><span class="f11 t-mut">—</span></td>
+                    <td><span class="f11 t-mut">—</span></td>
+                    <td class="t-mut">—</td>
+                    <td><span class="f11 t-mut">0%（不进入本批次）</span></td>
+                    <td><span class="f11 t-mut">—</span></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" class="fw6">启用场景合计</td>
+                    <td><span class="tag tag-ok no-dot fw6">100%</span></td>
+                    <td><span class="tag tag-purple no-dot fw6">10 条</span></td>
+                  </tr>
+                </tfoot>
+              </table></div></div></div>
+            </div>
+          </section>
+
+
+        </div><!-- /左主区 -->
+
+        <!-- 右辅助栏：内容形式 + 最大余数法 -->
+        <div class="col" style="gap:14px">
+
+          <!-- 形式配置 —— PRD §8.2 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-photo-film t-pur"></i>
+                <h3 class="card-title">内容形式配置</h3>
+                <span class="tag tag-info no-dot">第一版四种形式 · 比例按篇数计算</span>
+              </div>
+              <span class="f11 t-mut">每篇媒体数量独立配置；混合形式分别指定静态与 Live 数量及顺序</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g4" data-stagger>
+                <div class="fcard">
+                  <div class="row between mb10">
+                    <span class="tag no-dot"><i class="fa-solid fa-font"></i> 仅文案</span>
+                    <span class="tag tag-ok no-dot fw6">2 条</span>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <input class="input input-sm" style="width:64px" value="20" /><span class="f11 t-mut">%</span>
+                  </div>
+                  <div class="bar mt10"><div class="bar-fill" style="width:20%"></div></div>
+                  <div class="f11 t-mut mt10">交付包供 KOC 自行配图，不含媒体文件</div>
+                </div>
+                <div class="fcard fcard-on">
+                  <div class="row between mb10">
+                    <span class="tag tag-purple no-dot"><i class="fa-solid fa-image"></i> 文案 + 静态图</span>
+                    <span class="tag tag-ok no-dot fw6">4 条</span>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <input class="input input-sm" style="width:64px" value="40" /><span class="f11 t-mut">%</span>
+                  </div>
+                  <div class="bar mt10"><div class="bar-fill" style="width:40%"></div></div>
+                  <div class="row between mt10">
+                    <span class="f11 t-mut">静态图数量</span>
+                    <select class="select select-sm" style="width:88px"><option>6 张</option><option>4 张</option><option>9 张</option></select>
+                  </div>
+                </div>
+                <div class="fcard">
+                  <div class="row between mb10">
+                    <span class="tag no-dot"><i class="fa-solid fa-wand-magic-sparkles"></i> 文案 + Live 图</span>
+                    <span class="tag tag-ok no-dot fw6">2 条</span>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <input class="input input-sm" style="width:64px" value="20" /><span class="f11 t-mut">%</span>
+                  </div>
+                  <div class="bar mt10"><div class="bar-fill" style="width:20%"></div></div>
+                  <div class="row between mt10">
+                    <span class="f11 t-mut">Live 数量</span>
+                    <select class="select select-sm" style="width:88px"><option>3 组</option><option>2 组</option></select>
+                  </div>
+                </div>
+                <div class="fcard">
+                  <div class="row between mb10">
+                    <span class="tag no-dot"><i class="fa-solid fa-layer-group"></i> 静态 + Live 混合</span>
+                    <span class="tag tag-ok no-dot fw6">2 条</span>
+                  </div>
+                  <div class="row" style="gap:6px">
+                    <input class="input input-sm" style="width:64px" value="20" /><span class="f11 t-mut">%</span>
+                  </div>
+                  <div class="bar mt10"><div class="bar-fill" style="width:20%"></div></div>
+                  <div class="row between mt10">
+                    <span class="f11 t-mut">静态 4 + Live 2</span>
+                    <button class="btn btn-sm btn-ghost" data-toast="演示环境：媒体顺序编辑器 —— 封面固定为第 1 位"><i class="fa-solid fa-sort"></i>顺序</button>
+                  </div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="row between wrap" style="gap:10px">
+                <div class="row" style="gap:10px">
+                  <span class="f12 t-sub">形式比例合计</span>
+                  <span class="tag tag-ok no-dot fw6">100%</span>
+                </div>
+                <span class="f11 t-mut">Live 图仅支持已验证输出格式；预览视频不得代替正式交付格式（PRD §11.3）</span>
+              </div>
+            </div>
+          </section>
+          <!-- 最大余数法换算 —— PRD §8.3（两张 7 列密集表，右栏窄，故纵向堆叠；表格自带横向安全网） -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-calculator t-pur"></i>
+                <h3 class="card-title">最大余数法换算过程</h3>
+                <span class="tag tag-purple no-dot">10 条固定额度</span>
+              </div>
+              <span class="f11 t-mut">先取整数部分，再按小数余数由大到小分配剩余额度；并列按配置顺序</span>
+            </div>
+            <div class="card-body">
+              <div class="col" style="gap:16px">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-users-viewfinder"></i>场景维度<span class="sec-sub">整数部分合计 8 · 剩余 2 条待分配</span></div>
+                  <div class="table-wrap">
+                    <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th>启用场景</th><th class="num" style="width:62px">比例</th><th class="num" style="width:72px">×10</th><th class="num" style="width:58px">取整</th><th class="num" style="width:66px">余数</th><th style="width:96px">余数排序</th><th class="num" style="width:62px">最终</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="strong">早八通勤急救</td><td class="num">30%</td><td class="num mono">3.00</td><td class="num mono">3</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">3</b></td></tr>
+                        <tr class="tr-on"><td class="strong">卸妆后二次清洁</td><td class="num">25%</td><td class="num mono">2.50</td><td class="num mono">2</td><td class="num mono t-warn">0.50</td><td><span class="tag tag-purple no-dot f10">第 1 位 +1</span></td><td class="num"><b class="t-ok">3</b></td></tr>
+                        <tr><td class="strong">健身后油汗清洁</td><td class="num">20%</td><td class="num mono">2.00</td><td class="num mono">2</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">2</b></td></tr>
+                        <tr class="tr-on"><td class="strong">学生党性价比替换</td><td class="num">15%</td><td class="num mono">1.50</td><td class="num mono">1</td><td class="num mono t-warn">0.50</td><td><span class="tag tag-purple no-dot f10">第 2 位 +1</span></td><td class="num"><b class="t-ok">2</b></td></tr>
+                        <tr class="tr-warn"><td class="strong">敏感肌换季维稳</td><td class="num">6%</td><td class="num mono">0.60</td><td class="num mono">0</td><td class="num mono">0.60</td><td><span class="tag tag-danger no-dot f10">额度已用尽</span></td><td class="num"><b class="t-dan">0</b></td></tr>
+                      </tbody>
+                      <tfoot><tr><td class="fw6">合计</td><td class="num fw6">100%</td><td class="num mono">10.00</td><td class="num mono fw6">8</td><td class="num mono">1.60</td><td><span class="f11">分配剩余 2 条</span></td><td class="num"><b class="t-pur">10</b></td></tr></tfoot>
+                    </table></div></div>
+                  </div>
+                  <div class="note note-warn mt10">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div class="f11">
+                      「卸妆后二次清洁」与「学生党性价比替换」余数均为 0.50 并列，按<b>配置顺序</b>依次 +1（PRD §8.3）。<br />
+                      「敏感肌换季维稳」余数 0.60 虽大于 0.50，但排在两个 0.50 之后计算 —— 演示中比例已被运营下调至 6%，导致整数部分为 0 且额度已被前序占满。
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-photo-film"></i>形式维度<span class="sec-sub">整数部分合计 10 · 无需余数分配</span></div>
+                  <div class="table-wrap">
+                    <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th>内容形式</th><th class="num" style="width:62px">比例</th><th class="num" style="width:72px">×10</th><th class="num" style="width:58px">取整</th><th class="num" style="width:66px">余数</th><th style="width:96px">余数排序</th><th class="num" style="width:62px">最终</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="strong">仅文案</td><td class="num">20%</td><td class="num mono">2.00</td><td class="num mono">2</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">2</b></td></tr>
+                        <tr><td class="strong">文案 + 静态图</td><td class="num">40%</td><td class="num mono">4.00</td><td class="num mono">4</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">4</b></td></tr>
+                        <tr><td class="strong">文案 + Live 图</td><td class="num">20%</td><td class="num mono">2.00</td><td class="num mono">2</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">2</b></td></tr>
+                        <tr><td class="strong">静态 + Live 混合</td><td class="num">20%</td><td class="num mono">2.00</td><td class="num mono">2</td><td class="num mono">0.00</td><td><span class="f11 t-mut">—</span></td><td class="num"><b class="t-ok">2</b></td></tr>
+                      </tbody>
+                      <tfoot><tr><td class="fw6">合计</td><td class="num fw6">100%</td><td class="num mono">10.00</td><td class="num mono fw6">10</td><td class="num mono">0.00</td><td><span class="f11 t-mut">无剩余</span></td><td class="num"><b class="t-pur">10</b></td></tr></tfoot>
+                    </table></div></div></div></div>
+                  </div>
+                  <div class="note note-purple mt10">
+                    <i class="fa-solid fa-shuffle"></i>
+                    <div class="f11">
+                      场景与形式<b>分别</b>保证边际数量。系统建议配对关系（下方清单），运营可逐行改配 —— 改配后仍需维持两个维度的边际数量不变，否则将提示重新换算。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div><!-- /右辅助栏 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'trial-config', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '试产配置'] });
+</script>
+</body>
+</html>

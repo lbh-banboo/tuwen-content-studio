@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>配置场景比例与内容形式比例 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="tc-head">
+          <h1 class="page-title">正在读取试产配置…</h1>
+          <p class="page-desc">GET /projects/{id}/plan-draft</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="claims.v2.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" data-keep-id href="trial-plan.v2.html">下一步：生产清单 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4" id="tc-metrics" data-stagger></div>
+
+      <div class="grid g-3-2">
+        <div class="col" style="gap:14px">
+          <div id="tc-scenes" aria-live="polite"></div>
+          <div id="tc-forms" aria-live="polite"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="tc-baseline" aria-live="polite"></div>
+          <div id="tc-assets" aria-live="polite"></div>
+          <div id="tc-pricing" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/shared.js"></script>
+<script src="render/trial-config.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'trial-config', crumb: ['项目中心', '试产配置'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/trial-config.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.trialConfig;
+    var head = document.getElementById('tc-head'), metrics = document.getElementById('tc-metrics');
+    var scenes = document.getElementById('tc-scenes'), forms = document.getElementById('tc-forms');
+    var baseline = document.getElementById('tc-baseline'), assets = document.getElementById('tc-assets'), pricing = document.getElementById('tc-pricing'), keepId = document.querySelectorAll('[data-keep-id]');
+    var regions = [metrics, scenes, forms, baseline, assets, pricing];
+    function renderAll(project, draft, refs, price, baselines) {
+      head.innerHTML = R.renderHead(project, draft);
+      metrics.innerHTML = R.renderMetrics(draft, refs, price, baselines);
+      scenes.innerHTML = R.renderDimensionCard('场景比例', 'sceneItems', draft.sceneItems, draft.sceneAllocation);
+      forms.innerHTML = R.renderDimensionCard('形式比例', 'formItems', draft.formItems, draft.formAllocation);
+      baseline.innerHTML = R.renderBaselineCard(baselines, draft);
+      assets.innerHTML = R.renderAssetsCard(refs);
+      pricing.innerHTML = R.renderPricingCard(price);
+    }
+    async function load() {
+      head.innerHTML = '<div><h1 class="page-title">正在读取试产配置…</h1><p class="page-desc">GET /projects/{id}/plan-draft</p></div>';
+      regions.forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取试产配置…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目。' };
+        keepId.forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(id); });
+        var base = '/projects/' + encodeURIComponent(id);
+        var res = await Promise.all([
+          API.get(base), API.get(base + '/plan-draft'),
+          API.page(base + '/reference-assets', { limit: 100 }),
+          API.get('/pricing-versions'), API.page(base + '/baselines', { limit: 100 })
+        ]);
+        renderAll(res[0], res[1], res[2].items, res[3], res[4].items);
+      } catch (err) {
+        head.innerHTML = '<div><h1 class="page-title">试产配置读取失败</h1><p class="page-desc">请检查后端与项目 ID 后重试。</p></div>';
+        regions.forEach(function (el) { el.innerHTML = R.renderCardError(err); });
+      }
+    }
+    scenes.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

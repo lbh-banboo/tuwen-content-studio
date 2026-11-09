@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>成员与供应商设置 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11.5px; font-weight: 600; flex: none; color: #fff; background: linear-gradient(150deg, #7c4dff, #a06bff); }
+  .av-off { background: rgba(255,255,255,0.08); color: var(--faint); }
+  .av-adm { background: linear-gradient(150deg, #f59e0b, #fbbf24); color: #1a1206; }
+  .rl { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .rl-adm { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .rl-own { color: #c4a5ff; background: rgba(160,107,255,0.16); }
+  .rl-col { color: #60a5fa; background: rgba(96,165,250,0.13); }
+  .rl-off { color: var(--faint); background: rgba(255,255,255,0.04); }
+  .rl-ai { color: #34d399; background: rgba(52,211,153,0.13); }
+  .yn { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .yn-y { color: var(--ok); }
+  .yn-n { color: var(--danger); }
+  .yn-a { color: var(--gold); }
+  .keybox { border: 1px solid rgba(251,113,133,0.26); background: rgba(251,113,133,0.05); border-radius: 14px; padding: 15px 16px; }
+  .mask { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; color: var(--muted); background: rgba(0,0,0,0.34); border: 1px solid var(--line); border-radius: 7px; padding: 5px 9px; display: inline-block; }
+  .xfer { border: 1px solid var(--purple-line); background: linear-gradient(160deg, rgba(160,107,255,0.09), rgba(160,107,255,0.02)); border-radius: 14px; padding: 16px 17px; }
+  .xstep { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .xstep:last-child { border-bottom: 0; }
+  .xnum { width: 21px; height: 21px; flex: none; border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 10.5px; font-weight: 700; color: var(--purple); background: var(--purple-dim); border: 1px solid var(--purple-line); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-users-gear"></i> 管理中心</span>
+            <span class="tag tag-warn">1 名成员待转交后停用</span>
+            <span class="tag tag-muted">管理者视图</span>
+          </div>
+          <h1 class="page-title">成员与供应商设置</h1>
+          <p class="page-desc">系统仅供公司内部成员使用，<b class="t-warn">管理员邀请制，不开放外部自由注册</b>。停用成员前须列出其负责项目并要求转交；历史记录保留。供应商密钥只允许管理者配置，<b class="t-dan">界面不回显完整密钥</b>（PRD §2.4）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出成员与权限对照表"><i class="fa-solid fa-download"></i>导出名册</button>
+          <button class="btn btn-ghost" data-toast="演示环境：查看操作审计（AuditEvent）"><i class="fa-solid fa-clipboard-list"></i>操作审计</button>
+          <button class="btn btn-primary" data-toast="演示环境：按企业邮箱邀请成员，需指定角色"><i class="fa-solid fa-user-plus"></i>邀请成员</button>
+        </div>
+      </div>
+
+      <!-- ============ 看板收窄至左主区，与下方内容对齐 ============ -->
+      <div class="grid g-3-2 mb18">
+
+        <!-- 左主区：概览指标 -->
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 概览 ============ -->
+          <section class="grid g3">
+            <div class="metric">
+              <div class="metric-label">在职成员</div>
+              <div class="metric-value">14 <span class="unit">人</span></div>
+              <div class="metric-foot t-mut">管理者 2 · 运营 12</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">已停用</div>
+              <div class="metric-value t-fai">3 <span class="unit">人</span></div>
+              <div class="metric-foot t-mut">历史记录与审核痕迹保留</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">待接受邀请</div>
+              <div class="metric-value t-warn">2 <span class="unit">人</span></div>
+              <div class="metric-foot t-warn">邀请 7 天后自动失效</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">活跃项目</div>
+              <div class="metric-value">9 <span class="unit">个</span></div>
+              <div class="metric-foot t-mut">单人关联项目数无业务上限</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">供应商</div>
+              <div class="metric-value">4 <span class="unit">家</span></div>
+              <div class="metric-foot t-mut">文案 1 · 图片 1 · Live 1 · 采集 1</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">密钥待轮换</div>
+              <div class="metric-value t-warn">1 <span class="unit">个</span></div>
+              <div class="metric-foot t-warn">Vendor-A 已使用 92 天</div>
+            </div>
+          </section>
+
+        </div><!-- /左主区 -->
+
+        <!-- 右辅助栏：提示 -->
+        <div class="col" style="gap:14px">
+
+          <div class="note note-warn">
+            <i class="fa-solid fa-user-lock"></i>
+            <div>
+              <b>停用阻断中：</b>成员 <b>陈默</b> 申请停用，但其仍是 <b>2 个项目</b>的主负责人（PRJ-2026-0041 / PRJ-2026-0044）。
+              系统列出待转交项目并<b class="t-dan">阻止停用</b>，转交完成后方可执行。已停用成员不能继续操作，但历史审核、评论、交付记录<b class="t-ok">保留原操作人</b>。
+            </div>
+          </div>
+
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-3-2 -->
+
+
+      <!-- ============ 成员列表 / 权限与转交 / 供应商与密钥（并排收束） ============ -->
+      <div class="grid g-2-1 mb18">
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 成员列表 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-users"></i>成员列表</h2>
+                <p class="card-sub">每个项目有且仅有一名主负责人，可有多个协作者。运营可审核自己创建的内容，但审核记录必须保存审核人、时间、对象版本与结果（§2.3）</p>
+              </div>
+              <div class="card-head-actions">
+                <label class="search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input class="input input-sm" placeholder="搜索姓名 / 邮箱" />
+                </label>
+                <div class="seg">
+                  <span class="seg-item is-active">全部</span>
+                  <span class="seg-item">在职</span>
+                  <span class="seg-item">已停用</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th style="width:170px">成员</th>
+                      <th style="width:100px">系统角色</th>
+                      <th style="width:78px">负责项目</th>
+                      <th style="width:78px">协作项目</th>
+                      <th style="width:120px">最近活动</th>
+                      <th>项目内身份示例</th>
+                      <th style="width:96px">状态</th>
+                      <th style="width:150px">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="row gap6">
+                          <span class="av av-adm">周</span>
+                          <div>
+                            <div class="f12 fw6">周执</div>
+                            <div class="f10 t-fai mono">member12@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-adm"><i class="fa-solid fa-crown"></i>管理者</span></td>
+                      <td class="mono f11 t-2">0</td>
+                      <td class="mono f11 t-2">9</td>
+                      <td class="f11 t-2">今天 18:40</td>
+                      <td class="f11 t-mut">可接管或修改所有项目 · 唯一可配置预算与密钥</td>
+                      <td><span class="tag tag-ok">在职</span></td>
+                      <td><span class="f10 t-fai">不可自我停用</span></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="row gap6">
+                          <span class="av av-adm">高</span>
+                          <div>
+                            <div class="f12 fw6">高予然</div>
+                            <div class="f10 t-fai mono">member04@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-adm"><i class="fa-solid fa-crown"></i>管理者</span></td>
+                      <td class="mono f11 t-2">1</td>
+                      <td class="mono f11 t-2">4</td>
+                      <td class="f11 t-2">今天 16:12</td>
+                      <td class="f11 t-mut">PRJ-2026-0038 负责人 · 其余项目为查看</td>
+                      <td><span class="tag tag-ok">在职</span></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看该成员的项目与操作记录"><i class="fa-solid fa-eye"></i>详情</button></td>
+                    </tr>
+                    <tr class="tr-on">
+                      <td>
+                        <div class="row gap6">
+                          <span class="av">林</span>
+                          <div>
+                            <div class="f12 fw6">林知远 <span class="tag tag-purple no-dot f10">当前登录</span></div>
+                            <div class="f10 t-fai mono">member07@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-own"><i class="fa-solid fa-user-tie"></i>执行者 / 运营</span></td>
+                      <td class="mono f11 t-2">3</td>
+                      <td class="mono f11 t-2">2</td>
+                      <td class="f11 t-2">今天 19:08</td>
+                      <td class="f11 t-mut">PRJ-0037 / 0039 / 0043 负责人；PRJ-0038 协作者</td>
+                      <td><span class="tag tag-ok">在职</span></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：仅管理者可变更负责人"><i class="fa-solid fa-right-left"></i>转交</button></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="row gap6">
+                          <span class="av">陈</span>
+                          <div>
+                            <div class="f12 fw6">陈见</div>
+                            <div class="f10 t-fai mono">member02@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-col"><i class="fa-solid fa-user-group"></i>执行者 / 运营</span></td>
+                      <td class="mono f11 t-2">1</td>
+                      <td class="mono f11 t-2">5</td>
+                      <td class="f11 t-2">今天 17:55</td>
+                      <td class="f11 t-mut">PRJ-0037 协作者（可生成、反馈、审核、交付、回收数据）</td>
+                      <td><span class="tag tag-ok">在职</span></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看该成员的项目与操作记录"><i class="fa-solid fa-eye"></i>详情</button></td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td>
+                        <div class="row gap6">
+                          <span class="av">默</span>
+                          <div>
+                            <div class="f12 fw6">陈默</div>
+                            <div class="f10 t-fai mono">member03@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-own"><i class="fa-solid fa-user-tie"></i>执行者 / 运营</span></td>
+                      <td class="mono f11 t-warn">2</td>
+                      <td class="mono f11 t-2">3</td>
+                      <td class="f11 t-2">09-15 20:31</td>
+                      <td class="f11 t-warn">PRJ-0041 / 0044 主负责人 · <b>停用前必须转交</b></td>
+                      <td><span class="tag tag-warn">待停用</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-purple" data-toast="演示环境：进入负责人转交流程（下方表单）"><i class="fa-solid fa-right-left"></i>转交</button>
+                        <button class="btn btn-sm btn-danger is-disabled" data-toast="演示环境：该成员仍负责 2 个项目，停用被阻止"><i class="fa-solid fa-ban"></i>停用</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="row gap6">
+                          <span class="av">苏</span>
+                          <div>
+                            <div class="f12 fw6">苏黎</div>
+                            <div class="f10 t-fai mono">member08@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-col"><i class="fa-solid fa-user-group"></i>执行者 / 运营</span></td>
+                      <td class="mono f11 t-2">2</td>
+                      <td class="mono f11 t-2">1</td>
+                      <td class="f11 t-2">今天 14:20</td>
+                      <td class="f11 t-mut">PRJ-0040 / 0042 负责人</td>
+                      <td><span class="tag tag-ok">在职</span></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看该成员的项目与操作记录"><i class="fa-solid fa-eye"></i>详情</button></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="row gap6">
+                          <span class="av av-off">邀</span>
+                          <div>
+                            <div class="f12 fw6 t-mut">何映</div>
+                            <div class="f10 t-fai mono">member05@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-col"><i class="fa-solid fa-user-group"></i>执行者 / 运营</span></td>
+                      <td class="mono f11 t-fai">—</td>
+                      <td class="mono f11 t-fai">—</td>
+                      <td class="f11 t-fai">未登录</td>
+                      <td class="f11 t-warn">邀请于 09-14 发出 · 5 天后失效 · 无自由注册入口</td>
+                      <td><span class="tag tag-warn">待接受</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-ghost" data-toast="演示环境：重新发送邀请邮件"><i class="fa-solid fa-paper-plane"></i>重发</button>
+                        <button class="btn btn-sm btn-ghost" data-toast="演示环境：撤销邀请"><i class="fa-solid fa-xmark"></i>撤销</button>
+                      </td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td>
+                        <div class="row gap6">
+                          <span class="av av-off">吴</span>
+                          <div>
+                            <div class="f12 fw6 t-mut">吴纾</div>
+                            <div class="f10 t-fai mono">member09@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-off"><i class="fa-solid fa-user-slash"></i>已停用</span></td>
+                      <td class="mono f11 t-fai">0</td>
+                      <td class="mono f11 t-fai">0</td>
+                      <td class="f11 t-fai">08-29 11:04</td>
+                      <td class="f11 t-mut">历史 18 条审核记录、6 条交付记录<b class="t-ok">保留原操作人</b>，费用归属不重写</td>
+                      <td><span class="tag tag-muted">已停用</span></td>
+                      <td><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看历史记录（只读）"><i class="fa-solid fa-clock-rotate-left"></i>历史</button></td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td>
+                        <div class="row gap6">
+                          <span class="av" style="background:linear-gradient(150deg,#0f766e,#34d399);color:#04120d">AI</span>
+                          <div>
+                            <div class="f12 fw6">AI Agent</div>
+                            <div class="f10 t-fai mono">system · 非人类账号</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="rl rl-ai"><i class="fa-solid fa-robot"></i>AI Agent</span></td>
+                      <td class="mono f11 t-fai">—</td>
+                      <td class="mono f11 t-2">9</td>
+                      <td class="f11 t-2">今天 19:16</td>
+                      <td class="f11 t-mut">执行任务与提出建议 · <b class="t-dan">无最终人工审核权</b> · 不改变负责人 · 不直接发布</td>
+                      <td><span class="tag tag-info">系统</span></td>
+                      <td><span class="f10 t-fai">不可停用</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 供应商与密钥 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-key"></i>供应商与密钥配置</h2>
+                <p class="card-sub">仅管理者可配置。<b class="t-dan">界面不得回显完整密钥</b>，日志中不记录完整密钥，供应商失败信息经过脱敏（PRD §2.4 / §21.2）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-danger">敏感区</span>
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：新增供应商配置"><i class="fa-solid fa-plus"></i>新增供应商</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="keybox mb14">
+                <div class="row gap6 mb10">
+                  <span class="li-icon" style="color:var(--danger);background:rgba(251,113,133,0.13);border-color:rgba(251,113,133,0.26)"><i class="fa-solid fa-eye-slash"></i></span>
+                  <div>
+                    <div class="f13 fw6">密钥展示策略</div>
+                    <div class="f10 t-mut">保存后仅显示前 4 位与后 4 位，中间以掩码替代。无「查看完整密钥」入口，只能覆盖写入新值。</div>
+                  </div>
+                </div>
+                <div class="row gap14" style="flex-wrap:wrap">
+                  <div><div class="f10 t-fai mb4">界面展示</div><span class="mask">sk-a1b2••••••••••••••••••••••4f9c</span></div>
+                  <div><div class="f10 t-fai mb4">日志输出</div><span class="mask">vendor=Vendor-A key=sk-****(masked) status=429</span></div>
+                  <div><div class="f10 t-fai mb4">错误信息</div><span class="mask">上游返回 429（已脱敏，不含请求头原文）</span></div>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th style="width:128px">供应商</th>
+                      <th style="width:106px">用途</th>
+                      <th style="width:132px">模型 / 版本</th>
+                      <th style="width:196px">密钥（不回显）</th>
+                      <th style="width:120px">计费单位</th>
+                      <th style="width:98px">近 7 日费用</th>
+                      <th style="width:96px">状态</th>
+                      <th style="width:130px">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="fw6">Vendor-T</td>
+                      <td class="f11 t-2">文案生成</td>
+                      <td class="mono f11 t-2">txt-pro</td>
+                      <td><span class="mask">sk-t7k2••••••••••••8d31</span><div class="f10 t-fai mt4">更新于 09-02 · 周执</div></td>
+                      <td class="f11 t-2">输入 / 输出 / 缓存 token</td>
+                      <td class="mono f11 t-2">¥412.60</td>
+                      <td><span class="tag tag-ok">正常</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-ghost" data-toast="演示环境：覆盖写入新密钥（不展示旧值）"><i class="fa-solid fa-rotate"></i>更换密钥</button>
+                      </td>
+                    </tr>
+                    <tr class="tr-warn">
+                      <td class="fw6">Vendor-A</td>
+                      <td class="f11 t-2">静态图生成</td>
+                      <td class="mono f11 t-2">img-x2</td>
+                      <td><span class="mask">sk-a1b2••••••••••••4f9c</span><div class="f10 t-warn mt4">更新于 06-16 · <b>已使用 92 天，建议轮换</b></div></td>
+                      <td class="f11 t-2">按张</td>
+                      <td class="mono f11 t-2">¥1,286.40</td>
+                      <td><span class="tag tag-warn">待轮换</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-purple" data-toast="演示环境：覆盖写入新密钥（不展示旧值）"><i class="fa-solid fa-rotate"></i>更换密钥</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fw6">Vendor-L</td>
+                      <td class="f11 t-2">Live 生成与封装</td>
+                      <td class="mono f11 t-2">live-pack-1.4</td>
+                      <td><span class="mask">sk-l9x4••••••••••••c2a7</span><div class="f10 t-fai mt4">更新于 08-21 · 周执</div></td>
+                      <td class="f11 t-2">按次 / 片段时长</td>
+                      <td class="mono f11 t-2">¥684.20</td>
+                      <td><span class="tag tag-warn">不支持取消</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-ghost" data-toast="演示环境：覆盖写入新密钥（不展示旧值）"><i class="fa-solid fa-rotate"></i>更换密钥</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fw6">Vendor-D</td>
+                      <td class="f11 t-2">数据采集</td>
+                      <td class="mono f11 t-2">collect-v2</td>
+                      <td><span class="mask">sk-d3m8••••••••••••71be</span><div class="f10 t-fai mt4">更新于 09-10 · 高予然</div></td>
+                      <td class="f11 t-2">按请求次数</td>
+                      <td class="mono f11 t-2">¥65.40</td>
+                      <td><span class="tag tag-danger">近期受限</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-ghost" data-toast="演示环境：查看受限记录（访问限制不自动连续重试）"><i class="fa-solid fa-triangle-exclamation"></i>受限记录</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="5" class="f11">近 7 日供应商合计（保留原币种与汇率日期，统一以人民币汇总）</td>
+                      <td class="mono f12 fw6 t-2">¥2,448.60</td>
+                      <td colspan="2" class="f10 t-mut">含失败重试费用 ¥186.40 · 不含待核对 ¥74.80</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div class="grid g2 gap14 mt14">
+                <div class="note note-danger mb0">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <div>
+                    <b>密钥安全约束：</b>密钥只允许管理者配置与更换；系统不提供任何完整密钥读取接口；
+                    更换密钥不影响运行中任务（任务执行期间固定已获取的凭据），但新任务立即使用新密钥。
+                  </div>
+                </div>
+                <div class="note note-info mb0">
+                  <i class="fa-solid fa-building-lock"></i>
+                  <div>
+                    <b>登录方式：</b>可选择企业身份系统或账号登录，但<b>后端必须校验角色与项目成员关系</b>——前端隐藏入口不构成权限控制。
+                    第一版不建设多企业租户产品。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左 -->
+
+        <div class="col" style="gap:14px">
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2 class="card-title"><i class="fa-solid fa-right-left"></i>负责人转交</h2>
+                  <p class="card-sub">由管理者执行，五步固定流程（PRD §2.3）</p>
+                </div>
+                <div class="card-head-actions">
+                  <span class="tag tag-purple">陈默 → 待选</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="xfer mb14">
+                  <div class="grid g2 gap14 mb10">
+                    <div class="field">
+                      <label class="label">待转交项目</label>
+                      <select class="select select-sm">
+                        <option>PRJ-2026-0041 沐野 · 秋冬保湿（投产期）</option>
+                        <option>PRJ-2026-0044 白棠 · 新品测评（研究期）</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label class="label">新负责人 <span class="req">*</span></label>
+                      <select class="select select-sm">
+                        <option>请选择</option>
+                        <option>林知远（当前负责 3 个）</option>
+                        <option>苏黎（当前负责 2 个）</option>
+                        <option>陈见（当前负责 1 个）</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field mb10">
+                    <label class="label">变更原因 <span class="req">*</span></label>
+                    <textarea class="textarea" rows="2" placeholder="必填，保存到审计记录">成员离岗交接，原负责人 09-20 停用。</textarea>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" checked />
+                    <span>保留原负责人为协作者</span>
+                  </label>
+                  <div class="hint mt6">默认移除原负责人项目操作权。勾选后保留其协作者身份（可继续生成、反馈、审核、交付）。</div>
+                </div>
+
+                <div class="sec-title"><i class="fa-solid fa-list-ol"></i>转交时系统执行<span class="sec-sub">5 步</span></div>
+                <div class="xstep">
+                  <span class="xnum">1</span>
+                  <div class="f1">
+                    <div class="f12 fw6">选择新负责人并保存变更原因</div>
+                    <div class="f10 t-mut mt4">写入 AuditEvent，含操作人、时间、原负责人、新负责人</div>
+                  </div>
+                </div>
+                <div class="xstep">
+                  <span class="xnum">2</span>
+                  <div class="f1">
+                    <div class="f12 fw6">待办转交</div>
+                    <div class="f10 t-mut mt4">未认领项目待办 <b>6 条</b> + 原负责人待办 <b>4 条</b> → 新负责人；明确分配给其他协作者的 <b class="t-ok">2 条保留不动</b></div>
+                  </div>
+                </div>
+                <div class="xstep">
+                  <span class="xnum">3</span>
+                  <div class="f1">
+                    <div class="f12 fw6">已运行任务继续</div>
+                    <div class="f10 t-mut mt4">运行中 2 个任务不中断；<b class="t-warn">创建人与费用归属不重写</b>（发起人为归因字段）</div>
+                  </div>
+                </div>
+                <div class="xstep">
+                  <span class="xnum">4</span>
+                  <div class="f1">
+                    <div class="f12 fw6">权限调整</div>
+                    <div class="f10 t-mut mt4">默认移除原负责人项目操作权；已勾选保留为协作者 → 本次保留</div>
+                  </div>
+                </div>
+                <div class="xstep">
+                  <span class="xnum">5</span>
+                  <div class="f1">
+                    <div class="f12 fw6">历史记录保留</div>
+                    <div class="f10 t-mut mt4">历史审核、评论、交付记录<b class="t-ok">保留原操作人</b>，不批量改写为新负责人</div>
+                  </div>
+                </div>
+
+                <div class="row between mt14">
+                  <span class="f10 t-fai">AI Agent 不能独立执行负责人变更</span>
+                  <button class="btn btn-sm btn-purple" data-toast="演示环境：执行转交并写入审计记录"><i class="fa-solid fa-check"></i>确认转交</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h2 class="card-title"><i class="fa-solid fa-table-cells"></i>权限矩阵</h2>
+                  <p class="card-sub">项目操作按成员隔离，知识资料跨项目全员可见（§2.2）</p>
+                </div>
+              </div>
+              <div class="card-body p0">
+                <div class="table-wrap">
+                  <table class="tbl tbl-compact">
+                    <thead>
+                      <tr>
+                        <th>操作</th>
+                        <th class="center" style="width:60px">管理者</th>
+                        <th class="center" style="width:66px">负责人</th>
+                        <th class="center" style="width:66px">协作者</th>
+                        <th class="center" style="width:78px">非项目运营</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td class="f11">创建项目、分配及变更负责人</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">查看完整项目与内容</td><td class="center yn yn-a">全部</td><td class="center yn yn-y">所属</td><td class="center yn yn-y">所属</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">编辑 Brief、方案与内容</td><td class="center yn yn-a">全部</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">生成、反馈、人工审核</td><td class="center yn yn-a">全部</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">下载、交付、发布登记、回收数据</td><td class="center yn yn-a">全部</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">生成阶段报告</td><td class="center yn yn-a">全部</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td></tr>
+                      <tr class="tr-warn"><td class="f11">设置预算、查看公司费用</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td></tr>
+                      <tr><td class="f11">查看本项目费用</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td></tr>
+                      <tr class="tr-warn"><td class="f11">主动结项</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td></tr>
+                      <tr class="tr-warn"><td class="f11">重新打开已结项项目</td><td class="center yn yn-y">是</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td><td class="center yn yn-n">否</td></tr>
+                      <tr class="tr-on"><td class="f11">知识库查看、创建、编辑、归档、确认生效</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td></tr>
+                      <tr class="tr-on"><td class="f11">查看知识历史与变更记录</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td><td class="center yn yn-y">是</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="padding:0 18px 18px">
+                  <div class="note note-purple mt14 mb0">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <div>
+                      <b>知识库为全员范围（紫底两行）：</b>进入知识库的项目研究资料、事实、反馈资产也可被全员查看。
+                      但<b class="t-warn">项目费用与未入库业务记录不因此自动公开</b>；跨品牌事实不迁移使用。
+                    </div>
+                  </div>
+                  <div class="note note-info mt10 mb0">
+                    <i class="fa-solid fa-user-check"></i>
+                    <div>
+                      <b>自审允许但留痕：</b>运营可审核自己创建的内容。所有审核保存审核人、时间、对象版本、结果与意见。
+                      <b class="t-warn">AI 自检通过 ≠ 人工审核通过</b>（§2.3 / AC-08）。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        </div><!-- /右 -->
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'members', crumb: ['管理中心', '成员与供应商设置'] });
+</script>
+</body>
+</html>

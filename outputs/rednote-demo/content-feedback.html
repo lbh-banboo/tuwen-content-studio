@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>逐条审核试产内容并处理意见 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .cf-wrap { display: grid; grid-template-columns: 288px minmax(0,1fr); gap: 18px; align-items: start; }
+  @media (max-width: 1180px) { .cf-wrap { grid-template-columns: 1fr; } }
+  .sel-txt { background: rgba(251,191,36,0.2); border-bottom: 1.5px solid var(--warn); border-radius: 2px; padding: 0 1px; cursor: pointer; }
+  .fb-item { border: 1px solid var(--line); border-radius: 11px; padding: 11px 12px; background: rgba(255,255,255,0.018); }
+  .fb-item.pend { border-color: rgba(251,191,36,0.34); background: rgba(251,191,36,0.05); }
+  .fb-item.block { border-color: rgba(251,113,133,0.4); background: rgba(251,113,133,0.06); }
+  .fb-item.done { opacity: 0.66; }
+  .fb-q { font-size: 12px; line-height: 1.62; color: var(--text); }
+  .fb-meta { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; font-size: 10.5px; color: var(--muted); }
+  .regen-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  @media (max-width: 900px) { .regen-grid { grid-template-columns: repeat(2, 1fr); } }
+  .regen { border: 1px solid var(--line); border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .regen:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .regen.on { border-color: var(--purple); background: rgba(160,107,255,0.13); }
+  .regen i { font-size: 14px; color: var(--purple); }
+  .regen div { font-size: 11px; margin-top: 6px; }
+  .cthumb { display: flex; gap: 9px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: all .16s ease; }
+  .cthumb:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.03); }
+  .cthumb.on { border-color: var(--purple); background: rgba(160,107,255,0.1); }
+  .cthumb .ct-img { width: 34px; height: 44px; flex: 0 0 auto; border-radius: 6px; background: linear-gradient(150deg,#2a1f45,#170f28); display: grid; place-items: center; font-size: 10px; color: rgba(160,107,255,0.6); }
+  .dz { border: 1.5px dashed var(--line-strong); border-radius: 11px; padding: 18px; text-align: center; cursor: pointer; transition: all .16s ease; }
+  .dz:hover { border-color: var(--purple-line); background: rgba(160,107,255,0.05); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-5"></i> 步骤 5 / 8</span>
+            <span class="code code-purple">批次 BATCH-T01</span>
+            <span class="tag tag-warn">审核中 · 6/10 已处置</span>
+          </div>
+          <h1 class="page-title">逐条审核试产内容并处理意见</h1>
+          <p class="page-desc">移动端预览用于审核，不替代真实设备的发布验收。关键事实问题未解决不能通过。可对选中文本添加意见或提交重生成。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：新建第 2 轮试产 10 条，属于新批次 BATCH-T02"><i class="fa-solid fa-rotate"></i>继续试产</button>
+          <a class="btn btn-primary" href="feedback-list.html">下一步：本轮内容与关卡 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+  <div class="card-head">
+  <div class="row">
+  <i class="fa-solid fa-mobile-screen t-pur"></i>
+  <h3 class="card-title">T01-04 审核工作台</h3>
+  <span class="code code-purple">v2</span>
+  <span class="tag tag-danger">1 项阻断事实问题</span>
+  </div>
+  <div class="row">
+  <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-chevron-left"></i></button>
+  <span class="f11 t-mut mono">4 / 10</span>
+  <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-chevron-right"></i></button>
+  </div>
+  </div>
+  <div class="card-body">
+  <div class="cf-wrap">
+
+  <!-- 手机预览 -->
+  <div>
+  <div class="phone">
+  <div class="phone-bar">
+  <span class="mono">9:41</span>
+  <span class="sig"><i class="fa-solid fa-signal"></i><i class="fa-solid fa-wifi"></i><i class="fa-solid fa-battery-three-quarters"></i></span>
+  </div>
+  <div class="phone-media">
+  <div class="col center" style="gap:6px">
+  <i class="fa-solid fa-image ph-icon"></i>
+  <span>封面 · 1440×1920</span>
+  </div>
+  <span class="idx">1 / 6</span>
+  </div>
+  <div class="phone-dots">
+  <span class="on"></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="phone-body">
+  <div class="phone-title">卸妆油残留感终于有解了，手背测试给你们看真实状态</div>
+  <div class="phone-text">卸妆之后总觉得脸上有层膜，这次用手背做了个对比测试。
+
+  左边只卸妆没二次清洁，右边用了这支氨基酸洁面。手背擦过去的顺滑度差别很明显。
+
+  成分表里<span class="sel-txt" data-toast="演示环境：已选中该段文本，右侧可对选中文本添加意见">氨基酸表活占比 62%</span>，无皂基配方，pH 5.5 弱酸性。起泡后是绵密那种，不是廉价的大泡。
+
+  洗完不紧绷，摸上去还是软的。这点对我这种卸妆后皮肤容易发红的人挺重要。</div>
+  <div class="phone-more">展开全文</div>
+  <div class="phone-tags">
+  <span>#氨基酸洁面</span><span>#卸妆后二次清洁</span><span>#温和清洁</span><span>#护肤日常</span>
+  </div>
+  <div class="phone-foot">
+  <span><i class="fa-regular fa-heart"></i>—</span>
+  <span><i class="fa-regular fa-star"></i>—</span>
+  <span><i class="fa-regular fa-comment"></i>—</span>
+  </div>
+  </div>
+  </div>
+  <div class="note note-info mt14 f11">
+  <i class="fa-solid fa-circle-info"></i>
+  <div>预览用于审核，<b>不替代真实设备的发布验收</b>。Live 图在此仅显示播放提示，实际效果需在移动端确认。</div>
+  </div>
+  <div class="row wrap mt10" style="gap:6px">
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：打开原图查看器"><i class="fa-solid fa-expand"></i>查看原图</button>
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：播放 Live 预览（本条为静态图形式，无 Live）"><i class="fa-solid fa-play"></i>播放 Live</button>
+  </div>
+  </div>
+
+  <!-- 右侧信息与反馈 -->
+  <div>
+  <!-- 元信息 -->
+  <div class="grid g4 mb14">
+  <div class="field">
+  <span class="label">场景</span>
+  <div class="f12 fw5">卸妆后二次清洁</div>
+  </div>
+  <div class="field">
+  <span class="label">形式 / 媒体</span>
+  <div class="f12 fw5">文案 + 静态图 · 6 张</div>
+  </div>
+  <div class="field">
+  <span class="label">版本</span>
+  <div class="f12 fw5">v2 <span class="f10 t-mut">（v1 已存档）</span></div>
+  </div>
+  <div class="field">
+  <span class="label">基线 / 方案</span>
+  <div class="f12 fw5"><span class="code f10">BL-v3</span> <span class="code f10">PLAN-v2</span></div>
+  </div>
+  </div>
+
+  <!-- AI 自检 8 类 -->
+  <div class="sec-title"><i class="fa-solid fa-robot"></i>AI 自检结果<span class="sec-sub">8 类建议分类 · 分类可由运营修改</span></div>
+  <div class="grid g4 mb14" data-stagger>
+  <div class="fcard" style="border-color:rgba(251,113,133,0.4);background:rgba(251,113,133,0.06)">
+  <div class="row between">
+  <span class="f11 fw6">事实</span>
+  <span class="tag tag-danger no-dot f10">1 阻断</span>
+  </div>
+  <div class="f10 t-mut mt6">表活占比与 F-003 口径冲突</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">语气</span><span class="tag tag-ok no-dot f10">通过</span></div>
+  <div class="f10 t-mut mt6">口语化、无过度营销</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">结构</span><span class="tag tag-ok no-dot f10">通过</span></div>
+  <div class="f10 t-mut mt6">场景引入→测试→成分→结论</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">场景</span><span class="tag tag-ok no-dot f10">通过</span></div>
+  <div class="f10 t-mut mt6">与配置场景一致</div>
+  </div>
+  <div class="fcard" style="border-color:rgba(251,191,36,0.34);background:rgba(251,191,36,0.05)">
+  <div class="row between"><span class="f11 fw6">重复</span><span class="tag tag-warn no-dot f10">1 提示</span></div>
+  <div class="f10 t-mut mt6">开头与 T01-05 相似度 71%</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">媒体一致性</span><span class="tag tag-ok no-dot f10">通过</span></div>
+  <div class="f10 t-mut mt6">6 张图均对应正文段落</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">技术格式</span><span class="tag tag-ok no-dot f10">通过</span></div>
+  <div class="f10 t-mut mt6">1440×1920 · JPG · 均 &lt;2MB</div>
+  </div>
+  <div class="fcard">
+  <div class="row between"><span class="f11 fw6">其他</span><span class="tag tag-muted no-dot f10">无</span></div>
+  <div class="f10 t-mut mt6">禁用词检测 0 命中</div>
+  </div>
+  </div>
+
+  <!-- 反馈方式 1：直接编辑 -->
+  <div class="sec-title"><i class="fa-solid fa-pen-to-square"></i>方式 1 · 直接编辑<span class="sec-sub">标题、正文、标签均可原地修改</span></div>
+  <div class="grid g-1-1-fix mb14 gap14">
+  <div>
+  <div class="field mb10">
+  <span class="label req">选定标题 <span class="hint">3 个候选中已选第 2 个</span></span>
+  <input class="input" value="卸妆油残留感终于有解了，手背测试给你们看真实状态" />
+  </div>
+  <div class="field">
+  <span class="label">话题标签 <span class="hint">独立字段保存 · 已去重</span></span>
+  <div class="row wrap" style="gap:6px">
+  <span class="chip is-on">#氨基酸洁面 <i class="fa-solid fa-xmark"></i></span>
+  <span class="chip is-on">#卸妆后二次清洁 <i class="fa-solid fa-xmark"></i></span>
+  <span class="chip is-on">#温和清洁 <i class="fa-solid fa-xmark"></i></span>
+  <span class="chip is-on">#护肤日常 <i class="fa-solid fa-xmark"></i></span>
+  <span class="chip" data-toast="演示环境：添加标签"><i class="fa-solid fa-plus"></i> 添加</span>
+  </div>
+  </div>
+  </div>
+  <div class="field">
+  <span class="label">正文 <span class="hint">选中文本后可添加定位意见</span></span>
+  <textarea class="textarea" rows="7">卸妆之后总觉得脸上有层膜，这次用手背做了个对比测试。左边只卸妆没二次清洁，右边用了这支氨基酸洁面。成分表里氨基酸表活占比 62%，无皂基配方，pH 5.5 弱酸性。</textarea>
+  </div>
+  </div>
+
+  <!-- 反馈方式 2：意见 -->
+  <div class="sec-title"><i class="fa-solid fa-comments"></i>方式 2 · 添加意见<span class="sec-sub">整篇 / 选中文本 / 某张图片三种粒度</span></div>
+  <div class="col mb14" style="gap:9px">
+  <div class="fb-item block">
+  <div class="row between mb6">
+  <div class="row" style="gap:6px">
+  <span class="tag tag-danger no-dot f10">事实</span>
+  <span class="tag no-dot f10"><i class="fa-solid fa-i-cursor"></i> 选中文本</span>
+  <span class="tag tag-purple no-dot f10">阻断</span>
+  </div>
+  <span class="f10 t-mut">AI 建议分类 · 运营已确认</span>
+  </div>
+  <div class="fb-q">选中「<b class="t-warn">氨基酸表活占比 62%</b>」：基线事实清单 F-003 记录为「氨基酸表活占比 ≥60%」，62% 为供应商口头提供、无书面来源。需改为基线口径或回到事实确认补充证据。</div>
+  <div class="fb-meta">
+  <span><i class="fa-solid fa-user"></i> 林知远</span>
+  <span><i class="fa-regular fa-clock"></i> 09-16 10:24</span>
+  <span class="tag tag-danger no-dot f10">待处理</span>
+  <span class="tag no-dot f10">作用范围：应用后续生成</span>
+  <span class="ml-auto row" style="gap:6px">
+  <button class="btn btn-sm btn-purple" data-toast="演示环境：改为基线口径并重新生成正文"><i class="fa-solid fa-wrench"></i>处理</button>
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：不采纳须填写说明">不采纳</button>
+  </span>
+  </div>
+  </div>
+
+  <div class="fb-item pend">
+  <div class="row between mb6">
+  <div class="row" style="gap:6px">
+  <span class="tag tag-warn no-dot f10">重复</span>
+  <span class="tag no-dot f10"><i class="fa-solid fa-file-lines"></i> 整篇</span>
+  </div>
+  <span class="f10 t-mut">AI 建议分类</span>
+  </div>
+  <div class="fb-q">开头「卸妆之后总觉得脸上有层膜」与 T01-05 开头结构相似度 71%，建议改为不同切入方式（如从时间点或具体产品搭配切入）。软提示，不作为唯一质量标准。</div>
+  <div class="fb-meta">
+  <span><i class="fa-solid fa-robot"></i> AI 自检</span>
+  <span><i class="fa-regular fa-clock"></i> 09-16 09:58</span>
+  <span class="tag tag-warn no-dot f10">处理中</span>
+  <span class="tag no-dot f10">作用范围：仅当前内容</span>
+  </div>
+  </div>
+
+  <div class="fb-item done">
+  <div class="row between mb6">
+  <div class="row" style="gap:6px">
+  <span class="tag tag-info no-dot f10">媒体一致性</span>
+  <span class="tag no-dot f10"><i class="fa-solid fa-image"></i> 第 3 张图</span>
+  </div>
+  <span class="f10 t-mut">分类已由运营从「其他」改为「媒体一致性」</span>
+  </div>
+  <div class="fb-q">第 3 张图的起泡状态偏稀，与正文「绵密」描述不符，已替换素材。</div>
+  <div class="fb-meta">
+  <span><i class="fa-solid fa-user"></i> 陈嘉玥</span>
+  <span><i class="fa-regular fa-clock"></i> 09-16 09:12</span>
+  <span class="tag tag-ok no-dot f10">已解决</span>
+  <span class="f10 t-mut">v1 → v2</span>
+  </div>
+  </div>
+
+  <div class="fb-item done">
+  <div class="row between mb6">
+  <div class="row" style="gap:6px">
+  <span class="tag tag-muted no-dot f10">语气</span>
+  <span class="tag no-dot f10"><i class="fa-solid fa-file-lines"></i> 整篇</span>
+  </div>
+  <span class="f10 t-mut">不采纳 · 已记录说明</span>
+  </div>
+  <div class="fb-q">建议增加更强的行动号召。</div>
+  <div class="fb-meta">
+  <span><i class="fa-solid fa-user"></i> 王沐辰</span>
+  <span><i class="fa-regular fa-clock"></i> 09-16 08:40</span>
+  <span class="tag tag-muted no-dot f10">不采纳</span>
+  <span class="f10 t-fai">说明：本项目 BRIEF 明确要求真实分享口吻，避免促销式号召。</span>
+  </div>
+  </div>
+  </div>
+
+  <div class="grid g-1-1-fix gap14 mb14">
+  <!-- 反馈方式 3：上传替换素材 -->
+  <div>
+  <div class="sec-title"><i class="fa-solid fa-cloud-arrow-up"></i>方式 3 · 上传替换素材</div>
+  <div class="dz mb10" data-toast="演示环境：素材上传后将替换指定位置并生成新版本">
+  <i class="fa-solid fa-cloud-arrow-up t-pur" style="font-size:20px"></i>
+  <div class="f12 mt6">拖入图片或 Live 文件替换指定位置</div>
+  <div class="f10 t-mut mt4">JPG / PNG / MP4 / LivePhoto · 单文件 ≤ 20MB</div>
+  </div>
+  <div class="col" style="gap:6px">
+  <div class="cthumb on">
+  <span class="ct-img">1</span>
+  <div class="f1">
+  <div class="f11 fw5">01_封面.jpg</div>
+  <div class="f10 t-mut">1440×1920 · 1.7MB · AI 生成</div>
+  </div>
+  <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  <div class="cthumb">
+  <span class="ct-img">3</span>
+  <div class="f1">
+  <div class="f11 fw5">03_起泡.jpg</div>
+  <div class="f10 t-ok">已人工替换 · 09-16 09:12</div>
+  </div>
+  <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  </div>
+  </div>
+
+  <!-- 反馈方式 4+5：重生成范围与作用范围 -->
+  <div>
+  <div class="sec-title"><i class="fa-solid fa-arrows-rotate"></i>方式 4 · 选择重生成范围</div>
+  <div class="regen-grid mb14">
+  <div class="regen" data-toast="演示环境：仅重新生成标题候选"><i class="fa-solid fa-heading"></i><div>仅标题</div></div>
+  <div class="regen on" data-toast="演示环境：仅重新生成正文"><i class="fa-solid fa-align-left"></i><div>仅正文</div></div>
+  <div class="regen" data-toast="演示环境：仅重新生成话题标签"><i class="fa-solid fa-hashtag"></i><div>仅标签</div></div>
+  <div class="regen" data-toast="演示环境：仅重新生成选中的单张媒体"><i class="fa-solid fa-image"></i><div>单张媒体</div></div>
+  <div class="regen" data-toast="演示环境：整篇重新生成，产生新版本号"><i class="fa-solid fa-file-circle-plus"></i><div>整篇</div></div>
+  </div>
+
+  <div class="sec-title"><i class="fa-solid fa-crosshairs"></i>方式 5 · 指定反馈作用范围</div>
+  <div class="col mb14" style="gap:8px">
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <label class="check"><input type="checkbox" /><span></span></label>
+    <span class="f12">仅当前内容 —— 不影响其他条目</span>
+  </div>
+  <div class="row" style="gap:8px;align-items:flex-start">
+    <label class="check checked"><input type="checkbox" checked /><span></span></label>
+    <span class="f12">应用后续生成 —— 写入本批次生成约束，影响扩产与批产</span>
+  </div>
+  </div>
+
+  <div class="note note-purple f11">
+  <i class="fa-solid fa-lightbulb"></i>
+  <div>选择「应用后续生成」时，该意见将作为附加约束写入方案版本，但<b>不修改生产基线</b> —— 基线变更需回到步骤 3 创建新版本（PRD §7.2）。</div>
+  </div>
+
+  <div class="row wrap mt14" style="gap:8px">
+  <button class="btn btn-purple" data-toast="演示环境：已提交重生成任务，产生版本 v3"><i class="fa-solid fa-arrows-rotate"></i>提交重生成</button>
+  <button class="btn btn-ghost" data-toast="演示环境：存在未解决的阻断事实问题，无法标记已通过"><i class="fa-solid fa-thumbs-up"></i>标记已通过</button>
+  <button class="btn btn-ghost" data-toast="演示环境：淘汰后本轮不用，保留历史并可生成替代内容"><i class="fa-solid fa-ban"></i>淘汰</button>
+  </div>
+  </div>
+  </div>
+
+  </div>
+  </div>
+  </div>
+  </section>
+<div class="col" style="gap:14px">
+<div class="note note-danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <strong>存在 1 条未解决的关键事实问题，当前内容不能通过。</strong>
+              T01-04「氨基酸表活占比 62%」与基线事实清单 F-003 记录的「≥60%」口径不一致 —— 需回到事实确认或修改文案表述后才可标记已通过（PRD §9.2）。
+            </div>
+          </div>
+<section class="card">
+  <div class="card-head">
+  <div class="row">
+  <i class="fa-solid fa-grip t-pur"></i>
+  <h3 class="card-title">本轮 10 条内容</h3>
+  <div class="seg" data-seg>
+  <button class="seg-item is-active">全部 10</button>
+  <button class="seg-item">待审核 3</button>
+  <button class="seg-item">修改中 1</button>
+  <button class="seg-item">已通过 5</button>
+  <button class="seg-item">已淘汰 1</button>
+  </div>
+  </div>
+  <div class="row">
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：仅对已完成自检、无阻断问题的内容执行批量通过"><i class="fa-solid fa-check-double"></i>批量通过</button>
+  </div>
+  </div>
+  <div class="card-body p0">
+  <div class="table-wrap">
+  <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+  <thead>
+  <tr>
+  <th style="width:82px">内容编号</th>
+  <th style="width:130px">场景</th>
+  <th style="width:126px">形式</th>
+  <th style="width:62px">版本</th>
+  <th style="width:150px">AI 自检</th>
+  <th style="width:100px">人工状态</th>
+  <th style="width:96px">生成结果</th>
+  <th>反馈</th>
+  <th class="num" style="width:76px">操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="tr-on">
+  <td><span class="code code-purple">T01-01</span></td>
+  <td>早八通勤急救</td>
+  <td class="f11 t-sub">文案+静态图 6</td>
+  <td class="mono f11">v3</td>
+  <td><span class="tag tag-ok">通过 · 0 项</span></td>
+  <td><span class="tag tag-ok">已通过</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-mut">2 条已解决</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-02</span></td>
+  <td>早八通勤急救</td>
+  <td class="f11 t-sub">文案+Live 3</td>
+  <td class="mono f11">v1</td>
+  <td><span class="tag tag-warn">提示 · 2 项</span></td>
+  <td><span class="tag tag-warn">待审核</span></td>
+  <td><span class="tag tag-warn no-dot f10">部分成功</span></td>
+  <td class="f11 t-warn">Live 3 生成中断</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-03</span></td>
+  <td>早八通勤急救</td>
+  <td class="f11 t-sub">仅文案</td>
+  <td class="mono f11">v2</td>
+  <td><span class="tag tag-ok">通过 · 0 项</span></td>
+  <td><span class="tag tag-ok">已通过</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-mut">1 条不采纳</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr class="tr-danger">
+  <td><span class="code">T01-04</span></td>
+  <td>卸妆后二次清洁</td>
+  <td class="f11 t-sub">文案+静态图 6</td>
+  <td class="mono f11">v2</td>
+  <td><span class="tag tag-danger">阻断 · 1 项事实</span></td>
+  <td><span class="tag tag-warn">修改中</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-dan">1 条阻断待解决</td>
+  <td class="num"><button class="btn btn-sm btn-purple">当前</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-05</span></td>
+  <td>卸妆后二次清洁</td>
+  <td class="f11 t-sub">静态4+Live2</td>
+  <td class="mono f11">v1</td>
+  <td><span class="tag tag-ok">通过 · 0 项</span></td>
+  <td><span class="tag tag-ok">已通过</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-mut">—</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-06</span></td>
+  <td>卸妆后二次清洁</td>
+  <td class="f11 t-sub">仅文案</td>
+  <td class="mono f11">v1</td>
+  <td><span class="tag tag-warn">提示 · 1 项结构</span></td>
+  <td><span class="tag tag-warn">待审核</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-warn">1 条待处理</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-07</span></td>
+  <td>健身后油汗清洁</td>
+  <td class="f11 t-sub">文案+静态图 6</td>
+  <td class="mono f11">v2</td>
+  <td><span class="tag tag-ok">通过 · 0 项</span></td>
+  <td><span class="tag tag-ok">已通过</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-mut">3 条已解决</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-08</span></td>
+  <td>健身后油汗清洁</td>
+  <td class="f11 t-sub">文案+Live 3</td>
+  <td class="mono f11">v1</td>
+  <td><span class="tag tag-muted no-dot">未自检</span></td>
+  <td><span class="tag tag-danger">已淘汰</span></td>
+  <td><span class="tag tag-danger no-dot f10">失败</span></td>
+  <td class="f11 t-dan">Live 格式校验未通过</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">替代</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-09</span></td>
+  <td>学生党性价比替换</td>
+  <td class="f11 t-sub">文案+静态图 6</td>
+  <td class="mono f11">v1</td>
+  <td><span class="tag tag-warn">提示 · 1 项重复</span></td>
+  <td><span class="tag tag-warn">待审核</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-warn">1 条待处理</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  <tr>
+  <td><span class="code">T01-10</span></td>
+  <td>学生党性价比替换</td>
+  <td class="f11 t-sub">静态4+Live2</td>
+  <td class="mono f11">v2</td>
+  <td><span class="tag tag-ok">通过 · 0 项</span></td>
+  <td><span class="tag tag-ok">已通过</span></td>
+  <td><span class="tag tag-ok no-dot f10">完整成功</span></td>
+  <td class="f11 t-mut">1 条已解决</td>
+  <td class="num"><button class="btn btn-sm btn-ghost">查看</button></td>
+  </tr>
+  </tbody>
+  </table></div></div></div></div>
+  </div>
+  </div>
+  </section>
+<section class="card">
+  <div class="card-head">
+  <div class="row">
+  <i class="fa-solid fa-shield-halved t-pur"></i>
+  <h3 class="card-title">进入扩产的关卡校验</h3>
+  <span class="tag tag-danger">2 项未满足</span>
+  </div>
+  <span class="f11 t-mut">不允许仅点击全通过绕过（AC-13）</span>
+  </div>
+  <div class="card-body">
+  <div class="grid g-2-1 gap14">
+  <div>
+  <div class="col" style="gap:10px">
+  <div class="list-item">
+  <span class="li-icon danger"><i class="fa-solid fa-xmark"></i></span>
+  <div class="li-main">
+  <div class="li-title">当前轮所有内容完成处置</div>
+  <div class="li-sub">10 条中 6 条已处置（5 通过 + 1 淘汰）· <b class="t-dan">4 条未处置</b>：T01-02 待审核、T01-04 修改中、T01-06 待审核、T01-09 待审核</div>
+  </div>
+  <div class="li-right"><span class="tag tag-danger no-dot f10">未满足</span></div>
+  </div>
+  <div class="list-item">
+  <span class="li-icon danger"><i class="fa-solid fa-xmark"></i></span>
+  <div class="li-main">
+  <div class="li-title">无待处理阻断意见</div>
+  <div class="li-sub">T01-04 存在 1 条<b class="t-dan">事实类阻断意见</b>未解决 —— 关键事实问题未解决不能通过</div>
+  </div>
+  <div class="li-right"><span class="tag tag-danger no-dot f10">未满足</span></div>
+  </div>
+  <div class="list-item">
+  <span class="li-icon warn"><i class="fa-solid fa-exclamation"></i></span>
+  <div class="li-main">
+  <div class="li-title">每个准备扩产的方向至少 1 条已通过样例</div>
+  <div class="li-sub">早八通勤急救 2 条通过 · 卸妆后二次清洁 1 条通过 · 学生党性价比替换 1 条通过 · <b class="t-warn">健身后油汗清洁 0 条通过</b></div>
+  </div>
+  <div class="li-right"><span class="tag tag-warn no-dot f10">部分</span></div>
+  </div>
+  <div class="list-item">
+  <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+  <div class="li-main">
+  <div class="li-title">全部内容已完成 AI 自检</div>
+  <div class="li-sub">9 条已自检 · 1 条失败项未自检（已淘汰，不阻断）</div>
+  </div>
+  <div class="li-right"><span class="tag tag-ok no-dot f10">满足</span></div>
+  </div>
+  </div>
+
+  <div class="note note-warn mt14">
+  <i class="fa-solid fa-circle-exclamation"></i>
+  <div>
+  <strong>「健身后油汗清洁」方向全部失败或未通过。</strong>
+  该方向 2 条内容中 1 条已通过待确认、1 条已淘汰（Live 格式校验未通过）。必须补充试产验证，或从扩产方案中移除该方向 —— 不允许仅点击全通过绕过（PRD §9.3）。
+  </div>
+  </div>
+  </div>
+
+  <div>
+  <div class="sec-title"><i class="fa-solid fa-layer-group"></i>方向通过情况</div>
+  <div class="col mb14" style="gap:11px">
+  <div>
+  <div class="row between mb6"><span class="f12">早八通勤急救</span><span class="f11 t-ok mono">2 / 3 通过</span></div>
+  <div class="bar"><div class="bar-fill" style="width:67%"></div></div>
+  </div>
+  <div>
+  <div class="row between mb6"><span class="f12">卸妆后二次清洁</span><span class="f11 t-warn mono">1 / 3 通过</span></div>
+  <div class="bar"><div class="bar-fill" style="width:33%"></div></div>
+  </div>
+  <div>
+  <div class="row between mb6"><span class="f12">健身后油汗清洁</span><span class="f11 t-dan mono">0 / 2 通过</span></div>
+  <div class="bar"><div class="bar-fill" style="width:3%"></div></div>
+  </div>
+  <div>
+  <div class="row between mb6"><span class="f12">学生党性价比替换</span><span class="f11 t-ok mono">2 / 2 通过</span></div>
+  <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+  </div>
+  <div>
+  <div class="row between mb6"><span class="f12 t-mut">敏感肌换季维稳</span><span class="f11 t-mut">本轮未分配</span></div>
+  <div class="bar"><div class="bar-fill" style="width:0"></div></div>
+  </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="sec-title"><i class="fa-solid fa-code-branch"></i>轮次对比</div>
+  <div class="col mb14" style="gap:8px">
+  <div class="row between f11">
+  <span><span class="code code-purple f10">BATCH-T01</span> 第 1 轮 · 10 条</span>
+  <span class="t-warn">审核中 6/10</span>
+  </div>
+  <div class="row between f11 t-mut">
+  <span><span class="code f10">BATCH-T02</span> 第 2 轮 · 未创建</span>
+  <span>—</span>
+  </div>
+  <div class="f10 t-fai mt4">新轮属于新批次，所有轮次可对比；局部重做失败项不新建批次。</div>
+  </div>
+
+  <button class="btn btn-danger" style="width:100%" data-toast="演示环境：2 项关卡未满足，后端拒绝推进">
+  <i class="fa-solid fa-lock"></i>2 项关卡未满足
+  </button>
+  <div class="row mt10" style="gap:8px">
+  <button class="btn btn-ghost f1" data-toast="演示环境：新建第 2 轮试产 10 条"><i class="fa-solid fa-plus"></i>补充试产</button>
+  <a class="btn btn-primary f1" href="scale-batch.html">演示跳转 <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+  </div>
+  </div>
+  </div>
+  </section>
+</div>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'content-feedback', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '试产反馈'] });
+</script>
+</body>
+</html>

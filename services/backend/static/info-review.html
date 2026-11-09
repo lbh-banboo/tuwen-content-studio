@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>审核产品事实、人群与表达边界 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-3"></i> 步骤 3 / 8</span>
+            <span class="code code-purple">基线 BL-v3</span>
+            <span class="tag tag-warn">1 项事实冲突待处置</span>
+          </div>
+          <h1 class="page-title">审核产品事实、人群与表达边界</h1>
+          <p class="page-desc">逐条确认产品事实与来源、人群场景关联、可用与禁用表达。事实冲突未处置不得创建基线。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：已打开事实冲突处置面板"><i class="fa-solid fa-triangle-exclamation"></i>处置冲突</button>
+          <a class="btn btn-primary" href="baseline.html">下一步：生产基线 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g4" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-list-check"></i>审核项</div>
+              <div class="metric-value" data-count="42">0</div>
+              <div class="metric-foot">已处置 41 · 待处置 1</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-shield-halved"></i>阻断问题</div>
+              <div class="metric-value t-dan" data-count="1">0</div>
+              <div class="metric-foot t-dan">阻断项须处理后才可推进</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-users"></i>可生产场景</div>
+              <div class="metric-value t-ok" data-count="5">0</div>
+              <div class="metric-foot">≥1 即满足完成条件</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-lock"></i>基线版本</div>
+              <div class="metric-value" style="font-size:22px">BL-v3</div>
+              <div class="metric-foot">绑定 Brief v2 · 12 项事实</div>
+            </div>
+          </div>
+
+<div class="grid g-1-1 mb14">
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">产品事实、参数及来源</span>
+              <span class="card-sub">12 项</span>
+              <div class="card-head-actions">
+                <div class="filters" data-chipgroup>
+                  <span class="chip is-active">全部 12</span>
+                  <span class="chip">已确认 11</span>
+                  <span class="chip"><i class="fa-solid fa-triangle-exclamation t-dan"></i>冲突 1</span>
+                </div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl">
+                <thead>
+                  <tr>
+                    <th>事实陈述</th>
+                    <th style="width:130px">来源</th>
+                    <th style="width:80px">时效</th>
+                    <th style="width:92px">状态</th>
+                    <th class="num" style="width:78px">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background:rgba(251,113,133,0.06)">
+                    <td class="strong">
+                      氨基酸表活占比 62%
+                      <div class="f10 t-dan mt6">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        冲突：R-014 品牌官方页表述为「≥60%」
+                      </div>
+                    </td>
+                    <td class="f11">Brief v2 P.5<br><span class="t-fai">vs R-014</span></td>
+                    <td class="f11">09-12</td>
+                    <td><span class="tag tag-danger">冲突</span></td>
+                    <td class="num"><button class="btn btn-sm btn-danger" data-toast="演示环境：可选择采纳其一并记录依据，或标记为区间表述">处置</button></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">pH 值 5.5±0.5，弱酸性</td>
+                    <td class="f11">Brief v2 P.5</td>
+                    <td class="f11">—</td>
+                    <td><span class="tag tag-ok">已确认</span></td>
+                    <td class="num"><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看事实详情"><i class="fa-solid fa-eye"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">主表活为椰油酰甘氨酸钾</td>
+                    <td class="f11">Brief v2 P.5</td>
+                    <td class="f11">—</td>
+                    <td><span class="tag tag-ok">已确认</span></td>
+                    <td class="num"><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看事实详情"><i class="fa-solid fa-eye"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">添加泛醇 3% 与神经酰胺 NP</td>
+                    <td class="f11">Brief v2 P.5</td>
+                    <td class="f11">—</td>
+                    <td><span class="tag tag-ok">已确认</span></td>
+                    <td class="num"><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看事实详情"><i class="fa-solid fa-eye"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">净含量 120 g，型号 SU-CL-120</td>
+                    <td class="f11">Brief v2 P.3</td>
+                    <td class="f11">—</td>
+                    <td><span class="tag tag-ok">已确认</span></td>
+                    <td class="num"><button class="btn btn-sm btn-ghost" data-toast="演示环境：查看事实详情"><i class="fa-solid fa-eye"></i></button></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      配方备案编号
+                      <div class="f10 t-warn mt6">附件未提供，标注为限制而非事实</div>
+                    </td>
+                    <td class="f11 na">缺失</td>
+                    <td class="f11 na">—</td>
+                    <td><span class="tag tag-warn">待确认</span></td>
+                    <td class="num"><button class="btn btn-sm btn-ghost" data-toast="演示环境：非阻断项，已加入跟进待办">跟进</button></td>
+                  </tr>
+                </tbody>
+              </table></div></div></div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">人群、场景与卖点关联</span>
+              <span class="card-sub">5 个可生产场景</span>
+            </div>
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl">
+                <thead>
+                  <tr>
+                    <th>场景</th><th>人群</th><th>痛点</th><th>可用卖点</th>
+                    <th style="width:110px">事实来源</th><th style="width:80px">状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">早晚日常洁面</td>
+                    <td class="f11">18—30 油皮 / 混油皮</td>
+                    <td class="f11">皂基洗后紧绷</td>
+                    <td class="f11">卖点② 洗后不紧绷</td>
+                    <td class="f11">Brief P.5 / P.8</td>
+                    <td><span class="tag tag-ok">可生产</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">运动后清洁</td>
+                    <td class="f11">健身人群 / 学生党</td>
+                    <td class="f11">出汗后清洁力不足顾虑</td>
+                    <td class="f11">卖点① 氨基酸表活</td>
+                    <td class="f11">Brief P.8 / R-003</td>
+                    <td><span class="tag tag-ok">可生产</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">换季泛红期</td>
+                    <td class="f11">敏感肌倾向</td>
+                    <td class="f11">屏障脆弱不敢清洁</td>
+                    <td class="f11">卖点② + 弱酸性</td>
+                    <td class="f11">Brief P.12 / R-008</td>
+                    <td><span class="tag tag-ok">可生产</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">早C晚A 期间</td>
+                    <td class="f11">成分党</td>
+                    <td class="f11">刷酸期洁面选择难</td>
+                    <td class="f11">卖点② + 敏感肌可用</td>
+                    <td class="f11">Brief P.12</td>
+                    <td><span class="tag tag-ok">可生产</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">带妆日二次清洁</td>
+                    <td class="f11">通勤上班族</td>
+                    <td class="f11">卸妆后是否需再洗</td>
+                    <td class="f11">卖点③ 绵密泡</td>
+                    <td class="f11">Brief P.8</td>
+                    <td><span class="tag tag-warn">需标注限制</span></td>
+                  </tr>
+                  <tr style="opacity:0.6">
+                    <td class="strong">熬夜党急救</td>
+                    <td class="f11">熬夜人群</td>
+                    <td class="f11">暗沉粗糙</td>
+                    <td class="f11 na">无对应事实支持</td>
+                    <td class="f11 na">缺失</td>
+                    <td><span class="tag tag-danger">已停用</span></td>
+                  </tr>
+                </tbody>
+              </table></div></div></div></div></div>
+            </div>
+            <div class="card-foot">
+              <span class="f11 t-mut">
+                <i class="fa-solid fa-circle-info t-pur"></i>
+                「带妆日二次清洁」须标注「需配合卸妆，不可替代卸妆步骤」；「熬夜党急救」因无事实支持已停用。
+              </span>
+            </div>
+          </section>
+</div>
+
+<div class="grid g-1-1">
+<div class="note note-danger">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <b>1 项阻断问题待处置：</b>「氨基酸表活占比」存在来源冲突（Brief v2 P.5 称 62%，研究资料 R-014 品牌官方页称 ≥60%）。
+              该事实已被 4 条试产内容引用，无法解决的核心冲突将<b>阻断生成</b>。
+            </div>
+          </div>
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">可用表达、禁用表达与风险事实</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g2">
+                <div>
+                  <div class="label"><i class="fa-solid fa-circle-check t-ok"></i>必须提及（按 Brief 优先级）</div>
+                  <div class="row wrap" style="gap:6px">
+                    <span class="tag tag-ok">氨基酸表活</span>
+                    <span class="tag tag-ok">弱酸性</span>
+                    <span class="tag tag-ok">敏感肌可用</span>
+                  </div>
+                  <div class="hint">生成后自检将按优先级检查覆盖情况。</div>
+                </div>
+                <div>
+                  <div class="label"><i class="fa-solid fa-ban t-dan"></i>禁止提及（命中即阻断）</div>
+                  <div class="row wrap" style="gap:6px">
+                    <span class="tag tag-danger">医美级</span>
+                    <span class="tag tag-danger">抗炎</span>
+                    <span class="tag tag-danger">祛痘</span>
+                    <span class="tag tag-danger">竞品直接比较</span>
+                    <span class="tag tag-danger">替代药品</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="label"><i class="fa-solid fa-triangle-exclamation t-warn"></i>项目级禁用话术（PRD §14.1 硬规则）</div>
+              <div class="row wrap" style="gap:6px">
+                <span class="tag tag-warn">YYDS</span>
+                <span class="tag tag-warn">天花板</span>
+                <span class="tag tag-warn">闭眼入</span>
+                <span class="tag tag-warn">强烈推荐</span>
+                <span class="tag tag-warn">不买后悔</span>
+              </div>
+
+              <div class="note note-danger mt14">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                  <b>风险事实：</b>不编造产品参数、原理、功效、使用经历、实测数值或亲友对话。
+                  引用其他品牌参数时不得混成当前产品事实。不为了显得真实而强行编造缺点。
+                </div>
+              </div>
+            </div>
+          </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'info-review', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '信息审核'] });
+</script>
+</body>
+</html>

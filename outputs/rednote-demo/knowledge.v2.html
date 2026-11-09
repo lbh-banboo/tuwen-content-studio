@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>知识库 · 资产 / 提案 / 检索 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* components.css 没有「选中行」的类，这里补一个（只有本页用） */
+  .tbl tbody tr.tr-sel { background: rgba(160,107,255,0.10); }
+  .kb-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 1180px) { .kb-split { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); } }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <!-- 页头：原型的「N 处口径已更正」等硬编码声称已删除（无读源）。
+           页面标题保留「六域字段 / SOP 七步四门 / 双 Loop 状态机」的措辞，
+           因为那确实是本页教义区的内容，但下方每一块教义都带了统一标注。 -->
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-book-bookmark"></i> 知识库</span>
+            <span class="tag tag-muted no-dot f10" id="kb-source">读取中…</span>
+          </div>
+          <h1 class="page-title">知识库 · 资产与提案（数据） / 六域字段与 SOP（标准）</h1>
+          <p class="page-desc">本页分两半：上半是接后端的数据区（资产、版本、引用、提案、语义检索）；下半是方法论标准区，每张卡都标注了「标准文本 · 非系统数据」—— 它们在后端没有对应字段，不是从库里查出来的。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="projects.v2.html"><i class="fa-solid fa-folder-open"></i>项目中心</a>
+        </div>
+      </div>
+
+      <!-- ============ 数据区 ============ -->
+      <div class="col" style="gap:14px">
+        <div id="kb-filters" aria-live="polite"></div>
+        <div class="kb-split">
+          <div class="col" style="gap:14px">
+            <div id="kb-assets" aria-live="polite"></div>
+            <div id="kb-tally" aria-live="polite"></div>
+            <div id="kb-proposals" aria-live="polite"></div>
+          </div>
+          <div class="col" style="gap:14px">
+            <div id="kb-detail" aria-live="polite"></div>
+            <div id="kb-versions" aria-live="polite"></div>
+            <div id="kb-pubhistory" aria-live="polite"></div>
+            <div id="kb-references" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="kb-split">
+          <div class="col" style="gap:14px">
+            <div id="kb-searchform"></div>
+            <div id="kb-searchresults" aria-live="polite"></div>
+          </div>
+          <div id="kb-searchmeta" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- ============ 教义区（静态，70%）============ -->
+      <div class="row" style="margin:22px 0 14px;gap:10px;align-items:center">
+        <span class="f12 t-mut">以下为方法论标准区 · 非系统数据</span>
+        <span style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></span>
+      </div>
+      <div class="col" style="gap:14px">
+        <div id="kb-d-sixdomain"></div>
+        <div id="kb-d-ontology"></div>
+        <div id="kb-d-sop"></div>
+        <div id="kb-d-strategy"></div>
+        <div id="kb-d-correction"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/knowledge.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'knowledge', crumb: ['知识库'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/knowledge.js。
+     paint(map) 把「容器 id → HTML 串」的搬运收成一处；IIFE 59 行
+     （教义区 5 块 + 数据区 11 块 + 检索与提案两个动作，比纯读页多）。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.knowledge;
+    var el = function (id) { return document.getElementById(id); };
+    var SLOTS = ['kb-assets', 'kb-tally', 'kb-proposals', 'kb-detail', 'kb-versions', 'kb-pubhistory', 'kb-references'];
+    var src = el('kb-source'), f = { category: '', scope: '', state: '', mode: 'SEMANTIC', query: '' }, sel = '';
+    /* paint(map)：容器 id → 已渲染好的 HTML 串。挂载层只负责搬运，不拼字符串。 */
+    var paint = function (map) { Object.keys(map).forEach(function (k) { el(k).innerHTML = map[k]; }); };
+    paint({ 'kb-d-sixdomain': R.renderSixDomainDoctrine(), 'kb-d-ontology': R.renderOntologyDoctrine(), 'kb-d-sop': R.renderSopDoctrine(), 'kb-d-strategy': R.renderStrategyStateDoctrine(), 'kb-d-correction': R.renderCorrectionDoctrine(), 'kb-searchresults': R.renderSearchResults(null) });
+    function tag(cls, label) { src.className = 'tag ' + cls + ' no-dot f10'; src.textContent = label; }
+    async function detail(id) {
+      sel = id;
+      ['kb-detail', 'kb-versions', 'kb-pubhistory', 'kb-references'].forEach(function (k) { el(k).innerHTML = R.renderLoading('正在读取资产详情…'); });
+      try {
+        var a = '/knowledge/assets/' + encodeURIComponent(id);
+        var r = await Promise.all([API.get(a), API.page(a + '/versions', { limit: 100 }), API.page(a + '/references', { limit: 100 })]);
+        paint({ 'kb-detail': R.renderAssetDetail(r[0]), 'kb-versions': R.renderVersionHistory(r[1].items), 'kb-pubhistory': R.renderPublicationHistory(r[0] && r[0].publicationHistory), 'kb-references': R.renderReferences(r[2].items) });
+      } catch (err) { el('kb-detail').innerHTML = R.renderError(err); }
+    }
+    async function load() {
+      paint({ 'kb-filters': R.renderFilters(f), 'kb-searchform': R.renderSearchForm(f) });
+      SLOTS.forEach(function (id) { el(id).innerHTML = R.renderLoading('正在读取知识库…'); });
+      try {
+        var r = await Promise.all([API.page('/knowledge/assets', { limit: 100, query: { category: f.category, scope: f.scope, state: f.state } }), API.page('/knowledge/proposals', { limit: 100 })]);
+        var assets = r[0].items;
+        paint({ 'kb-assets': R.renderAssetTable(assets, sel || (assets[0] && assets[0].id)), 'kb-tally': R.renderCategoryTally(assets), 'kb-proposals': R.renderProposalList(r[1].items) });
+        tag(r[0].static ? 'tag-warn' : 'tag-ok', r[0].static ? '演示数据 · 静态降级' : '实时数据 · ' + assets.length + ' 条资产 / ' + r[1].items.length + ' 条提案');
+        if (assets.length) await detail(sel || assets[0].id); else ['kb-detail', 'kb-versions', 'kb-pubhistory', 'kb-references'].forEach(function (k) { el(k).innerHTML = R.renderEmpty('当前筛选下没有资产可看详情。'); });
+      } catch (err) {
+        SLOTS.forEach(function (id) { el(id).innerHTML = ''; });
+        el('kb-assets').innerHTML = R.renderError(err);
+        tag('tag-danger', '读取失败');
+      }
+    }
+    async function search() {
+      var box = el('kb-q');
+      f.query = box ? box.value : '';
+      el('kb-searchresults').innerHTML = R.renderLoading('正在检索…');
+      var req = R.searchRequest({ query: f.query, mode: f.mode, category: f.category });
+      try {
+        var res = await API.post(req.path, req.body);
+        paint({ 'kb-searchresults': R.renderSearchResults(res), 'kb-searchmeta': R.renderSearchMeta(res && res.search) });
+      } catch (err) { el('kb-searchresults').innerHTML = R.renderError(err); }
+    }
+    async function decide(id, decision) {
+      var req = R.decisionRequest(id, decision, '演示环境人工确认');
+      try { el('kb-proposals').innerHTML = R.renderDecisionResult(await API.post(req.path, req.body)) + R.renderLoading('正在刷新提案…'); await load(); }
+      catch (err) { el('kb-proposals').innerHTML = R.renderError(err); }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      var t = e.target, chip = t.closest('[data-filter]'), asset = t.closest('[data-action="select-asset"]'), prop = t.closest('[data-proposal-id]');
+      if (t.closest('[data-action="retry"]')) load();
+      else if (chip) { e.preventDefault(); f[chip.getAttribute('data-filter')] = chip.getAttribute('data-value'); if (chip.getAttribute('data-filter') === 'mode') el('kb-searchform').innerHTML = R.renderSearchForm(f); else { sel = ''; load(); } }
+      else if (asset) { e.preventDefault(); detail(asset.getAttribute('data-asset-id')); }
+      else if (t.closest('[data-action="search"]')) search();
+      else if (prop) decide(prop.getAttribute('data-proposal-id'), t.closest('[data-action="accept-proposal"]') ? 'ACCEPT' : 'REJECT');
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

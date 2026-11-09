@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认对照、原因与局部修复范围 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fix-row { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .fix-row:last-child { border-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <!-- 页头：原型的「批次 BATCH-T01」「修复范围已收窄」两枚标签已删除。
+           前者无 batch 资源（契约里 batch 零命中），后者是对数据的声称而无字段。 -->
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-code-compare"></i> 对照与修复</span>
+            <span class="code" id="ff-content">—</span>
+            <span class="tag tag-muted no-dot f10" id="ff-source">读取中…</span>
+          </div>
+          <h1 class="page-title">确认对照、原因与局部修复范围</h1>
+          <p class="page-desc">对照初稿与当前稿、确认媒体差异与原因，并把修复范围收窄到具体行。选择「应用后续生成」时写入本批次生成约束，但不修改生产基线。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-cid href="content-feedback.v2.html"><i class="fa-solid fa-arrow-left"></i>试产反馈</a>
+          <a class="btn btn-primary" data-keep-id href="scale-batch.html">下一步：新建扩产批次 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g-3-2">
+        <div class="col" style="gap:14px">
+          <div id="ff-fixlist" aria-live="polite"></div>
+          <div id="ff-category" aria-live="polite"></div>
+          <div id="ff-rejected" aria-live="polite"></div>
+          <div id="ff-rootcause"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="ff-scope" aria-live="polite"></div>
+          <div id="ff-versions" aria-live="polite"></div>
+          <div id="ff-events" aria-live="polite"></div>
+          <div id="ff-round"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/feedback-fix.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'feedback-fix', crumb: ['项目中心', '试产与反馈', '对照与修复'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/feedback-fix.js。
+     触 DOM 语句 11 条，IIFE 33 行。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.feedbackFix;
+    var el = function (id) { return document.getElementById(id); };
+    var SLOTS = ['ff-fixlist', 'ff-category', 'ff-rejected', 'ff-scope', 'ff-versions', 'ff-events'];
+    var src = el('ff-source');
+    el('ff-rootcause').innerHTML = R.renderRootCauseDoctrine();
+    el('ff-round').innerHTML = R.renderRoundNotice();
+    function tag(cls, label) { src.className = 'tag ' + cls + ' no-dot f10'; src.textContent = label; }
+    async function load() {
+      SLOTS.forEach(function (id) { el(id).innerHTML = R.renderLoading('正在读取反馈与版本…'); });
+      try {
+        var q = new URLSearchParams(window.location.search), cid = q.get('contentId') || '', pid = q.get('id') || '';
+        if (!pid) { var ps = await API.page('/projects', { limit: 100 }); pid = ps.items.length ? ps.items[0].id : ''; }
+        if (!cid && pid) { var cs = await API.page('/projects/' + encodeURIComponent(pid) + '/contents', { limit: 100 }); cid = cs.items.length ? cs.items[0].contentId : ''; }
+        if (!cid) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问的内容条目，无法读取反馈。' };
+        var c = '/contents/' + encodeURIComponent(cid);
+        el('ff-content').textContent = cid;
+        document.querySelectorAll('[data-keep-id]').forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(pid); });
+        document.querySelectorAll('[data-keep-cid]').forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?contentId=' + encodeURIComponent(cid); });
+        var r = await Promise.all([API.page(c + '/feedback', { limit: 100 }), API.page(c + '/versions', { limit: 100 })]);
+        var items = r[0].items, versions = r[1].items, idx = R.indexVersions(versions);
+        el('ff-fixlist').innerHTML = R.renderFixList(items, idx);
+        el('ff-category').innerHTML = R.renderCategoryTally(items);
+        el('ff-rejected').innerHTML = R.renderRejectedList(items);
+        el('ff-scope').innerHTML = R.renderScopeCards(items);
+        el('ff-versions').innerHTML = R.renderVersionTimeline(versions);
+        el('ff-events').innerHTML = R.renderEventRecordDoctrine(items);
+        var demo = r[0].static || r[1].static;
+        tag(demo ? 'tag-warn' : 'tag-ok', demo ? '演示数据 · 静态降级' : '实时数据 · ' + items.length + ' 条反馈 / ' + versions.length + ' 个版本');
+      } catch (err) {
+        SLOTS.forEach(function (id) { el(id).innerHTML = ''; });
+        el('ff-fixlist').innerHTML = R.renderError(err);
+        tag('tag-danger', '读取失败');
+      }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+# rednote-production 内网**生产**编排（WP46 ①）
+#
+# 与 deploy/dev/docker-compose.yml 的关系：dev 是「开发/试点」拓扑，本文件是生产拓扑。
+# 不是复制一份改改 —— 四处结构性不同，逐条给理由：
+#
+#   1) **镜像引用全部外置成 ${IMAGE_*}**（dev 是写死的 image:）。
+#      理由不是风格：内网走 Harbor（ADR-11 C5），镜像**名字前缀本身会变**
+#      （registry.example.com/rednote/pgvector...）。写死的话内网第一步就得改 compose，
+#      而改过的 compose 不再被 tools/quality/check_offline_bundle.py 守着。
+#      取值的唯一权威是 deploy/prod/images.lock.json，.env 只是它的投影。
+#      ⚠️ 当前 7 条镜像**全部 digest 未回填**，其中 3 条连 tag 都是 PENDING 标记
+#      ⇒ **本编排在回填前起不来**。这是刻意的 fail-closed：起不来比悄悄拉到
+#      一个别的版本安全（见 README.md §0）。
+#
+#   2) **管理端口一律不发布**。dev 发布了 5432 / 9001 / 15672 / 8080（本机调试用，
+#      dev 文件 :89 / :121 自己的注释就写着「生产不发布」）。本文件只有 gateway
+#      发布端口，其余服务**连 ports: 段都没有** —— 用户网段不可达 PG / AMQP / MinIO
+#      是 ADR-11:101 的验收点（WP01 N5）。
+#
+#   3) **双 API 实例 + 独立 Worker**（ADR-11 C8）。dev 没有应用容器。
+#
+#   4) **C6 监控以只读挂载 ../monitoring 接入，不复制第二份规则**。
+#      复制会让两份 Prometheus 规则漂移，而 tools/quality/check_alerting_rules.py
+#      的 RULES_DIR 常量只盯 deploy/monitoring/ ⇒ prod 那份的悬空指标无人守。
+#      判据 `prod:monitoring-not-duplicated` 断言 deploy/prod/ 下不存在规则文件。
+#
+# ⚠️ **`docker compose config` 通过 ≠ 这份编排可用**。本机实测（2026-10-18，Compose 5.3.1）：
+#     printf 'services:\n  x:\n    image: "minio/minio@sha256:NOT_A_REAL_DIGEST_zz"\n' \
+#       | docker compose -f - config --quiet ; echo $?     # => 0
+#     printf 'services:\n  y:\n    image: "no-such-registry.invalid/foo:bar"\n' \
+#       | docker compose -f - config --quiet ; echo $?     # => 0
+#   伪 digest、不存在的 registry 全部 EXIT=0 ⇒ 它只验 YAML 语法 + 变量插值 + schema。
+#   「无 latest / 引用形态 / 清单双向对账」全部由自建判据负责，不依赖 compose config。
+
+name: rednote-prod
+
+x-restart-policy: &default-restart
+  restart: unless-stopped
+
+# 应用容器的公共环境。锚点的作用与 dev 一样：避免三处（api-1 / api-2 / worker）
+# 漂移成「某个实例少一个变量」——那种错在本机起不来时根本看不出来。
+x-app-env: &app-env
+  REDNOTE_DATABASE_URL: postgresql+psycopg://${PG_USER:?PG_USER 必须在 .env 中设置}:${PG_PASSWORD:?PG_PASSWORD 必须在 .env 中设置}@postgres:5432/${PG_DATABASE:?PG_DATABASE 必须在 .env 中设置}
+  REDNOTE_AMQP_URL: amqp://${RABBITMQ_USER:?RABBITMQ_USER 必须在 .env 中设置}:${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD 必须在 .env 中设置}@rabbitmq:5672/${RABBITMQ_VHOST:-/}
+  REDNOTE_S3_ENDPOINT: http://minio:9000
+  REDNOTE_S3_ACCESS_KEY: ${MINIO_ROOT_USER:?MINIO_ROOT_USER 必须在 .env 中设置}
+  REDNOTE_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD 必须在 .env 中设置}
+  REDNOTE_S3_BUCKET: ${S3_BUCKET:-rednote}
+  TZ: ${TZ:-Asia/Shanghai}
+
+services:
+  # ===========================================================================
+  # C1 主库：PostgreSQL 17 + pgvector
+  # 无 ports: —— 只在 data 网内可达（ADR-11:101）。
+  # ===========================================================================
+  postgres:
+    image: ${IMAGE_POSTGRES:?IMAGE_POSTGRES 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-postgres
+    <<: *default-restart
+    environment:
+      POSTGRES_USER: ${PG_USER:?PG_USER 必须在 .env 中设置}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?PG_PASSWORD 必须在 .env 中设置}
+      POSTGRES_DB: ${PG_DATABASE:?PG_DATABASE 必须在 .env 中设置}
+      TZ: ${TZ:-Asia/Shanghai}
+      # 与 dev 同口径：中文排序与全文口径必须在 initdb 阶段定死，运行期改不了。
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - rednote_pg_data:/var/lib/postgresql/data
+      # initdb 脚本复用 dev 那一份（只读挂载，不复制第二份 —— 复制即两处真相）
+      - ../dev/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\" -h 127.0.0.1 -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - data
+
+  # ===========================================================================
+  # C2 队列：RabbitMQ 4
+  # ⚠️ 这里是**单节点**。ADR-11:56 明写「单节点验证不得当生产证据」，生产要
+  #    3 节点 quorum —— 那需要 >= 3 台机器，属内网待跑（README §5 第 8 项）。
+  #    本文件**不假装**写了一个 3 节点集群：假写一个起不来的集群比单节点更坏。
+  # ===========================================================================
+  rabbitmq:
+    image: ${IMAGE_RABBITMQ:?IMAGE_RABBITMQ 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-rabbitmq
+    <<: *default-restart
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?RABBITMQ_USER 必须在 .env 中设置}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD 必须在 .env 中设置}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - rednote_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+    networks:
+      - data
+
+  # ===========================================================================
+  # C3 对象存储：MinIO
+  # [待核实: OP-14] 镜像 digest；healthcheck 依赖镜像内是否有 curl（ADR-11:114，
+  #   dev compose:93-95 已挂同一条待核实）。本机无 daemon、拉不到镜像 ⇒ 验不了。
+  # ===========================================================================
+  minio:
+    image: ${IMAGE_MINIO:?IMAGE_MINIO 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-minio
+    <<: *default-restart
+    # 生产不开 --console-address：控制台属管理面，不随 S3 API 一起起（ADR-11 C3）
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER 必须在 .env 中设置}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD 必须在 .env 中设置}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - rednote_minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - data
+
+  # ===========================================================================
+  # C4 身份：Keycloak（profile=auth，默认不启动 —— 与 dev 同口径）
+  # [待核实: OP-52] 版本补丁号与 OIDC 端点路径均未实测。
+  # ⚠️ 生产不能用 start-dev。这里写 `start --optimized` 需要 build 阶段产物，
+  #    而那依赖真镜像 ⇒ 启动参数属内网待跑（README §5 第 7 项）。
+  # ===========================================================================
+  keycloak:
+    image: ${IMAGE_KEYCLOAK:?IMAGE_KEYCLOAK 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-keycloak
+    profiles: ["auth"]
+    <<: *default-restart
+    command: ["start", "--hostname-strict=false", "--http-enabled=true", "--http-port=8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?KEYCLOAK_ADMIN 必须在 .env 中设置}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD 必须在 .env 中设置}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KEYCLOAK_DB:?KEYCLOAK_DB 必须在 .env 中设置}
+      KC_DB_USERNAME: ${PG_USER:?PG_USER 必须在 .env 中设置}
+      KC_DB_PASSWORD: ${PG_PASSWORD:?PG_PASSWORD 必须在 .env 中设置}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - rednote_keycloak_data:/opt/keycloak/data
+    healthcheck:
+      # 该镜像无 curl ⇒ 用 bash 的 /dev/tcp 做 TCP 层探测（与 dev compose:161-164 同口径、同待核实）
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000"]
+      interval: 15s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - data
+
+  # ===========================================================================
+  # C8 应用：双 API 实例
+  # 两个实例跑同一镜像、同一命令，差别只有 container_name ——
+  # 刻意**不**给它们不同配置：配置分叉会让「两个实例行为不一致」成为常态，
+  # 而那类故障在单实例的本机环境里永远测不出来。
+  # ⚠️ [待核实] 本仓**没有 Dockerfile**，IMAGE_APP 现在造不出来（见 images.lock.json
+  #    的 IMAGE_APP 条目与说明文档 §0.1 覆盖矩阵）。
+  # ===========================================================================
+  api-1: &api-service
+    image: ${IMAGE_APP:?IMAGE_APP 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-api-1
+    <<: *default-restart
+    command: ["python", "-m", "uvicorn", "rednote.main:app", "--host", "0.0.0.0", "--port", "9090"]
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      # /readyz 而不是 /healthz：就绪探针要碰库（WP47① 的 R1/R2 对照组）。
+      # 该镜像内有 python ⇒ 不依赖 curl 是否存在（MinIO 那条待核实在这里不适用）。
+      test: ["CMD", "python", "-c", "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:9090/readyz',timeout=3).status==200 else 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - data
+
+  api-2:
+    <<: *api-service
+    container_name: rednote-prod-api-2
+
+  # ===========================================================================
+  # C8 应用：Worker（与 API 同镜像，入口命令不同）
+  # ===========================================================================
+  worker:
+    image: ${IMAGE_APP:?IMAGE_APP 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-worker
+    <<: *default-restart
+    command: ["python", "-m", "rednote.worker"]
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - data
+
+  # ===========================================================================
+  # C8 反向代理（唯一对外发布端口的服务）
+  # [待核实: E2] 内部域名 / DNS / 内部 CA 未落地 ⇒ 本配置**只有 HTTP**。
+  #   HTTPS 终结的证书挂载点已留在 nginx/rednote.conf 的注释里，但**不写假证书路径**
+  #   （写了会让 `up -d` 在一个与 E2 无关的错误上失败，掩盖真正的缺口）。
+  # ===========================================================================
+  gateway:
+    image: ${IMAGE_GATEWAY:?IMAGE_GATEWAY 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-gateway
+    <<: *default-restart
+    ports:
+      # 应用面。生产应改为「仅应用/用户网段」，由企业网络侧限制（WP01 N5）
+      - "${GATEWAY_HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d:ro
+    depends_on:
+      api-1:
+        condition: service_healthy
+      api-2:
+        condition: service_healthy
+    networks:
+      - edge
+      - data
+
+  # ===========================================================================
+  # C6 监控抓取
+  # ⚠️ 配置**只读挂载** WP47② 的 deploy/monitoring/，不复制第二份（见文件头第 4 条）。
+  # 无 ports: —— /metrics 与 Prometheus 自身都属运维面，由网关规则决定可达性（OP-191）。
+  #   本编排**不**给 Prometheus 发布端口，也**不**声称已经做到「仅运维面可达」：
+  #   那条回执只能在内网取（OP-191 的关闭条件是从外网实测一次返回 403/404）。
+  # ===========================================================================
+  prometheus:
+    image: ${IMAGE_PROMETHEUS:?IMAGE_PROMETHEUS 必须设置；取值见 deploy/prod/images.lock.json}
+    container_name: rednote-prod-prometheus
+    <<: *default-restart
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    volumes:
+      - ../monitoring:/etc/prometheus:ro
+      - rednote_prom_data:/prometheus
+    networks:
+      - data
+
+# ###########################################################################
+# 网络
+#   edge：只有 gateway 挂，承载对外端口。
+#   data：internal: true（无默认网关）—— 应用与数据面全在这里，天然不出网，
+#         这是 G0-20「首次启动不下载任何依赖」的**结构性**保障之一
+#         （⚠️ 只是结构性：容器自己是否真的不发起外网请求，要内网抓包才算验过）。
+# ###########################################################################
+networks:
+  edge:
+    name: rednote-prod-edge
+    driver: bridge
+  data:
+    name: rednote-prod-data
+    driver: bridge
+    internal: true
+
+# ###########################################################################
+# 命名卷。uninstall.sh **默认不删卷**（ADR-11:97「重启不丢数据…不得 down -v」）。
+# ###########################################################################
+volumes:
+  rednote_pg_data:
+    name: rednote-prod-pg-data
+  rednote_minio_data:
+    name: rednote-prod-minio-data
+  rednote_rabbitmq_data:
+    name: rednote-prod-rabbitmq-data
+  rednote_keycloak_data:
+    name: rednote-prod-keycloak-data
+  rednote_prom_data:
+    name: rednote-prod-prom-data

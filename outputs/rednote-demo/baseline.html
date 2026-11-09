@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认生产基线快照与组装顺序 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-3"></i> 步骤 3 / 8</span>
+            <span class="code code-purple">基线 BL-v3</span>
+            <span class="tag tag-ok">已批准 · 09-15 18:22</span>
+          </div>
+          <h1 class="page-title">确认生产基线快照与组装顺序</h1>
+          <p class="page-desc">运营确认后创建不可原地修改的基线快照。后续生成使用明确基线，不在任务执行中自动切换到最新知识（AC-08）。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="info-review.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <button class="btn btn-ghost" data-toast="演示环境：修改基线将创建 BL-v4 并展示影响范围"><i class="fa-solid fa-code-branch"></i>创建新基线</button>
+          <a class="btn btn-primary" href="claims.html">下一步：可用主张 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1 mb14">
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">生产基线快照</span>
+              <div class="card-head-actions"><span class="code code-purple">BL-v3</span></div>
+            </div>
+            <div class="card-body">
+              <div class="note note-purple mb14">
+                <i class="fa-solid fa-lock"></i>
+                <div>基线创建后<b>不可原地修改</b>。修改将创建新版本并展示影响范围。</div>
+              </div>
+
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact" style="font-size:12px">
+                <tbody>
+                  <tr><td class="t-mut" style="width:96px">Brief 版本</td><td class="strong">v2 <span class="tag tag-ok" style="height:18px">已批准</span></td></tr>
+                  <tr><td class="t-mut">研究资料</td><td class="strong">21 份选用<div class="f10 t-fai">3 份未支持未纳入</div></td></tr>
+                  <tr><td class="t-mut">知识版本</td><td class="strong">事实 v7 · 风格 v4</td></tr>
+                  <tr><td class="t-mut">人群场景</td><td class="strong">5 个启用</td></tr>
+                  <tr><td class="t-mut">事实清单</td><td class="strong">12 项（11 确认 · 1 冲突）</td></tr>
+                  <tr><td class="t-mut">审核规则</td><td class="strong">规则集 v5<div class="f10 t-fai">9 阻断 · 14 提醒</div></td></tr>
+                  <tr><td class="t-mut">已确认限制</td><td class="strong">6 条</td></tr>
+                  <tr><td class="t-mut">批准人</td><td class="strong">林知远</td></tr>
+                  <tr><td class="t-mut">批准时间</td><td class="strong mono">09-15 18:22</td></tr>
+                </tbody>
+              </table></div></div></div></div></div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">动态上下文组装顺序</span>
+              <span class="card-sub">PRD §15.4</span>
+            </div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="tl-item purple">
+                  <div class="tl-title">1. 当前项目批准事实</div>
+                  <div class="tl-desc">12 项 · 最高优先级，裁剪时优先保留</div>
+                </div>
+                <div class="tl-item purple">
+                  <div class="tl-title">2. 当前产品有效资产</div>
+                  <div class="tl-desc">SU-CL-120 关联 8 条生效资产</div>
+                </div>
+                <div class="tl-item purple">
+                  <div class="tl-title">3. 当前场景与规则</div>
+                  <div class="tl-desc">5 场景 + 规则集 v5</div>
+                </div>
+                <div class="tl-item purple">
+                  <div class="tl-title">4. 适用风格</div>
+                  <div class="tl-desc">风格指纹 v4 · 温和理性向</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-title">5. 可迁移的跨项目方法</div>
+                  <div class="tl-desc">3 条表达方法 · 标明来源品牌</div>
+                </div>
+              </div>
+
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-ban"></i>
+                <div>
+                  <b>跨品牌事实不得迁移</b>（AC-24）。跨品牌表达方法可作参考但须标明来源。
+                  保存实际选用条目、版本、片段与未纳入原因。
+                </div>
+              </div>
+            </div>
+          </section>
+</div>
+
+<div class="grid g-1-1">
+<section class="card">
+            <div class="card-head"><span class="card-title">审核记录</span></div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="tl-item ok">
+                  <div class="tl-time">09-15 18:22</div>
+                  <div class="tl-title">林知远 批准基线 BL-v3</div>
+                  <div class="tl-desc">意见：表活占比暂按区间表述处理，待品牌确认</div>
+                </div>
+                <div class="tl-item warn">
+                  <div class="tl-time">09-15 17:50</div>
+                  <div class="tl-title">停用场景「熬夜党急救」</div>
+                  <div class="tl-desc">原因：无对应事实支持，避免编造使用经历</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time">09-15 16:30</div>
+                  <div class="tl-title">周予桐 提出事实疑问 3 条</div>
+                  <div class="tl-desc">2 条已解决 · 1 条升级为阻断冲突</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time">09-14 11:20</div>
+                  <div class="tl-title">基线 BL-v2 被替代</div>
+                  <div class="tl-desc">因 Brief v2 批准触发影响检查</div>
+                </div>
+              </div>
+            </div>
+          </section>
+<section class="card">
+            <div class="card-head">
+              <span class="card-title">步骤 3 完成条件</span>
+              <span class="card-sub">PRD §7.3</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g3">
+                <div class="row-t">
+                  <span class="tag tag-danger no-dot" style="margin-top:2px"><i class="fa-solid fa-xmark"></i></span>
+                  <div>
+                    <div class="f12 fw5">阻断问题已经处理</div>
+                    <div class="f11 t-dan mt6">仍有 1 项事实冲突未处置</div>
+                  </div>
+                </div>
+                <div class="row-t">
+                  <span class="tag tag-ok no-dot" style="margin-top:2px"><i class="fa-solid fa-check"></i></span>
+                  <div>
+                    <div class="f12 fw5">至少有一个可生产场景</div>
+                    <div class="f11 t-ok mt6">5 个场景可生产</div>
+                  </div>
+                </div>
+                <div class="row-t">
+                  <span class="tag tag-ok no-dot" style="margin-top:2px"><i class="fa-solid fa-check"></i></span>
+                  <div>
+                    <div class="f12 fw5">运营明确点击确认</div>
+                    <div class="f11 t-ok mt6">林知远 · 09-15 18:22 · 已保存完整审核记录</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row wrap" style="gap:10px">
+                <button class="btn btn-danger" data-toast="演示环境：需先处置冲突项"><i class="fa-solid fa-triangle-exclamation"></i>1 项阻断待处置</button>
+                <a class="btn btn-primary" href="trial-config.html">确认信息并进入试产 <i class="fa-solid fa-arrow-right"></i></a>
+                <span class="f11 t-fai" style="align-self:center">
+                  演示环境已放行跳转；真实环境下后端将拒绝存在阻断项时推进（AC-09）。
+                </span>
+              </div>
+            </div>
+          </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'baseline', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '生产基线'] });
+</script>
+</body>
+</html>

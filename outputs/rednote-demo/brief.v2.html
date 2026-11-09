@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>阅读 Brief 原文与结构化拆解 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fld { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .fld:last-child { border-bottom: 0; }
+  .fld-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .fld-n { font-size: 12px; font-weight: 500; color: var(--text); }
+  .fld-v { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .fld-src { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10px; color: var(--faint); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="br-head">
+          <h1 class="page-title">正在读取 Brief…</h1>
+          <p class="page-desc">GET /projects/{id}/brief</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="projects.v2.html"><i class="fa-solid fa-arrow-left"></i>项目中心</a>
+          <a class="btn btn-primary" data-keep-id href="brief-thicken.v2.html">下一步：确认加厚输出 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4" id="br-metrics" data-stagger></div>
+
+      <div class="grid g-3-2">
+        <div id="br-fields" aria-live="polite"></div>
+        <div class="col" style="gap:14px">
+          <div id="br-source" aria-live="polite"></div>
+          <div id="br-versions" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/brief.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'brief', crumb: ['项目中心', 'Brief 解析'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/brief.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.brief;
+    var head = document.getElementById('br-head'), metrics = document.getElementById('br-metrics');
+    var fields = document.getElementById('br-fields'), source = document.getElementById('br-source');
+    var versions = document.getElementById('br-versions'), keepId = document.querySelectorAll('[data-keep-id]');
+    function renderAll(project, brief) {
+      head.innerHTML = R.renderHead(project, brief);
+      metrics.innerHTML = R.renderMetrics(brief);
+      fields.innerHTML = R.renderStructuredCard(brief);
+      source.innerHTML = R.renderSourceCard(brief);
+      versions.innerHTML = R.renderVersionsCard(brief);
+    }
+    async function load() {
+      head.innerHTML = '<div><h1 class="page-title">正在读取 Brief…</h1><p class="page-desc">GET /projects/{id}/brief</p></div>';
+      [metrics, fields, source, versions].forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取 Brief 数据…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) throw { code: 'RESOURCE_NOT_FOUND', message: '没有可访问项目。' };
+        keepId.forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(id); });
+        var res = await Promise.all([API.get('/projects/' + encodeURIComponent(id)), API.get('/projects/' + encodeURIComponent(id) + '/brief')]);
+        renderAll(res[0], res[1]);
+      } catch (err) {
+        head.innerHTML = '<div><h1 class="page-title">Brief 读取失败</h1><p class="page-desc">请检查后端与项目 ID 后重试。</p></div>';
+        metrics.innerHTML = '';
+        fields.innerHTML = R.renderCardError(err);
+        source.innerHTML = '';
+        versions.innerHTML = '';
+      }
+    }
+    fields.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

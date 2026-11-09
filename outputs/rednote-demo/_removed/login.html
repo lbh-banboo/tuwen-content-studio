@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>登录 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .auth { position: relative; z-index: 1; min-height: 100vh; display: grid; grid-template-columns: 1fr 470px; }
+  @media (max-width: 1000px) { .auth { grid-template-columns: 1fr; } .auth-left { display: none; } }
+
+  .auth-left { padding: clamp(30px, 5vw, 64px); display: flex; flex-direction: column; }
+  .auth-brand { display: flex; align-items: center; gap: 11px; }
+  .auth-logo {
+    display: grid; place-items: center; width: 42px; height: 42px;
+    border-radius: 50%; background: #fff; color: #14101f;
+    font-size: 17px; font-weight: 700; letter-spacing: -0.04em;
+    box-shadow: var(--nav-shadow);
+  }
+  .auth-hero { margin-top: auto; margin-bottom: auto; max-width: 620px; }
+  .auth-h1 {
+    margin: 0; font-size: clamp(28px, 3.6vw, 46px); font-weight: 600;
+    line-height: 1.14; letter-spacing: -0.04em; color: #fff;
+  }
+  .auth-h1 .g {
+    background: linear-gradient(100deg, #c9a6ff, var(--purple) 45%, #6d4bd8);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .auth-p { margin: 18px 0 0; font-size: 14px; line-height: 1.7; color: var(--text-2); opacity: 0.85; max-width: 56ch; }
+  .auth-flow { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 26px; }
+  .auth-flow span {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--line);
+    font-size: 11.5px; color: var(--text-2);
+  }
+  .auth-flow span i { font-size: 9px; color: var(--purple); }
+  .auth-foot { font-size: 11.5px; color: var(--faint); line-height: 1.7; }
+
+  .auth-right {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(26px, 4vw, 46px);
+    border-left: 1px solid var(--line);
+    background: rgba(8, 6, 15, 0.6);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  }
+  .auth-card-t { font-size: 21px; font-weight: 600; letter-spacing: -0.028em; }
+  .auth-card-d { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+  .sso {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%; height: 44px; margin-bottom: 8px;
+    border-radius: var(--r-sm);
+    background: #fff; color: #14101f;
+    font-size: 13.5px; font-weight: 600;
+    box-shadow: 0 0 20px rgba(160,107,255,0.2);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  .sso:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(160,107,255,0.38); }
+  .or { display: flex; align-items: center; gap: 11px; margin: 16px 0; font-size: 11px; color: var(--faint); }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="auth">
+
+  <!-- 左：品牌叙述 -->
+  <section class="auth-left">
+    <a class="auth-brand anim" href="index.html">
+      <span class="auth-logo">R</span>
+      <span>
+        <div style="font-size:13.5px;font-weight:600">Rednote 内容生产</div>
+        <div style="font-size:10.5px;color:var(--muted)">AI Native 系统 V1.0</div>
+      </span>
+    </a>
+
+    <div class="auth-hero">
+      <h1 class="auth-h1 anim" style="--d:.06s">
+        八步走通一次<br><span class="g">从 Brief 到发布数据</span>
+      </h1>
+      <p class="auth-p anim" style="--d:.16s">
+        面向 KOC 业务公司内部运营的内容生产与效果复盘系统。以项目为组织单位，连接真实 KOC 的发布结果，
+        并沉淀可追溯的知识资产。
+      </p>
+      <div class="auth-flow anim" style="--d:.24s">
+        <span><i class="fa-solid fa-1"></i>Brief 解析</span>
+        <span><i class="fa-solid fa-2"></i>项目研究</span>
+        <span><i class="fa-solid fa-3"></i>信息审核</span>
+        <span><i class="fa-solid fa-4"></i>试产 10 条</span>
+        <span><i class="fa-solid fa-5"></i>试产反馈</span>
+        <span><i class="fa-solid fa-6"></i>扩产 ≤30</span>
+        <span><i class="fa-solid fa-7"></i>批产 ≤50</span>
+        <span><i class="fa-solid fa-8"></i>数据回收</span>
+      </div>
+    </div>
+
+    <div class="auth-foot anim" style="--d:.32s">
+      系统仅供公司内部成员使用，第一版不建设多企业租户产品。<br>
+      演示环境 · 所有数据为模拟数据
+    </div>
+  </section>
+
+  <!-- 右：登录 -->
+  <section class="auth-right">
+    <div class="anim" style="--d:.1s">
+      <div class="auth-card-t">成员登录</div>
+      <div class="auth-card-d">采用管理员邀请制，不开放外部自由注册</div>
+    </div>
+
+    <div class="mt24 anim" style="--d:.18s">
+      <a class="sso" href="workbench.html"><i class="fa-solid fa-building-shield"></i>使用企业身份登录</a>
+      <div class="or">或使用账号登录</div>
+
+      <div class="field">
+        <div class="label">企业邮箱 <span class="req">*</span></div>
+        <input class="input" type="email" value="member06@example.com" />
+      </div>
+      <div class="field">
+        <div class="label">密码 <span class="req">*</span></div>
+        <input class="input" type="password" value="demo-password" />
+      </div>
+
+      <div class="row between mb14">
+        <label class="row f12 t-2" style="gap:7px;cursor:pointer">
+          <span class="check is-on"></span>保持登录
+        </label>
+        <a class="f12 t-pur" href="#" data-toast="演示环境：请联系管理员重置密码">忘记密码</a>
+      </div>
+
+      <a class="btn btn-primary btn-lg" style="width:100%" href="workbench.html">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>登录
+      </a>
+
+      <div class="note note-info mt18">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>
+          <b>无法登录？</b>新成员需由管理员邀请开通。已停用成员不能继续操作，历史记录保留。
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <a class="btn btn-ghost" style="width:100%" href="index.html">
+        <i class="fa-solid fa-table-cells-large"></i>查看全部 17 个页面 Demo
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+<script>bindDemo();</script>
+</body>
+</html>

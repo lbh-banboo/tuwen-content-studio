@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>项目中心 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">项目中心</h1>
+          <p class="page-desc"><span id="projects-summary">正在读取项目列表…</span> · 负责人列按成员 ID 展示（列表接口不含姓名）</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出功能未接入"><i class="fa-solid fa-download"></i>导出列表</button>
+          <a class="btn btn-primary" href="brief.html"><i class="fa-solid fa-plus"></i>新建项目</a>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <span class="card-title">项目列表</span>
+          <span class="card-sub">数据源 GET /projects</span>
+          <div class="card-head-actions">
+            <span id="projects-source" class="tag no-dot f10">读取中…</span>
+          </div>
+        </div>
+        <div id="projects-table" aria-live="polite"></div>
+        <div class="card-foot">
+          <span class="f12 t-mut">阶段与计划交付均来自接口原字段，未知阶段原样展示</span>
+          <span class="ml-auto f11 t-fai">点击「进入」打开该项目总览</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/projects.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'projects', crumb: ['Rednote 系统', '项目中心'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/projects.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI;
+    var R = window.RednoteRender.projects;
+    var table = document.getElementById('projects-table');
+    var summary = document.getElementById('projects-summary');
+    var source = document.getElementById('projects-source');
+
+    function setSource(label, cls) {
+      if (!source) return;
+      source.textContent = label;
+      source.className = ['tag', cls, 'no-dot', 'f10'].filter(Boolean).join(' ');
+    }
+
+    async function load() {
+      table.innerHTML = R.renderLoading();
+      try {
+        var res = await API.page('/projects', { limit: 100 });
+        table.innerHTML = R.renderProjectTable(res.items);
+        if (summary) summary.textContent = R.renderSummary(res.items);
+        setSource(
+          res.static ? '演示数据 · 静态降级' : '实时数据 · ' + res.items.length + ' 项',
+          res.static ? 'tag-warn' : 'tag-ok'
+        );
+      } catch (err) {
+        table.innerHTML = R.renderError(err);
+        if (summary) summary.textContent = '项目列表读取失败';
+        setSource('读取失败', 'tag-danger');
+      }
+    }
+
+    table.addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+
+    load();
+  })();
+</script>
+</body>
+</html>

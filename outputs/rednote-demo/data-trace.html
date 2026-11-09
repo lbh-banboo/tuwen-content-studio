@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>核对交付稿→发布稿差异与四段留痕 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fs { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .fs-got { color: var(--ok); background: var(--ok-dim); border-color: rgba(52,211,153,0.28); }
+  .fs-none { color: var(--muted); background: rgba(255,255,255,0.05); border-color: var(--line-strong); }
+  .fs-noauth { color: var(--warn); background: var(--warn-dim); border-color: rgba(251,191,36,0.28); }
+  .fs-na { color: var(--faint); background: rgba(255,255,255,0.03); border-color: var(--line); }
+  .fs-fail { color: var(--danger); background: var(--danger-dim); border-color: rgba(251,113,133,0.28); }
+  .fs-todo { color: var(--info); background: var(--info-dim); border-color: rgba(96,165,250,0.28); }
+  .approx { color: var(--warn); border-bottom: 1px dashed var(--warn); cursor: help; }
+  .snap { border-left: 2px solid var(--purple-line); padding: 0 0 0 13px; position: relative; }
+  .snap-i { position: relative; padding-bottom: 15px; }
+  .snap-i::before { content: ''; position: absolute; left: -19px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--purple); box-shadow: 0 0 0 3px rgba(160,107,255,0.18); }
+  .snap-i.old::before { background: var(--faint); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+  .conf { border: 1px solid rgba(251,113,133,0.36); background: rgba(251,113,133,0.06); border-radius: 10px; padding: 11px 12px; }
+  .bt { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .bt-good { color: #34d399; background: rgba(52,211,153,0.14); }
+  .bt-pot { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .bt-low { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .bt-wait { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .bt-conf { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-8"></i> 步骤 8 / 8</span>
+            <span class="code code-purple">持续工作区</span>
+            <span class="tag tag-ok">四段留痕完整</span>
+          </div>
+          <h1 class="page-title">核对交付稿→发布稿差异与四段留痕</h1>
+          <p class="page-desc">逐条核对交付稿与发布稿的差异及变动来源，并确认策略是否保留：机器稿→人工稿→交付稿→发布稿四段留痕完整可追溯。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="data-snapshot.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <a class="btn btn-primary" href="report.html">生成项目报告 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-code-compare t-pur"></i>
+              <h3 class="card-title">交付稿 → 发布稿差异</h3>
+              <span class="code">BATCH-B01 · 30 条</span>
+            </div>
+            <span class="tag tag-warn no-dot">8 条有变动</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-2-1 card-split">
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact" style="min-width:440px">
+                <thead>
+                  <tr>
+                    <th style="width:112px">内容编号</th>
+                    <th style="width:130px">交付稿</th>
+                    <th>发布稿变化</th>
+                    <th style="width:150px">对观测的影响</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="mono f11">C-B01-002</td>
+                    <td class="f11">早八 3 分钟 · 静态 6 张</td>
+                    <td class="f11">发布时删去 1 张步骤图，正文未改</td>
+                    <td><span class="f11 t-ok">不影响主张 · 正常观测</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="mono f11">C-B01-007</td>
+                    <td class="f11">洗后不紧绷 · Live 3 组</td>
+                    <td class="f11">新增 KOC 口播文案 2 处</td>
+                    <td><span class="f11 t-warn">新增表述未走审核 → 排除出主张分析</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">C-B01-011</td>
+                    <td class="f11">pH 5.5 参数说明</td>
+                    <td class="f11">参数与交付稿一致，仅调整排版</td>
+                    <td><span class="f11 t-ok">正常观测</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="mono f11">C-B01-014</td>
+                    <td class="f11">起泡绵密 · 对比图</td>
+                    <td class="f11">未使用交付图，换成 KOC 自拍图</td>
+                    <td><span class="f11 t-warn">视觉变量已变 → 不参与视觉对比</span></td>
+                  </tr>
+                  <tr class="tr-danger">
+                    <td class="mono f11">C-B01-019</td>
+                    <td class="f11">150g 容量 · 成本换算</td>
+                    <td class="f11">发布前撤回，未上线</td>
+                    <td><span class="f11 t-dan">无发布版本 · 不计入效果分析</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">C-B01-023</td>
+                    <td class="f11">无皂基 · 清单体</td>
+                    <td class="f11">标题被改（去掉「最」字），正文未改</td>
+                    <td><span class="f11 t-ok">不影响主张 · 正常观测</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">C-B01-026</td>
+                    <td class="f11">氨基酸温和 · 图解</td>
+                    <td class="f11">发布时补挂商品组件（交付稿未挂）</td>
+                    <td><span class="f11 t-sub">跳转口径由「不适用」变为可测 → 单独统计</span></td>
+                  </tr>
+                  <tr>
+                    <td class="mono f11">C-B01-029</td>
+                    <td class="f11">洗后不紧绷 · 时间轴</td>
+                    <td class="f11">KOC 增加 1 张自拍图，正文未改</td>
+                    <td><span class="f11 t-warn">图数变化 → 不参与图片相似度对比</span></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="fw6 t-mut">只有绑定了真实发布版本（账号 + 发布时间 + 实际稿件 hash）的条目才进入效果分析 —— 交付稿不等于发布稿。</td>
+                  </tr>
+                </tfoot>
+              </table></div></div>
+            </div>
+            <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-id-badge"></i>发布身份核对</div>
+              <div class="col" style="gap:9px">
+                <div class="list-item">
+                  <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">28 / 30 已绑定真实发布版本</div>
+                    <div class="li-sub">账号 + 发布时间 + 实际稿件 hash 三项齐全，进入窗口统计</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <span class="li-icon warn"><i class="fa-solid fa-exclamation"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">2 条待补发布身份</div>
+                    <div class="li-sub">不进入窗口统计，也不以 0 计入 —— 缺失值不得填 0</div>
+                  </div>
+                </div>
+                <div class="list-item">
+                  <span class="li-icon danger"><i class="fa-solid fa-ban"></i></span>
+                  <div class="li-main">
+                    <div class="li-title">1 条发布稿含未审核新增表述</div>
+                    <div class="li-sub">保留在发布记录中，但排除出主张类效果分析</div>
+                  </div>
+                </div>
+              </div>
+              <div class="sec-title"><i class="fa-solid fa-code-branch"></i>变动来源</div>
+              <div class="col" style="gap:8px">
+                <div class="row between f11"><span>KOC 自主修改</span><span class="mono t-warn">4 条</span></div>
+                <div class="row between f11"><span>运营撤回</span><span class="mono t-dan">1 条</span></div>
+                <div class="row between f11"><span>平台裁剪</span><span class="mono t-mut">1 条</span></div>
+                <div class="row between f11"><span>复核补挂</span><span class="mono t-ok">2 条</span></div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-layer-group t-pur"></i>
+              <h3 class="card-title">策略是否保留 · 计划 → 发布四段留痕</h3>
+            </div>
+            <span class="tag tag-info no-dot">§7.2 第 8 步 · 记录策略执行</span>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-2-1 card-split">
+            <div class="cs-main">
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact" style="min-width:450px">
+                <thead>
+                  <tr>
+                    <th style="width:168px">策略 / 计划分组</th>
+                    <th style="width:76px">机器稿</th>
+                    <th style="width:76px">人工稿</th>
+                    <th style="width:76px">交付稿</th>
+                    <th>发布稿</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="code f10">ST-011</span> <span class="f11">结论前置</span>
+                      <div class="f10 t-mut mt4">实验 G-T1 · 计划 2 条</div>
+                    </td>
+                    <td class="mono f11">2 / 2</td>
+                    <td class="mono f11">2 / 2</td>
+                    <td class="mono f11">2 / 2</td>
+                    <td>
+                      <span class="mono f11 t-warn">1 / 2</span>
+                      <div class="f10 t-mut mt4">1 条被改回原顺序，策略未保留到发布</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="code f10">ST-015</span> <span class="f11">图解取舍</span>
+                      <div class="f10 t-mut mt4">实验 G-T2 · 计划 2 条</div>
+                    </td>
+                    <td class="mono f11">2 / 2</td>
+                    <td class="mono f11">2 / 2</td>
+                    <td class="mono f11">2 / 2</td>
+                    <td>
+                      <span class="mono f11 t-ok">2 / 2</span>
+                      <div class="f10 t-mut mt4">分落两个场景，可看是否可迁移</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="code f10">ST-019</span> <span class="f11">频次边界声明</span>
+                      <div class="f10 t-mut mt4">实验 G-T2 · 计划 1 条</div>
+                    </td>
+                    <td class="mono f11">1 / 1</td>
+                    <td class="mono f11">1 / 1</td>
+                    <td class="mono f11">1 / 1</td>
+                    <td>
+                      <span class="mono f11 t-dan">0 / 1</span>
+                      <div class="f10 t-mut mt4">发布时删除边界说明 —— 该策略在发布环节未被保留</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="tag no-dot f10">对照 G-C</span>
+                      <div class="f10 t-mut mt4">计划 5 条 · 不使用候选策略</div>
+                    </td>
+                    <td class="mono f11">5 / 5</td>
+                    <td class="mono f11">5 / 5</td>
+                    <td class="mono f11">5 / 5</td>
+                    <td>
+                      <span class="mono f11 t-ok">5 / 5</span>
+                      <div class="f10 t-mut mt4">各段保持基线写法</div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="5" class="fw6 t-mut">被修改或删除的位置要记录到具体段落，并注明检测方法与人工确认人；本表是判断「策略是否真的生效」的唯一依据。</td>
+                  </tr>
+                </tfoot>
+              </table></div></div>
+            </div>
+              <div class="sec-title mt14"><i class="fa-solid fa-hourglass-half"></i>窗口覆盖<span class="sec-sub">已绑定发布的 28 条</span></div>
+              <div class="col" style="gap:11px">
+                <div>
+                  <div class="row between f11 mb6"><span>3 天窗口</span><span class="mono t-ok">26 / 28 已满</span></div>
+                  <div class="bar"><div class="bar-fill ok" style="width:93%"></div></div>
+                </div>
+                <div>
+                  <div class="row between f11 mb6"><span>7 天窗口</span><span class="mono t-warn">18 / 28 未满</span></div>
+                  <div class="bar"><div class="bar-fill warn" style="width:64%"></div></div>
+                </div>
+                <div>
+                  <div class="row between f11 mb6"><span>长尾窗口（30 天）</span><span class="mono t-mut">0 / 28 · 观察中</span></div>
+                  <div class="bar"><div class="bar-fill" style="width:2%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-circle-question"></i>缺失状态口径</div>
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact mb14">
+                <thead>
+                  <tr>
+                    <th style="width:76px">缺失状态</th>
+                    <th class="num" style="width:48px">出现</th>
+                    <th>口径</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="strong">已获取</td><td class="num mono">104</td><td class="f11 t-sub">正常参与统计</td></tr>
+                  <tr><td class="strong">未提供</td><td class="num mono">3</td><td class="f11 t-sub">保留为空，不填 0</td></tr>
+                  <tr><td class="strong">无权限</td><td class="num mono">2</td><td class="f11 t-sub">不计入分母</td></tr>
+                  <tr><td class="strong">不适用</td><td class="num mono">2</td><td class="f11 t-sub">未挂商品组件，属不适用而非缺失</td></tr>
+                  <tr><td class="strong">获取失败</td><td class="num mono">1</td><td class="f11 t-sub">笔记已删除，保留失败原因</td></tr>
+                  <tr><td class="strong">待确认</td><td class="num mono">1</td><td class="f11 t-sub">约数跨阈值，不判优也不判劣</td></tr>
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="3" class="fw6 t-mut">同一指标可能先后经历多个状态；本表按字段快照计数，相加不等于条目数。</td></tr>
+                </tfoot>
+              </table></div></div></div></div></div></div></div>
+              <div class="note note-warn f11">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <div>窗口未满期间<b>不做 3d 与 7d 的比较</b>；晚采的 7d 累计值不得补写成 3d 值。长尾窗口 30 天，本轮只登记起止时间，暂不出结论。</div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'data-trace', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '差异与留痕'] });
+</script>
+</body>
+</html>

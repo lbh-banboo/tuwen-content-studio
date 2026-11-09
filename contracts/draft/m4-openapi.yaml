@@ -1,0 +1,1882 @@
+openapi: 3.1.0
+info:
+  title: Rednote 内容生产系统 API —— M4 草案（WP36~WP45）
+  version: 0.5.0-draft
+  description: |
+    **草案区，不是正式契约。**
+
+    正式契约是 `contracts/openapi.json`，由 `tools/contracts/export_openapi.py` 从
+    Pydantic 模型导出（2026-10-11 实测出口 77 paths / 95 ops / 237 schemas）。本文件**不覆盖**它，
+    只服务 M4 契约与 mock 先行线（`docs/m4/M4并行开发接缝冻结.md` §4.1）。
+    ⚠️ 正式契约的计数**随每个新包增长**，此处不要写死当作判据 ——
+    本草案的 36 paths / 46 ops / 89 schemas（2026-10-25 路径统一修订后实测）是 **M4 增量**，不是全量。
+
+    口径：
+    - 包裹沿用既有约定：单体 `DataEnvelope`（`{data, meta}`）、列表 `PaginatedEnvelope`（含 `PageInfo`）、
+      错误体 `ErrorBody`（`code` 为 `ErrorCode` 枚举）。
+    - 错误码只许取自 `ErrorCode`（18 个），**不得自创**。
+    - 写操作凡可能重复提交的，一律声明 `Idempotency-Key` 请求头（见 `docs/m4/M4契约与幂等口径.md`）。
+    - `metric_latest` 是**可重建缓存**；`metric_observations` / `report_versions` **只追加/不可变**。
+
+    ⚠️ 本草案的列级/字段级细节由 M4 计划与 `templates/metric_import_field_guide.md` 推导，
+    `Rednote研发计划_02_数据结构与一致性.md` 编制时不在磁盘上（见 `docs/m4/M4-DDL草案.md` §10）。
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: delivery
+    description: WP36 交付与替换、KOC 记录、发布登记与版本映射
+  - name: publication-link
+    description: WP37 链接规范化与笔记去重
+  - name: metric
+    description: WP38 指标快照与阈值标签
+  - name: metric-import
+    description: WP39 表格/截图导入
+  - name: metric-adapter
+    description: WP40 数据适配器与主动刷新
+  - name: experiment
+    description: WP41 评论、实验登记、策略证据
+  - name: knowledge
+    description: WP42 知识提议回写（复用既有表）
+  - name: billing
+    description: WP43 费用对账与管理统计（复用既有表）
+  - name: report
+    description: WP44 总览与报告导出
+  - name: closure
+    description: WP45 结项/重开
+
+paths:
+
+  # 2026-10-25 WP37~45 路径统一修订（拍板项 4，沿用 WP36 的 C1 风格）：
+  # ① 项目范围集合：原先靠 `?projectId=` 查询参数或请求体里的 `projectId`，一律改为
+  #    `/projects/{projectId}/<名词>`，请求体去掉 `projectId`（以路径为准，避免两处真相）。
+  # ② item 级资源（路径里已有自己的 id）保持平铺，与正式契约 `/contents/{contentId}` 同风格。
+  # ③ 动作一律名词化、零动词：verify→verifications、preview→previews、confirm→confirmations、
+  #    refresh→refreshes、apply→applications、reopen→reopenings、export→exports、
+  #    labels 的重算 POST→label-recomputations。
+  # ④ 全局资源不挂项目：`metric-definitions`、`metric-adapters`、`metric-observations`（锚是
+  #    `publicationId`，项目由发布登记推导）、`publication-links`（跨项目查重，按 canonicalUrl）。
+  # ⑤ 其余改名：`/billing/reconciliations`→`/projects/{projectId}/billing-reconciliations`、
+  #    `/billing/management-summary`→`/projects/{projectId}/billing-summary`、
+  #    `/project-closures`→`/projects/{projectId}/closures`、
+  #    `/project-closures/{id}/reopen`→`/closures/{closureId}/reopenings`、
+  #    `/knowledge-proposals/{id}/apply`→`/knowledge/proposals/{proposalId}/applications`
+  #    （对齐正式契约已有的 `/knowledge/proposals/{proposalId}/decisions`）。
+  # ⚠️ 未改：`/export-items`（实体归 WP35）。`reports/{id}/exports` 仍是 GET 返回 Markdown——
+  #    若 WP44 落地时要产出可留存的导出产物，应改 POST，届时再议。
+  # ⚠️ 路径风格是"契约草案"层的修订；各包落地时仍以实现为准，实现回填再追加差异。
+
+  # ---------------- WP36 ----------------
+  # 2026-10-19 收口修订（C1，详见 outputs/ 或 git log 里 WP36 实现的交付报告）：
+  # ① 路径风格从草案原文的"平铺 + 动词"改为"项目范围资源集合 + 名词化子资源"，
+  #    与正式契约既有端点（如 `/contents/{contentId}/regenerations`）同一风格；
+  # ② 新增 `/projects/{projectId}/unmarked-exports`（草案没有，实现时发现
+  #    repository 的"已导出未标记"投影查询需要一个消费端点，否则是无消费者
+  #    的生产代码）。
+  /projects/{projectId}/deliveries:
+    get:
+      tags: [delivery]
+      operationId: list_deliveries
+      summary: 列出交付记录
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_Delivery_' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [delivery]
+      operationId: create_delivery
+      summary: 创建交付（PREPARED）
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeliveryCreate' }
+      responses:
+        '200':
+          description: 幂等回放（同键同体）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /deliveries/{deliveryId}:
+    get:
+      tags: [delivery]
+      operationId: get_delivery
+      summary: 交付详情
+      parameters:
+        - $ref: '#/components/parameters/DeliveryId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /deliveries/{deliveryId}/confirmations:
+    post:
+      tags: [delivery]
+      operationId: deliver_delivery
+      summary: 标记已交付（原草案 `/deliver`，C1 改为名词化子资源）
+      description: |
+        **下载不计交付** —— 只有本端点置 `delivered_at`。
+        `PREPARED → DELIVERED`；其它状态一律 `INVALID_TRANSITION`（409）。
+        已 `DELIVERED` 再调 ⇒ 200 幂等回放，`delivered_at` 不变。
+      parameters:
+        - $ref: '#/components/parameters/DeliveryId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: OK（含幂等回放）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /deliveries/{deliveryId}/cancellations:
+    post:
+      tags: [delivery]
+      operationId: cancel_delivery
+      summary: 取消交付（原草案 `/cancel`，C1 改为名词化子资源）
+      parameters:
+        - $ref: '#/components/parameters/DeliveryId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /deliveries/{deliveryId}/replacements:
+    post:
+      tags: [delivery]
+      operationId: replace_delivery
+      summary: 替换交付（追加新行，不覆盖旧行；原草案 `/replace`，C1 改为名词化子资源）
+      description: |
+        **替换链是追加**：新 `deliveries` 行 + `replaces_delivery_id` 指向旧行。
+        旧行 `state` **不变** —— 覆盖会破坏可追溯性。一条旧交付最多被替换一次
+        （`uq_deliveries_replaces` 部分唯一），二次替换同一行 ⇒ 409。
+      parameters:
+        - $ref: '#/components/parameters/DeliveryId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeliveryReplace' }
+      responses:
+        '200':
+          description: 幂等回放（同键同体）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Delivery_' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /projects/{projectId}/unmarked-exports:
+    get:
+      tags: [delivery]
+      operationId: list_unmarked_exports
+      summary: 已导出未标记（C1 新增，草案未定义）
+      description: |
+        口径是「已**导出**未标记」，不是原型文案「已下载未标记」——
+        本仓没有下载事件表（WP35 的 download 端点零写操作），这个口径
+        是从磁盘事实反推出来的，不是产品原文。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_UnmarkedExportList_' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /export-items:
+    get:
+      tags: [delivery]
+      operationId: list_export_items
+      summary: 列出导出项
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_ExportItem_' }
+    post:
+      tags: [delivery]
+      operationId: create_export_item
+      summary: 创建导出项（固定版本 + 资格指纹）
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExportItemCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ExportItem_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /projects/{projectId}/koc-records:
+    get:
+      tags: [delivery]
+      operationId: list_koc_records
+      summary: 列出 KOC 记录
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_KocRecord_' }
+    post:
+      tags: [delivery]
+      operationId: create_koc_record
+      summary: 创建 KOC 记录
+      description: 轻量记录：**不存平台密码**；主页链接只做去重**提示**，不做硬唯一。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/KocRecordCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_KocRecord_' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /projects/{projectId}/publications:
+    get:
+      tags: [delivery]
+      operationId: list_publications
+      summary: 列出发布登记
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_Publication_' }
+    post:
+      tags: [delivery]
+      operationId: create_publication
+      summary: 登记发布（草稿 → 实发映射）
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicationCreate' }
+      responses:
+        '200':
+          description: 幂等回放（同键同体）
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Publication_' }
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Publication_' }
+        '409':
+          description: |
+            `IDEMPOTENCY_CONFLICT`（同键异体）或 `DUPLICATE_PUBLICATION`
+            （业务键 `publicationKey` 已登记）—— 两种情况都回 409，
+            `details.reason` 区分。
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorBody' }
+
+  # ---------------- WP37 ----------------
+  /publications/{publicationId}/links:
+    post:
+      tags: [publication-link]
+      operationId: add_publication_link
+      summary: 登记发布链接（规范化后入库）
+      description: |
+        同一项目内规范化后重复 ⇒ `DUPLICATE_PUBLICATION`（409），唯一索引 `uq_publication_links_project_canonical`
+        `(project_id, canonical_url)`；跨项目命中同样 409，仅管理者（`CONFIRM_CROSS_PROJECT_NOTE`）可放行，响应带 `crossProjectConfirmed=true`。
+        ⚠️ 实现（WP37）**不做短链⇄长链等价**，也不识别短链（无真实样例，用户 2026-10-25 拍板先关闭）：
+        同一条笔记的短链与长链会被当成两条不同链接，「短链与长链不重复」本包不承诺。
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicationLinkCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_PublicationLink_' }
+        '409': { $ref: '#/components/responses/DuplicatePublication' }
+
+  /publication-links:
+    get:
+      tags: [publication-link]
+      operationId: list_publication_links
+      summary: 按规范化链接查重（跨项目同笔记检测）
+      parameters:
+        - name: canonicalUrl
+          in: query
+          required: true
+          schema: { type: string, maxLength: 2048 }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_PublicationLink_' }
+
+  /publications/{publicationId}/verifications:
+    post:
+      tags: [publication-link]
+      operationId: verify_publication
+      summary: 校验实际内容状态（VERIFIED / UNVERIFIED）
+      description: |
+        **无法访问 ≠ 已删除。** 抓取失败一律落 `UNVERIFIED`，不得推成删除。
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublicationVerify' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Publication_' }
+
+  # ---------------- WP38 ----------------
+  /metric-definitions:
+    get:
+      tags: [metric]
+      operationId: list_metric_definitions
+      summary: 列出指标定义（字段字典）
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_MetricDefinition_' }
+
+  /metric-observations:
+    post:
+      tags: [metric]
+      operationId: append_metric_observation
+      summary: 追加一条指标观测（只追加）
+      description: |
+        **缺失不填 0**：拿不到值时 `valueNum`/`valueText` 留空，用 `availability` 说明原因。
+        **NULL / 0 / 约数三者分离**：0 是真实值，缺失是 NULL，约数进 `rawValue` 并标 `APPROXIMATE`。
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MetricObservationCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricObservation_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /publications/{publicationId}/metric-latest:
+    get:
+      tags: [metric]
+      operationId: get_publication_metric_latest
+      summary: 取最新指标投影（可重建缓存）
+      description: |
+        排序按 **`observed_at` 最大化**，不是 `recorded_at`。
+        `metric_latest` 是**可重建缓存**，不是历史权威来源。
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricLatestList_' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /publications/{publicationId}/labels:
+    get:
+      tags: [metric]
+      operationId: get_publication_labels
+      summary: 取阈值标签
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_PublicationLabelList_' }
+
+  /publications/{publicationId}/label-recomputations:
+    post:
+      tags: [metric]
+      operationId: recompute_publication_labels
+      summary: 重算阈值标签
+      description: |
+        缺失 → `PENDING`（**不归零、不进 `BELOW_THRESHOLD`**）。边界 50/51/100/101 由实现与测试守。
+      parameters:
+        - $ref: '#/components/parameters/PublicationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LabelRecomputeRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_PublicationLabelList_' }
+
+  # ---------------- WP39 ----------------
+
+  /projects/{projectId}/metric-imports:
+    post:
+      tags: [metric-import]
+      operationId: create_metric_import
+      summary: 创建导入批次（DRAFT）
+      description: |
+        **重复导入幂等**：同 `Idempotency-Key` 重复提交返回同一批（首次 201，重复 200）。
+        未确认前不写正式观测。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MetricImportCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricImport_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /metric-imports/{importId}/previews:
+    post:
+      tags: [metric-import]
+      operationId: preview_metric_import
+      summary: 预览（解析 + 校验，不写正式观测）
+      parameters:
+        - $ref: '#/components/parameters/ImportId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricImportPreview_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /metric-imports/{importId}/rows:
+    get:
+      tags: [metric-import]
+      operationId: list_metric_import_rows
+      summary: 列出导入行（含告警/错误码）
+      parameters:
+        - $ref: '#/components/parameters/ImportId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_MetricImportRow_' }
+
+  /metric-imports/{importId}/rows/{rowNo}:
+    patch:
+      tags: [metric-import]
+      operationId: fix_metric_import_row
+      summary: 修复错误行
+      parameters:
+        - $ref: '#/components/parameters/ImportId'
+        - name: rowNo
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MetricImportRowFix' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricImportRow_' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /metric-imports/{importId}/confirmations:
+    post:
+      tags: [metric-import]
+      operationId: confirm_metric_import
+      summary: 确认导入（此时才写正式观测）
+      description: |
+        **预览确认后才写正式观测。** 只有 `PREVIEWED → CONFIRMED` 允许；
+        未预览即确认 ⇒ `INVALID_TRANSITION`（409）。
+      parameters:
+        - $ref: '#/components/parameters/ImportId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricImport_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  # ---------------- WP40 ----------------
+  /metric-adapters:
+    get:
+      tags: [metric-adapter]
+      operationId: list_metric_adapters
+      summary: 列出数据适配器
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_MetricAdapter_' }
+
+  /metric-adapters/{adapterId}/refreshes:
+    post:
+      tags: [metric-adapter]
+      operationId: refresh_metric_adapter
+      summary: 主动刷新（限速；认证失败即停）
+      description: |
+        **无渠道是预期内结果**（D3）：返回明确的「不可得」提示与导入替代路径，**不视为缺陷**。
+        认证失败 ⇒ `EXTERNAL_POLICY_DENIED`（403）并**停止**，不静默重试。
+      parameters:
+        - $ref: '#/components/parameters/AdapterId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_MetricAdapterRefresh_' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  # ---------------- WP41 ----------------
+  /projects/{projectId}/comment-records:
+    get:
+      tags: [experiment]
+      operationId: list_comment_records
+      summary: 列出评论
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_CommentRecord_' }
+    post:
+      tags: [experiment]
+      operationId: create_comment_record
+      summary: 登记评论（弱去重须标记）
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommentRecordCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_CommentRecord_' }
+
+  /projects/{projectId}/experiments:
+    get:
+      tags: [experiment]
+      operationId: list_experiments
+      summary: 列出实验
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_Experiment_' }
+    post:
+      tags: [experiment]
+      operationId: create_experiment
+      summary: 创建实验
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExperimentCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Experiment_' }
+
+  /experiments/{experimentId}/assignments:
+    post:
+      tags: [experiment]
+      operationId: assign_experiment
+      summary: 分配实验组
+      parameters:
+        - name: experimentId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ExperimentAssignmentCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ExperimentAssignment_' }
+
+  /projects/{projectId}/strategy-evidence:
+    get:
+      tags: [experiment]
+      operationId: list_strategy_evidence
+      summary: 列出策略证据
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_StrategyEvidence_' }
+    post:
+      tags: [experiment]
+      operationId: create_strategy_evidence
+      summary: 登记策略证据
+      description: |
+        **产品红线**：缺失条件 ⇒ `INCONCLUSIVE` + `evidenceGrade='INSUFFICIENT'`，
+        **不得自动 `SUPPORTED`**；不得把高点赞当因果证据。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StrategyEvidenceCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_StrategyEvidence_' }
+
+  # ---------------- WP42 ----------------
+  /knowledge/proposals/{proposalId}/applications:
+    post:
+      tags: [knowledge]
+      operationId: apply_knowledge_proposal
+      summary: 人工确认后回写知识（复用既有 proposals 表）
+      description: |
+        **单篇意见不自动全局生效**；版本可追溯。遵守 ADR-16 的知识激活缓解
+        （影响预览确认 + 管理者通知 + 一键回滚）。
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/KnowledgeApplyRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_KnowledgeApplyResult_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  # ---------------- WP43 ----------------
+  /projects/{projectId}/billing-reconciliations:
+    post:
+      tags: [billing]
+      operationId: run_billing_reconciliation
+      summary: 触发费用对账（重复回执不重复收费）
+      description: |
+        金额精度按 `modules/billing/money.py` 既有口径（`(20,8)`）。
+        重复回执幂等；退款与待核对分开（`UNKNOWN` 单列）。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReconciliationRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ReconciliationResult_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /projects/{projectId}/billing-summary:
+    get:
+      tags: [billing]
+      operationId: get_billing_management_summary
+      summary: 管理统计与预算概览
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_BillingManagementSummary_' }
+
+  # ---------------- WP44 ----------------
+  /projects/{projectId}/reports:
+    get:
+      tags: [report]
+      operationId: list_reports
+      summary: 列出报告
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_Report_' }
+    post:
+      tags: [report]
+      operationId: create_report
+      summary: 生成报告（固化截止快照）
+      description: |
+        `metricsSnapshot` **必须固化** —— 渲染时现算会导致历史报告随新指标漂移。
+        数量口径与 `projects.target_delivery_count` / `target_publication_count` 对齐。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReportCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_Report_' }
+
+  /reports/{reportId}/versions:
+    get:
+      tags: [report]
+      operationId: list_report_versions
+      summary: 列出报告版本（不可变）
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_ReportVersion_' }
+    post:
+      tags: [report]
+      operationId: create_report_version
+      summary: 追加报告新版本（旧版本不被覆盖）
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReportVersionCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ReportVersion_' }
+
+  /reports/{reportId}/exports:
+    get:
+      tags: [report]
+      operationId: export_report_markdown
+      summary: 导出 Markdown
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: versionNo
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            text/markdown:
+              schema: { type: string }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------- WP45 ----------------
+  /projects/{projectId}/closures:
+    get:
+      tags: [closure]
+      operationId: list_project_closures
+      summary: 列出结项记录
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedEnvelope_ProjectClosure_' }
+    post:
+      tags: [closure]
+      operationId: create_project_closure
+      summary: 结项 / 提前终止
+      description: 结项后**停止生产但可补数据**。
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProjectClosureCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ProjectClosure_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /closures/{closureId}/reopenings:
+    post:
+      tags: [closure]
+      operationId: reopen_project
+      summary: 重开项目（追加新记录，不覆盖旧结项）
+      parameters:
+        - name: closureId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProjectReopenRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope_ProjectClosure_' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+components:
+
+  parameters:
+    ProjectId:
+      name: projectId
+      in: query
+      required: false
+      schema: { type: string, format: uuid }
+    ProjectIdPath:
+      # 2026-10-19 WP36 收口修订（C1）：真实落地的 WP36 七个路径一律是
+      # `/projects/{projectId}/...`（项目范围资源集合），不是草案原文的
+      # 平铺 `?projectId=` 查询参数——与正式契约 `/projects/{projectId}/contents`
+      # 等既有端点同一风格。仅 WP36 的端点改用这个路径参数，`ProjectId`
+      # （查询参数）保留给 WP37~45 尚未落地的端点，避免连带改动超出范围。
+      name: projectId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    DeliveryId:
+      name: deliveryId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    PublicationId:
+      name: publicationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ImportId:
+      name: importId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AdapterId:
+      name: adapterId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema: { type: [string, 'null'] }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: 写操作去重键。同键同内容 ⇒ 返回首次结果；同键不同内容 ⇒ `IDEMPOTENCY_CONFLICT`（409）。
+      # 2026-10-19 C11：minLength 8→1、maxLength 128→160。WP35 落地的是
+      # `MAX_IDEMPOTENCY_KEY_CHARS = 160`（exports/types.py），WP36 复用同一
+      # 常量；`minLength: 8` 在磁盘上无对应校验，是草案自拟、从未落地的限制。
+      schema: { type: string, minLength: 1, maxLength: 160 }
+
+  responses:
+    Unauthorized:
+      description: SESSION_EXPIRED (401)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    Forbidden:
+      description: PERMISSION_DENIED / EXTERNAL_POLICY_DENIED (403)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    NotFound:
+      description: RESOURCE_NOT_FOUND (404)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    Conflict:
+      description: INVALID_TRANSITION / IDEMPOTENCY_CONFLICT / DUPLICATE_PUBLICATION / VERSION_CONFLICT (409/412)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    DuplicatePublication:
+      description: DUPLICATE_PUBLICATION (409)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    ValidationFailed:
+      description: VALIDATION_FAILED (422)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+    RateLimited:
+      description: RATE_LIMITED (429)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorBody' }
+
+  schemas:
+
+    # --- 协议基元 ---
+    ErrorCode:
+      type: string
+      enum:
+        [MALFORMED_REQUEST, SESSION_EXPIRED, PERMISSION_DENIED, EXTERNAL_POLICY_DENIED,
+         RESOURCE_NOT_FOUND, INVALID_TRANSITION, IDEMPOTENCY_CONFLICT, DUPLICATE_PUBLICATION,
+         EVENT_HISTORY_EXPIRED, VERSION_CONFLICT, UPLOAD_TOO_LARGE, VALIDATION_FAILED,
+         BUDGET_EXCEEDED, DIRECTION_UNVERIFIED, PRECONDITION_REQUIRED, RATE_LIMITED,
+         DEPENDENCY_UNAVAILABLE]
+    ErrorBody:
+      type: object
+      required: [code, message, details, retryable]
+      properties:
+        code: { $ref: '#/components/schemas/ErrorCode' }
+        message: { type: string }
+        details: { type: object }
+        retryable: { type: boolean }
+    Meta:
+      type: object
+      properties:
+        requestId: { type: string }
+    PageInfo:
+      type: object
+      properties:
+        nextCursor: { type: [string, 'null'] }
+        hasMore: { type: boolean }
+        total: { type: [integer, 'null'] }
+
+    # --- 通用包裹（沿用既有 DataEnvelope / PaginatedEnvelope 约定）---
+    DataEnvelope_Delivery_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/Delivery' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    PaginatedEnvelope_Delivery_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Delivery' } }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+
+    # --- 领域体（字段以 DDL 草案为镜像；enum 以词表为准）---
+    # 2026-10-19 C2~C10（WP36 收口修订）：以下 schema 的 required/properties
+    # 已按实现（modules/delivery/{types,schemas}.py）逐项核对改写，不再是
+    # 草案原拟。每条改动的理由见各字段旁注释；完整差异清单见 git log 里
+    # WP36 实现的交付报告（11 条 C1~C12）。
+    Delivery:
+      type: object
+      required: [id, projectId, exportItemId, contentItemId, versionNodeId, state, eligibilityHash, createdBy, lockVersion]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        kocRecordId: { type: [string, 'null'], format: uuid }
+        exportItemId: { type: string, format: uuid }  # C6 新增：WP35 导出行，三个冻结字段的复制来源
+        contentItemId: { type: string, format: uuid }
+        versionNodeId: { type: string, format: uuid }
+        state: { type: string, enum: [PREPARED, DELIVERED, CANCELLED] }
+        eligibilityHash: { type: string }
+        replacesDeliveryId: { type: [string, 'null'], format: uuid }
+        idempotencyKey: { type: [string, 'null'] }
+        deliveredAt: { type: [string, 'null'], format: date-time }
+        cancelledAt: { type: [string, 'null'], format: date-time }
+        deliveredBy: { type: [string, 'null'], format: uuid }  # C6 新增：原型「操作人」列
+        createdBy: { type: string, format: uuid }  # C6 新增
+        note: { type: [string, 'null'] }  # C6 新增：原型「备注」列
+        createdAt: { type: string, format: date-time }  # C6 新增
+        lockVersion: { type: integer }  # C6 新增：ETag 载体
+        created: { type: [boolean, 'null'] }  # C6 新增：写端点的幂等回放标记
+    DeliveryCreate:
+      type: object
+      required: [exportItemId]
+      properties:
+        # C4：删 projectId（进 path）/ versionNodeId / contentItemId——
+        # 交付必须基于一个 WP35 导出行，三个冻结字段从 export_items 服务端
+        # 复制，不接受客户端传版本（与 WP35 否决"客户端指定版本"同一理由）。
+        exportItemId: { type: string, format: uuid }
+        kocRecordId: { type: [string, 'null'], format: uuid }
+        note: { type: [string, 'null'] }
+    DeliveryReplace:
+      type: object
+      required: [exportItemId]
+      properties:
+        # C5：删 versionNodeId，加 exportItemId（必填，与 DeliveryCreate 同理由）。
+        exportItemId: { type: string, format: uuid }
+        kocRecordId: { type: [string, 'null'], format: uuid }  # 不传则继承旧行的 KOC
+        note: { type: [string, 'null'] }
+
+    ExportItem:
+      type: object
+      required: [id, projectId, versionNodeId, eligibilityHash, exportKind]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        # C2：删 deliveryId——WP35 落地时已删该列，方向反转为
+        # `deliveries.export_item_id`（WP36 反向引用 WP35，不是 WP35 指向 WP36）。
+        contentItemId: { type: string, format: uuid }
+        versionNodeId: { type: string, format: uuid }
+        eligibilityHash: { type: string }
+        exportKind: { type: string, enum: [SINGLE, BATCH_ZIP] }
+        artifactRef: { type: [string, 'null'] }
+    ExportItemCreate:
+      type: object
+      required: [projectId, contentItemIds]
+      properties:
+        projectId: { type: string, format: uuid }
+        # C3：删 deliveryId / versionNodeId / contentItemId（单数）/ exportKind——
+        # WP35 实际端点是一组 content_item_id，服务端冻结版本、exportKind 由
+        # 条数派生，不由客户端给。
+        contentItemIds:
+          type: array
+          items: { type: string, format: uuid }
+          minItems: 1
+          maxItems: 50
+        format: { type: string, enum: [STATIC], default: STATIC }
+
+    KocRecord:
+      type: object
+      required: [id, projectId, displayName]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        displayName: { type: string }
+        platformHomeUrl: { type: [string, 'null'] }
+        homeUrlCanonical: { type: [string, 'null'] }  # 由 WP37 规范器产，WP36 恒 null
+        contactRef: { type: [string, 'null'] }
+        note: { type: [string, 'null'] }  # C8 新增
+        createdAt: { type: string, format: date-time }  # C8 新增
+    KocRecordCreate:
+      type: object
+      required: [displayName]
+      properties:
+        # C7：删 projectId（进 path）。
+        displayName: { type: string, minLength: 1, maxLength: 200 }
+        platformHomeUrl: { type: [string, 'null'] }
+        contactRef: { type: [string, 'null'] }
+        note: { type: [string, 'null'] }  # C7 新增
+
+    Publication:
+      type: object
+      required: [id, projectId, publicationKey, state, contentState]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        deliveryId: { type: [string, 'null'], format: uuid }
+        publicationKey: { type: string, maxLength: 64 }
+        noteId: { type: [string, 'null'] }
+        noteUrl: { type: [string, 'null'] }
+        urlCanonical: { type: [string, 'null'] }  # 由 WP37 规范器产，WP36 恒 null
+        state: { type: string, enum: [DRAFT, PUBLISHED, UNKNOWN] }
+        contentState:
+          type: string
+          enum: [VERIFIED, UNVERIFIED]
+          description: |
+            **`UNVERIFIED` ≠ 已删除**。WP36 不做抓取，默认 `UNVERIFIED`；
+            取值域里刻意没有"已删除"，结构上就不可能把抓取失败推成删除。
+        publishedAt: { type: [string, 'null'], format: date-time }
+        createdAt: { type: string, format: date-time }  # C10 新增
+        lockVersion: { type: integer }  # C10 新增
+        created: { type: [boolean, 'null'] }  # C10 新增：写端点的幂等回放标记
+    PublicationCreate:
+      type: object
+      required: [publicationKey]
+      properties:
+        # C9：删 projectId（进 path）。不接受 contentState（本包一律落
+        # UNVERIFIED）与 urlCanonical（WP37 产）。
+        deliveryId: { type: [string, 'null'], format: uuid }
+        publicationKey: { type: string, maxLength: 64, pattern: '^[A-Za-z0-9_.\-]{1,64}$' }
+        noteId: { type: [string, 'null'] }
+        noteUrl: { type: [string, 'null'] }
+        state: { type: string, enum: [DRAFT, PUBLISHED, UNKNOWN], default: DRAFT }
+        publishedAt:
+          type: [string, 'null']
+          format: date-time
+          description: '`state=PUBLISHED` ⇔ `publishedAt` 非空（双向），违反 ⇒ 422 `PUBLISHED_AT_SHAPE`。'
+    UnmarkedExport:
+      # C1 新增（随 /projects/{projectId}/unmarked-exports 一起加）。
+      type: object
+      required: [contentItemId, lastExportAt]
+      properties:
+        contentItemId: { type: string, format: uuid }
+        lastExportAt: { type: string, format: date-time }
+    PublicationVerify:
+      type: object
+      required: [result]
+      properties:
+        result: { type: string, enum: [VERIFIED, UNVERIFIED] }
+        note: { type: [string, 'null'] }
+
+    PublicationLink:
+      type: object
+      required: [id, publicationId, rawUrl, canonicalUrl, linkKind]
+      properties:
+        id: { type: string, format: uuid }
+        publicationId: { type: string, format: uuid }
+        rawUrl: { type: string }
+        canonicalUrl: { type: string }
+        linkKind: { type: string, enum: [SHORT, LONG, OTHER] }
+    PublicationLinkCreate:
+      type: object
+      required: [rawUrl]
+      properties:
+        rawUrl: { type: string, maxLength: 2048 }
+
+    MetricDefinition:
+      type: object
+      required: [id, metricCode, scope, valueKind, label]
+      properties:
+        id: { type: string, format: uuid }
+        metricCode:
+          type: string
+          enum: [VIEW_COUNT, IMPRESSION_COUNT, LIKE_COUNT, FAVORITE_COUNT, COMMENT_COUNT,
+                 LINK_CLICK_PV, LINK_CLICK_UV, IS_PROMOTED, COMMENT_TEXT, NOTE_URL, NOTE_ID,
+                 PUBLISHED_AT, PROMOTION_INFO, PUBLISH_STATUS]
+        scope:
+          type: string
+          enum: [CUMULATIVE, LAST_24H, LAST_7D, LAST_30D, LAST_90D, NOT_APPLICABLE, UNKNOWN]
+        valueKind: { type: string, enum: [NUMERIC, TEXT] }
+        unit: { type: [string, 'null'] }
+        label: { type: string }
+
+    MetricObservation:
+      type: object
+      required: [id, publicationId, metricDefinitionId, observedAt, availability, sourceType]
+      properties:
+        id: { type: string, format: uuid }
+        publicationId: { type: string, format: uuid }
+        metricDefinitionId: { type: string, format: uuid }
+        observedAt: { type: string, format: date-time }
+        valueNum: { type: [number, 'null'], description: '数值类；缺失为 null，**不得填 0**' }
+        valueText: { type: [string, 'null'] }
+        rawValue: { type: [string, 'null'], description: '平台原样显示值，保留约数' }
+        precision: { type: [string, 'null'], enum: [EXACT, APPROXIMATE, null] }
+        availability:
+          type: string
+          enum: [ACQUIRED, NOT_PROVIDED, NO_PERMISSION, NOT_APPLICABLE, FETCH_FAILED, PENDING]
+        sourceType:
+          type: string
+          enum: [MANUAL, CSV_IMPORT, XLSX_IMPORT, SCREENSHOT_OCR, AUTO_API]
+        evidenceRef: { type: [string, 'null'] }
+        importId: { type: [string, 'null'], format: uuid }
+        recordedAt: { type: string, format: date-time }
+    MetricObservationCreate:
+      type: object
+      required: [publicationId, metricDefinitionId, observedAt, availability, sourceType]
+      properties:
+        publicationId: { type: string, format: uuid }
+        metricDefinitionId: { type: string, format: uuid }
+        observedAt: { type: string, format: date-time }
+        valueNum: { type: [number, 'null'] }
+        valueText: { type: [string, 'null'] }
+        rawValue: { type: [string, 'null'] }
+        precision: { type: [string, 'null'], enum: [EXACT, APPROXIMATE, null] }
+        availability:
+          type: string
+          enum: [ACQUIRED, NOT_PROVIDED, NO_PERMISSION, NOT_APPLICABLE, FETCH_FAILED, PENDING]
+        sourceType:
+          type: string
+          enum: [MANUAL, CSV_IMPORT, XLSX_IMPORT, SCREENSHOT_OCR, AUTO_API]
+        evidenceRef: { type: [string, 'null'] }
+
+    MetricLatest:
+      type: object
+      required: [publicationId, metricDefinitionId, observationId, observedAt]
+      properties:
+        publicationId: { type: string, format: uuid }
+        metricDefinitionId: { type: string, format: uuid }
+        observationId: { type: string, format: uuid }
+        valueNum: { type: [number, 'null'] }
+        valueText: { type: [string, 'null'] }
+        observedAt: { type: string, format: date-time }
+        label: { type: [string, 'null'] }
+        rebuiltAt: { type: string, format: date-time }
+    MetricLatestList:
+      type: array
+      items: { $ref: '#/components/schemas/MetricLatest' }
+
+    PublicationLabel:
+      type: object
+      required: [publicationId, metricDefinitionId, label, thresholdVersion]
+      properties:
+        publicationId: { type: string, format: uuid }
+        metricDefinitionId: { type: string, format: uuid }
+        label: { type: string, enum: [POTENTIAL, QUALITY, BELOW_THRESHOLD, PENDING] }
+        thresholdVersion: { type: string }
+    PublicationLabelList:
+      type: array
+      items: { $ref: '#/components/schemas/PublicationLabel' }
+    LabelRecomputeRequest:
+      type: object
+      required: [thresholdVersion]
+      properties:
+        thresholdVersion: { type: string }
+
+    MetricImport:
+      type: object
+      required: [id, projectId, importKind, state, templateVersion]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        importKind: { type: string, enum: [CSV, XLSX, SCREENSHOT_OCR] }
+        state: { type: string, enum: [DRAFT, PREVIEWED, CONFIRMED, FAILED] }
+        sourceFileId: { type: [string, 'null'], format: uuid }
+        templateVersion: { type: string }
+        rowCount: { type: integer, minimum: 0 }
+        errorRowCount: { type: integer, minimum: 0 }
+        confirmedAt: { type: [string, 'null'], format: date-time }
+    MetricImportCreate:
+      type: object
+      required: [importKind, templateVersion]
+      properties:
+        importKind: { type: string, enum: [CSV, XLSX, SCREENSHOT_OCR] }
+        sourceFileId: { type: [string, 'null'], format: uuid }
+        templateVersion: { type: string }
+    MetricImportRow:
+      type: object
+      required: [id, importId, rowNo, status]
+      properties:
+        id: { type: string, format: uuid }
+        importId: { type: string, format: uuid }
+        rowNo: { type: integer, minimum: 1 }
+        payload: { type: object }
+        status: { type: string, enum: [OK, ERROR, SKIPPED] }
+        warnings: { type: array, items: { type: string } }
+        errors: { type: array, items: { type: string } }
+        confidence: { type: [number, 'null'], minimum: 0, maximum: 1, description: 'OCR 专用' }
+        observationId: { type: [string, 'null'], format: uuid }
+    MetricImportRowFix:
+      type: object
+      required: [patch]
+      properties:
+        patch: { type: object, description: '对 11 列中出错字段的修正' }
+    MetricImportPreview:
+      type: object
+      required: [importId, rowCount, errorRowCount]
+      properties:
+        importId: { type: string, format: uuid }
+        rowCount: { type: integer, minimum: 0 }
+        errorRowCount: { type: integer, minimum: 0 }
+        warnings: { type: array, items: { type: string } }
+
+    MetricAdapter:
+      type: object
+      required: [id, name, availability]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        # 注意：本字段是「适配器渠道可用性」词表，与 MetricObservation.availability（六态字段获取状态）是两套独立词表，禁止混用
+        availability: { type: string, enum: [AVAILABLE, NO_PERMISSION, NO_CHANNEL] }
+    MetricAdapterRefresh:
+      type: object
+      required: [adapterId, outcome]
+      properties:
+        adapterId: { type: string, format: uuid }
+        outcome: { type: string, enum: [REFRESHED, STOPPED_AUTH_FAILED, NO_CHANNEL, RATE_LIMITED] }
+        importedObservationCount: { type: integer, minimum: 0 }
+        message: { type: [string, 'null'] }
+
+    CommentRecord:
+      type: object
+      required: [id, projectId, publicationId, dedupMode]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        publicationId: { type: string, format: uuid }
+        platformCommentId: { type: [string, 'null'] }
+        contentDigest: { type: [string, 'null'] }
+        contentText: { type: [string, 'null'] }
+        likeCount: { type: [integer, 'null'], minimum: 0 }
+        postedAt: { type: [string, 'null'], format: date-time }
+        dedupMode: { type: string, enum: [PLATFORM_ID, WEAK_DIGEST] }
+    CommentRecordCreate:
+      type: object
+      required: [publicationId, dedupMode]
+      properties:
+        publicationId: { type: string, format: uuid }
+        platformCommentId: { type: [string, 'null'] }
+        contentText: { type: [string, 'null'] }
+        likeCount: { type: [integer, 'null'], minimum: 0 }
+        postedAt: { type: [string, 'null'], format: date-time }
+        dedupMode: { type: string, enum: [PLATFORM_ID, WEAK_DIGEST] }
+
+    Experiment:
+      type: object
+      required: [id, projectId, name, state]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        name: { type: string }
+        hypothesis: { type: [string, 'null'] }
+        state: { type: string, enum: [DRAFT, RUNNING, CLOSED] }
+        startedAt: { type: [string, 'null'], format: date-time }
+        closedAt: { type: [string, 'null'], format: date-time }
+    ExperimentCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        hypothesis: { type: [string, 'null'] }
+
+    ExperimentAssignment:
+      type: object
+      required: [id, experimentId, contentItemId, arm]
+      properties:
+        id: { type: string, format: uuid }
+        experimentId: { type: string, format: uuid }
+        contentItemId: { type: string, format: uuid }
+        arm: { type: string }
+        assignedAt: { type: string, format: date-time }
+    ExperimentAssignmentCreate:
+      type: object
+      required: [contentItemId, arm]
+      properties:
+        contentItemId: { type: string, format: uuid }
+        arm: { type: string }
+
+    StrategyEvidence:
+      type: object
+      required: [id, projectId, strategyRef, state, evidenceGrade]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        experimentId: { type: [string, 'null'], format: uuid }
+        strategyRef: { type: string }
+        state: { type: string, enum: [CANDIDATE, SUPPORTED, UNSUPPORTED, INCONCLUSIVE] }
+        evidenceGrade: { type: string, enum: [EXPERIMENT, OBSERVATIONAL, INSUFFICIENT] }
+        note: { type: [string, 'null'] }
+    StrategyEvidenceCreate:
+      type: object
+      required: [strategyRef, state, evidenceGrade]
+      properties:
+        experimentId: { type: [string, 'null'], format: uuid }
+        strategyRef: { type: string }
+        state: { type: string, enum: [CANDIDATE, SUPPORTED, UNSUPPORTED, INCONCLUSIVE] }
+        evidenceGrade: { type: string, enum: [EXPERIMENT, OBSERVATIONAL, INSUFFICIENT] }
+        note: { type: [string, 'null'] }
+
+    KnowledgeApplyRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [APPROVE, REJECT] }
+        note: { type: [string, 'null'] }
+    KnowledgeApplyResult:
+      type: object
+      required: [proposalId, applied]
+      properties:
+        proposalId: { type: string, format: uuid }
+        applied: { type: boolean }
+        publicationId: { type: [string, 'null'], format: uuid }
+
+    ReconciliationRequest:
+      type: object
+      required: [periodStart, periodEnd]
+      properties:
+        periodStart: { type: string, format: date-time }
+        periodEnd: { type: string, format: date-time }
+    ReconciliationResult:
+      type: object
+      required: [projectId, matchedCount, unknownCount]
+      properties:
+        projectId: { type: string, format: uuid }
+        matchedCount: { type: integer, minimum: 0 }
+        unknownCount: { type: integer, minimum: 0, description: '待核对，与退款分开' }
+    BillingManagementSummary:
+      type: object
+      required: [projectId, committedAmount, reservedAmount, limitAmount]
+      properties:
+        projectId: { type: string, format: uuid }
+        committedAmount: { type: string, description: 'NUMERIC(20,8) 字符串，避免浮点' }
+        reservedAmount: { type: string }
+        limitAmount: { type: string }
+
+    Report:
+      type: object
+      required: [id, projectId, reportKind, templateVersion, currentVersionNo]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        reportKind: { type: string, enum: [OVERVIEW, STAGE, CLOSURE] }
+        templateVersion: { type: string }
+        currentVersionNo: { type: integer, minimum: 1 }
+    ReportCreate:
+      type: object
+      required: [reportKind, templateVersion]
+      properties:
+        reportKind: { type: string, enum: [OVERVIEW, STAGE, CLOSURE] }
+        templateVersion: { type: string }
+        cutoffAt: { type: [string, 'null'], format: date-time }
+
+    ReportVersion:
+      type: object
+      required: [id, reportId, versionNo, cutoffAt, contentHash]
+      properties:
+        id: { type: string, format: uuid }
+        reportId: { type: string, format: uuid }
+        versionNo: { type: integer, minimum: 1 }
+        cutoffAt: { type: string, format: date-time }
+        metricsSnapshot: { type: object, description: '固化快照，非渲染时现算' }
+        contentHash: { type: string }
+        generatedAt: { type: string, format: date-time }
+    ReportVersionCreate:
+      type: object
+      required: [templateVersion]
+      properties:
+        templateVersion: { type: string }
+        cutoffAt: { type: [string, 'null'], format: date-time }
+
+    ProjectClosure:
+      type: object
+      required: [id, projectId, closureType, closedAt]
+      properties:
+        id: { type: string, format: uuid }
+        projectId: { type: string, format: uuid }
+        closureType: { type: string, enum: [COMPLETED, TERMINATED] }
+        outstandingSnapshot: { type: object }
+        closedAt: { type: string, format: date-time }
+        reopenedAt: { type: [string, 'null'], format: date-time }
+        reopenReason: { type: [string, 'null'] }
+    ProjectClosureCreate:
+      type: object
+      required: [closureType]
+      properties:
+        closureType: { type: string, enum: [COMPLETED, TERMINATED] }
+    ProjectReopenRequest:
+      type: object
+      required: [reopenReason]
+      properties:
+        reopenReason: { type: string }
+
+    # --- 包裹（沿用既有 DataEnvelope / PaginatedEnvelope 约定；自动补齐，勿手改） ---
+    DataEnvelope_BillingManagementSummary_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/BillingManagementSummary' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_CommentRecord_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/CommentRecord' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_ExperimentAssignment_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/ExperimentAssignment' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_Experiment_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/Experiment' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_ExportItem_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/ExportItem' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_KnowledgeApplyResult_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/KnowledgeApplyResult' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_KocRecord_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/KocRecord' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricAdapterRefresh_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricAdapterRefresh' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricImportPreview_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricImportPreview' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricImportRow_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricImportRow' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricImport_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricImport' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricLatestList_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricLatestList' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_MetricObservation_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/MetricObservation' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_ProjectClosure_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/ProjectClosure' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_PublicationLabelList_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/PublicationLabelList' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_PublicationLink_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/PublicationLink' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_Publication_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/Publication' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_ReconciliationResult_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/ReconciliationResult' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_ReportVersion_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/ReportVersion' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_Report_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/Report' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_StrategyEvidence_:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: '#/components/schemas/StrategyEvidence' }
+        meta: { $ref: '#/components/schemas/Meta' }
+    DataEnvelope_UnmarkedExportList_:
+      # 2026-10-19 C1 新增，随 /projects/{projectId}/unmarked-exports 一起加。
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/UnmarkedExport' } }
+        meta: { $ref: '#/components/schemas/Meta' }
+    PaginatedEnvelope_CommentRecord_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/CommentRecord' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_Experiment_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Experiment' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_ExportItem_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ExportItem' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_KocRecord_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/KocRecord' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_MetricAdapter_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MetricAdapter' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_MetricDefinition_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MetricDefinition' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_MetricImportRow_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MetricImportRow' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_ProjectClosure_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ProjectClosure' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_PublicationLink_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/PublicationLink' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_Publication_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Publication' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_ReportVersion_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ReportVersion' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_Report_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Report' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }
+    PaginatedEnvelope_StrategyEvidence_:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/StrategyEvidence' }
+        meta:
+          type: object
+          properties:
+            page: { $ref: '#/components/schemas/PageInfo' }

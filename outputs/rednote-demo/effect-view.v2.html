@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>效果学习视图 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <!-- 页头：原型的「EXP-007 · 除湿机选购」「窗口未满 · 3d 已出」两枚标签已删除。
+           前者无实验编号字段，后者无任何窗口判定字段（见「窗口是否已满」降级卡）。
+           「mock 数据源」标记放在页头显著位置 —— 这是方案对本页的硬要求。 -->
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-flask-vial"></i> 效果学习</span>
+            <span class="tag tag-warn no-dot f10">mock 数据源 · 正式契约未定义</span>
+            <span class="tag tag-muted no-dot f10" id="ev-source">读取中…</span>
+          </div>
+          <h1 class="page-title">效果学习视图</h1>
+          <p class="page-desc">本页的数据源是 M4 草案 + 本地 mock：正式契约（86 paths）里 metric / effect / experiment 三组端点零命中。七段链路里只有 3 段有真数据，其余各段已逐块标注缺的是哪个字段或哪个端点。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="quality-view.html"><i class="fa-solid fa-arrows-spin"></i>生产质量视图</a>
+        </div>
+      </div>
+
+      <div id="ev-counters" aria-live="polite"></div>
+
+      <div class="grid g-3-2" style="margin-top:14px">
+        <div class="col" style="gap:14px">
+          <div id="ev-stages" aria-live="polite"></div>
+          <div id="ev-experiments" aria-live="polite"></div>
+          <div id="ev-assignments"></div>
+          <div id="ev-execution" aria-live="polite"></div>
+          <div id="ev-metrics" aria-live="polite"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="ev-evidence" aria-live="polite"></div>
+          <div id="ev-redline" aria-live="polite"></div>
+          <div id="ev-window" aria-live="polite"></div>
+          <div id="ev-purpose"></div>
+          <div id="ev-statemachine"></div>
+          <div id="ev-doctrine"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  /* mock 基址 —— 沿用已交付的 P3 六页（delivery / delivery-koc / data-feedback /
+     data-snapshot / data-trace / report）的既有做法。切到真后端时只改这一行。 */
+  window.REDNOTE_API_BASE = 'http://127.0.0.1:8799/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/effect-view.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'effect-view', crumb: ['双 Loop', '效果学习视图'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/effect-view.js。
+     触 DOM 语句 15 条，IIFE 36 行。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.effectView;
+    var el = function (id) { return document.getElementById(id); };
+    var SLOTS = ['ev-counters', 'ev-stages', 'ev-experiments', 'ev-execution', 'ev-metrics', 'ev-evidence', 'ev-redline', 'ev-window'];
+    var src = el('ev-source');
+    el('ev-assignments').innerHTML = R.renderAssignmentsUnavailable();
+    el('ev-purpose').innerHTML = R.renderPurposeScopeUnavailable();
+    el('ev-statemachine').innerHTML = R.renderStrategyStateMachineDoctrine();
+    el('ev-doctrine').innerHTML = R.renderEffectDoctrine();
+    function tag(cls, label) { src.className = 'tag ' + cls + ' no-dot f10'; src.textContent = label; }
+    async function load() {
+      SLOTS.forEach(function (id) { el(id).innerHTML = R.renderLoading('正在读取实验与证据…'); });
+      try {
+        var r = await Promise.all([API.page('/experiments', { limit: 100 }), API.page('/strategy-evidence', { limit: 100 }), API.page('/metric-definitions', { limit: 100 }), API.page('/publications', { limit: 100 }), API.page('/deliveries', { limit: 100 })]);
+        var exps = r[0].items, evid = r[1].items, defs = r[2].items, pubs = r[3].items, dels = r[4].items;
+        var pub = pubs[0];
+        var metrics = pub ? await API.get('/publications/' + encodeURIComponent(pub.id) + '/metric-latest') : [];
+        var m = Array.isArray(metrics) ? metrics : [];
+        el('ev-counters').innerHTML = R.renderExperimentCounters(exps, evid);
+        el('ev-stages').innerHTML = R.renderSevenStageNav(R.stageAvailability({ experiments: exps, evidence: evid, metrics: m, deliveries: dels, publications: pubs }));
+        el('ev-experiments').innerHTML = R.renderExperimentList(exps);
+        el('ev-execution').innerHTML = R.renderExecutionCheck(dels, pubs);
+        el('ev-metrics').innerHTML = R.renderMetricLatest(m, defs);
+        el('ev-evidence').innerHTML = R.renderEvidenceList(evid);
+        el('ev-redline').innerHTML = R.renderEvidenceRedline(evid);
+        el('ev-window').innerHTML = R.renderWindowUnavailable(defs);
+        var demo = r[0].static || r[1].static || r[2].static;
+        tag(demo ? 'tag-warn' : 'tag-ok', demo ? '演示数据 · 静态降级' : '实时 mock · ' + exps.length + ' 个实验 / ' + evid.length + ' 条证据 / ' + m.length + ' 个指标');
+      } catch (err) {
+        SLOTS.forEach(function (id) { el(id).innerHTML = ''; });
+        el('ev-stages').innerHTML = R.renderError(err);
+        tag('tag-danger', '读取失败');
+      }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

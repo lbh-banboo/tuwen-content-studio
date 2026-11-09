@@ -1,0 +1,33 @@
+﻿# =============================================================================
+# Rednote 内容生产系统 · 指标导入模板（WP03 / G0-12）
+# =============================================================================
+# 版本      : 1.0
+# 更新日期  : 2026-09-19
+# 配套文档  : docs/m0/WP03-指标口径与导入模板.md
+#             docs/m0/WP03-数据可得性实测协议.md
+#             templates/metric_import_field_guide.md
+# 校验工具  : tools/m0/wp03_data/validate_import.py --file <本文件>
+# -----------------------------------------------------------------------------
+# 使用说明
+#   1) 以 # 开头的行是注释行，导入与校验时会被跳过，可直接删除；
+#   2) 第一行非注释行是表头，共 11 列，列名不得改动；
+#   3) 一个指标一行（长表结构）。同一笔记有多个指标就写多行；
+#   4) COMMENT_TEXT 逐条评论一行；NOTE_URL / NOTE_ID / PUBLISHED_AT /
+#      PROMOTION_INFO / PUBLISH_STATUS 为文本类指标，value 必须留空，
+#      内容写入 raw_value；
+#   5) 缺失不填 0。拿不到时 value 留空，并填写 availability 六态之一；
+#   6) 约数（如 1.2 万）必须保留 raw_value 原样字符串，precision 标
+#      APPROXIMATE，不得伪装成 EXACT；
+#   7) 编码 UTF-8；引号一律使用 ASCII 直引号 " ；
+#   8) 以下示例行的 publication_key 以 SAMPLE- 开头、note 标注"示例，勿当真实
+#      数据"，均为虚构占位值，禁止当作真实平台数据使用或引用。
+# -----------------------------------------------------------------------------
+# 关于示例行的说明（重要）
+#   第 1 行示例演示"合法填写"，预期无错误；
+#   第 2 行示例【故意演示告警】：value 填 0 但 availability 为 NO_PERMISSION，
+#   这是口径违规（缺失不填 0）。保留该行是为了让执行人跑一次校验就能看到告警
+#   长什么样。正式导入前请删除全部示例行。
+# =============================================================================
+publication_key,metric_code,metric_scope,observed_at,value,raw_value,precision,availability,source_type,evidence_ref,note
+SAMPLE-PUB-0001,LIKE_COUNT,CUMULATIVE,2026-01-01T10:00:00+08:00,12000,1.2 万,APPROXIMATE,ACQUIRED,MANUAL,SAMPLE-EVID-001,示例，勿当真实数据；演示合法填写：约数保留原值字符串且标 APPROXIMATE
+SAMPLE-PUB-0002,COMMENT_COUNT,CUMULATIVE,2026-01-01T10:05:00+08:00,0,,EXACT,NO_PERMISSION,MANUAL,SAMPLE-EVID-002,示例，勿当真实数据；故意演示告警：value 填 0 但 availability 为 NO_PERMISSION（缺失不填 0）

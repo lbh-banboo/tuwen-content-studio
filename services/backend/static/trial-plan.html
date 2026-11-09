@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>确认最终十行生产清单与费用 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-4"></i> 步骤 4 / 8</span>
+            <span class="code code-purple">方案 PLAN-v2</span>
+            <span class="tag tag-warn">待确认 · 10 条</span>
+          </div>
+          <h1 class="page-title">确认最终十行生产清单与费用</h1>
+          <p class="page-desc">核对十行生产清单的场景、形式、决策问题分布，并确认生成前预估费用。提交校验通过后方可提交生产。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="trial-config.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <button class="btn btn-ghost" data-toast="演示环境：已导出十行生产清单 CSV"><i class="fa-solid fa-download"></i>导出清单</button>
+          <a class="btn btn-primary" href="plan-detail.html">下一步：逐行计划 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-2-1 gap14">
+  <!-- 10 行生产清单 —— PRD §8.3 -->
+  <section class="card">
+  <div class="card-head">
+  <div class="row">
+  <i class="fa-solid fa-list-ol t-pur"></i>
+  <h3 class="card-title">最终十行生产清单</h3>
+  <span class="tag tag-warn">待运营确认</span>
+  </div>
+  <div class="row">
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：已按系统建议重新配对，边际数量保持不变"><i class="fa-solid fa-wand-magic-sparkles"></i>系统建议配对</button>
+  <button class="btn btn-sm btn-ghost" data-toast="演示环境：导出 CSV 预览清单"><i class="fa-solid fa-download"></i>导出</button>
+  </div>
+  </div>
+  <div class="card-body p0">
+  <div class="table-wrap">
+  <div class="table-wrap"><div class="table-wrap"><table class="tbl">
+  <thead>
+  <tr>
+  <th style="width:44px">#</th>
+  <th style="width:150px">场景</th>
+  <th style="width:180px">叙述角度</th>
+  <th style="width:130px">主卖点</th>
+  <th style="width:140px">媒体形式</th>
+  <th class="num" style="width:82px">媒体数量</th>
+  <th style="width:130px">风格参考</th>
+  <th>待补充体验信息</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td><span class="idx">01</span></td>
+  <td class="strong">早八通勤急救</td>
+  <td class="f11 t-sub">洗后 3 分钟直接上妆的实拍对比</td>
+  <td><span class="tag tag-purple no-dot f10">氨基酸温和</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-image"></i> 文案+静态图</span></td>
+  <td class="num mono">6 张</td>
+  <td class="f11 t-sub">清透晨光 / 冷白</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">02</span></td>
+  <td class="strong">早八通勤急救</td>
+  <td class="f11 t-sub">7 天早间使用记录 vlog 式图文</td>
+  <td><span class="tag no-dot f10">洗后不紧绷</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-wand-magic-sparkles"></i> 文案+Live 图</span></td>
+  <td class="num mono">3 组</td>
+  <td class="f11 t-sub">生活流 / 手持感</td>
+  <td><span class="tag tag-warn no-dot f10">待补：真实使用天数</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">03</span></td>
+  <td class="strong">早八通勤急救</td>
+  <td class="f11 t-sub">通勤包便携装容量测算</td>
+  <td><span class="tag no-dot f10">150g 大容量</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-font"></i> 仅文案</span></td>
+  <td class="num mono">—</td>
+  <td class="f11 t-sub">口语化 / 短段落</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">04</span></td>
+  <td class="strong">卸妆后二次清洁</td>
+  <td class="f11 t-sub">卸妆油残留感的手部触感测试</td>
+  <td><span class="tag tag-purple no-dot f10">起泡绵密</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-image"></i> 文案+静态图</span></td>
+  <td class="num mono">6 张</td>
+  <td class="f11 t-sub">浴室实景 / 暖调</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">05</span></td>
+  <td class="strong">卸妆后二次清洁</td>
+  <td class="f11 t-sub">清洁力 vs 温和的取舍逻辑讲解</td>
+  <td><span class="tag no-dot f10">氨基酸温和</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-layer-group"></i> 静态+Live 混合</span></td>
+  <td class="num mono">静 4 + Live 2</td>
+  <td class="f11 t-sub">知识科普 / 图解</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">06</span></td>
+  <td class="strong">卸妆后二次清洁</td>
+  <td class="f11 t-sub">与常用卸妆产品的搭配清单</td>
+  <td><span class="tag no-dot f10">pH 5.5</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-font"></i> 仅文案</span></td>
+  <td class="num mono">—</td>
+  <td class="f11 t-sub">清单体 / 分点</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">07</span></td>
+  <td class="strong">健身后油汗清洁</td>
+  <td class="f11 t-sub">运动后 T 区出油实拍</td>
+  <td><span class="tag tag-purple no-dot f10">洗后不紧绷</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-image"></i> 文案+静态图</span></td>
+  <td class="num mono">6 张</td>
+  <td class="f11 t-sub">健身房光线 / 高饱和</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">08</span></td>
+  <td class="strong">健身后油汗清洁</td>
+  <td class="f11 t-sub">每周 5 次高频清洁的耐受记录</td>
+  <td><span class="tag no-dot f10">pH 5.5</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-wand-magic-sparkles"></i> 文案+Live 图</span></td>
+  <td class="num mono">3 组</td>
+  <td class="f11 t-sub">纪实 / 时间轴</td>
+  <td><span class="tag tag-warn no-dot f10">待补：具体使用频次</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">09</span></td>
+  <td class="strong">学生党性价比替换</td>
+  <td class="f11 t-sub">单次用量与单次成本换算</td>
+  <td><span class="tag tag-purple no-dot f10">150g 大容量</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-image"></i> 文案+静态图</span></td>
+  <td class="num mono">6 张</td>
+  <td class="f11 t-sub">宿舍桌面 / 平铺</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  <tr>
+  <td><span class="idx">10</span></td>
+  <td class="strong">学生党性价比替换</td>
+  <td class="f11 t-sub">平价洁面选购的 3 条判断标准</td>
+  <td><span class="tag no-dot f10">无皂基</span></td>
+  <td><span class="tag no-dot f10"><i class="fa-solid fa-layer-group"></i> 静态+Live 混合</span></td>
+  <td class="num mono">静 4 + Live 2</td>
+  <td class="f11 t-sub">测评风 / 对比图</td>
+  <td><span class="tag tag-ok no-dot f10">已齐备</span></td>
+  </tr>
+  </tbody>
+  <tfoot>
+  <tr>
+  <td colspan="4" class="fw6">边际数量校验：场景 3+3+2+2+0 = 10 · 形式 2+4+2+2 = 10</td>
+  <td><span class="tag tag-ok no-dot f10">形式边际一致</span></td>
+  <td class="num mono fw6">10 条</td>
+  <td colspan="2"><span class="tag tag-warn no-dot f10">2 条待补充体验信息</span></td>
+  </tr>
+  </tfoot>
+  </table></div></div>
+  </div>
+  </div>
+  </section>
+
+        <div class="col" style="gap:14px">
+    <!-- 生成前预估 —— PRD §8.4 -->
+    <section class="card">
+    <div class="card-head">
+    <div class="row">
+    <i class="fa-solid fa-coins t-pur"></i>
+    <h3 class="card-title">生成前预估费用与计费说明</h3>
+    </div>
+    <span class="tag tag-info no-dot">预估值 · 实际以供应商结算为准</span>
+    </div>
+    <div class="card-body">
+    <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+    <thead>
+    <tr><th>计费项</th><th>供应商 / 模型</th><th class="num" style="width:88px">单价</th><th class="num" style="width:76px">数量</th><th class="num" style="width:96px">预估小计</th></tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td class="strong">文案生成</td>
+    <td class="f11 t-sub">主力文本模型 · 长上下文</td>
+    <td class="num mono">¥1.80 / 千 tok</td>
+    <td class="num mono">≈ 86 千 tok</td>
+    <td class="num mono">¥154.80</td>
+    </tr>
+    <tr>
+    <td class="strong">标题候选（2—3 个）</td>
+    <td class="f11 t-sub">主力文本模型</td>
+    <td class="num mono">¥1.80 / 千 tok</td>
+    <td class="num mono">≈ 9 千 tok</td>
+    <td class="num mono">¥16.20</td>
+    </tr>
+    <tr>
+    <td class="strong">静态图生成</td>
+    <td class="f11 t-sub">图像模型 · 1440×1920</td>
+    <td class="num mono">¥1.20 / 张</td>
+    <td class="num mono">48 张</td>
+    <td class="num mono">¥57.60</td>
+    </tr>
+    <tr>
+    <td class="strong">Live 图生成</td>
+    <td class="f11 t-sub">图生视频 · 3s / 已验证格式</td>
+    <td class="num mono">¥6.50 / 组</td>
+    <td class="num mono">10 组</td>
+    <td class="num mono">¥65.00</td>
+    </tr>
+    <tr>
+    <td class="strong">AI 自检</td>
+    <td class="f11 t-sub">审核模型 · 事实与限制比对</td>
+    <td class="num mono">¥0.90 / 千 tok</td>
+    <td class="num mono">≈ 24 千 tok</td>
+    <td class="num mono">¥21.60</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+    <td colspan="4" class="fw6">本轮试产预估合计（10 条）</td>
+    <td class="num"><b class="t-pur f14">¥315.20</b></td>
+    </tr>
+    </tfoot>
+    </table></div></div></div>
+    <div class="note note-info mt14">
+    <i class="fa-solid fa-circle-info"></i>
+    <div class="f11">
+    预估基于历史平均 token 与媒体数量，<b>不含失败重试</b>。重试不增加内容编号，但会产生实际调用费用并单独计入成本明细。<br />
+    项目本月预算余额 <b class="mono">¥3,684.80</b>，本轮提交后余额 <b class="mono">¥3,369.60</b>（剩余 91.4%）。
+    </div>
+    </div>
+    </div>
+    </section>
+
+    <section class="card">
+    <div class="card-head">
+    <div class="row">
+    <i class="fa-solid fa-fingerprint t-pur"></i>
+    <h3 class="card-title">提交校验</h3>
+    </div>
+    </div>
+    <div class="card-body">
+    <div class="col" style="gap:11px">
+    <div class="list-item">
+    <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+    <div class="li-main">
+    <div class="li-title">生产基线已绑定</div>
+    <div class="li-sub"><span class="code code-purple">BL-v3</span> · 09-15 18:22 批准 · 不可原地修改</div>
+    </div>
+    </div>
+    <div class="list-item">
+    <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+    <div class="li-main">
+    <div class="li-title">方案版本已绑定</div>
+    <div class="li-sub"><span class="code">PLAN-v2</span> · 场景 5 / 形式 4</div>
+    </div>
+    </div>
+    <div class="list-item">
+    <span class="li-icon ok"><i class="fa-solid fa-check"></i></span>
+    <div class="li-main">
+    <div class="li-title">两个维度比例均为 100%</div>
+    <div class="li-sub">场景 100% · 形式 100%</div>
+    </div>
+    </div>
+    <div class="list-item">
+    <span class="li-icon warn"><i class="fa-solid fa-exclamation"></i></span>
+    <div class="li-main">
+    <div class="li-title">1 个非零场景本轮分配 0 条</div>
+    <div class="li-sub">已提示，允许提交但不得宣称全覆盖</div>
+    </div>
+    </div>
+    <div class="list-item">
+    <span class="li-icon warn"><i class="fa-solid fa-exclamation"></i></span>
+    <div class="li-main">
+    <div class="li-title">2 条待补充体验信息</div>
+    <div class="li-sub">生成时将标记为待确认体验，不作为已核实事实</div>
+    </div>
+    </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row mb10">
+    <label class="check checked"><input type="checkbox" checked /><span></span></label>
+    <span class="f12">我已确认十行清单与预估费用</span>
+    </div>
+    <button class="btn btn-primary" style="width:100%" data-toast="演示环境：已创建试产批次 BATCH-T01，10 条任务入队">
+    <i class="fa-solid fa-play"></i>提交生产 10 条（¥315.20）
+    </button>
+    <div class="f10 t-fai center mt10">配置不完整时后端阻止提交（AC-11）</div>
+    </div>
+    </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'trial-plan', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '生产清单'] });
+</script>
+</body>
+</html>

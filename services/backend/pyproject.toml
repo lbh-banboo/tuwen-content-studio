@@ -1,0 +1,91 @@
+[project]
+name = "rednote-backend"
+version = "0.1.0"
+description = "Rednote 内容生产 AI Native 系统 — 后端 API"
+requires-python = ">=3.12"
+
+# 版本锁定到补丁号（研发计划 §5：不使用浮动 latest）。
+# 版本取自 evidence/m1/backend-pip.log 的本机实测结果。
+# 锁死而非用范围，是为了让内网离线 wheelhouse 可复现（研发计划 01 §12.2）。
+#
+# ⚠️ 本列表是"项目需要哪些第三方包"的**唯一权威**。
+#    它被 `tools/quality/check_dependency_declarations.py` 守着：
+#    AST 扫 `src/**`（顶层硬导入）+ `tests/**` + `tools/**` + `migrations/**`，
+#    反向要求"代码 import 的发行名必须在此声明"，CI 门 3 执行。
+#    ⇒ **新增 import 时必须同步本列表**，否则合并前即报红。
+#    （历史：本节曾漏 7 个包，只靠 `sync-kit/02-落地/install.sh` 兜底补装，
+#      而 `parsers/*.py` 里 4 处注释却写着"依赖已在 pyproject 锁定" —— 见 §4.2-A / ISS-144。）
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn[standard]==0.30.6",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.5.2",
+    "SQLAlchemy==2.0.35",
+    "psycopg[binary]==3.3.5",
+    "alembic==1.18.5",
+    # --- 以下为 2026-09-29 工程债清偿包（WP-DEBT-01）补全 ---
+    # starlette：代码**直接** import（csrf / request_limits / errors / main），
+    #   而它此前只是 fastapi 的传递依赖。显式声明后，fastapi 若换掉 starlette
+    #   大版本会变成"装不上"而不是"运行期静默断裂"。
+    "starlette==0.38.6",
+    # httpx：`modules/identity/oidc.py` 是**生产代码顶层** import。
+    #   它此前只声明在 [dev] 里 ⇒ `pip install .`（不带 dev）装完，
+    #   身份模块一 import 即 ModuleNotFoundError。本机与 CI 都装 [dev]，故测不出来。
+    "httpx==0.27.2",
+    # cryptography：`platform/tokens.py` 顶层 import，是 CSRF 链上游。
+    #   缺它时 `alembic upgrade head` 直接 ModuleNotFoundError 崩掉（sync-kit 演练实测）。
+    "cryptography==50.0.0",
+    # pgvector：`modules/knowledge/embedding_models.py` 顶层 import（WP21 真上 pgvector）。
+    "pgvector==0.3.3",
+    # --- 解析器依赖：`parsers/*.py` 函数内延迟导入 ---
+    # 延迟导入的动机是"避免 import 模块即拉起重依赖"，**不是**"可以不声明"：
+    # 不声明 ⇒ 对应格式的解析用例必然失败，且解析是 WP17 的交付内容。
+    "python-docx==1.1.2",
+    "openpyxl==3.1.5",
+    "pypdf==5.1.0",
+    "Pillow==10.4.0",
+    # prometheus_client：WP47 ① 的 `/metrics` 出口（ADR-11 C6）。
+    #   `src/rednote/platform/observability/metrics.py` **顶层** import。
+    #   为什么必须显式锁版本：① 内网离线 wheelhouse 要可复现（研发计划 01 §12.2）；
+    #   ② 该库**不提供 `__version__` 属性**（本机实测 AttributeError），版本只能由
+    #      `importlib.metadata.version("prometheus_client")` 取 —— 锁在 pyproject
+    #      是"这个版本号从哪来"的唯一可查来源。
+    #   版本取本机实测（与 sync-kit 快照口径一致）。
+    "prometheus_client==0.21.1",
+]
+
+[project.optional-dependencies]
+# 仅"开发/测试工具链"需要、**运行时不 import** 的包放这里。
+# 判据：`src/**` 顶层硬导入出现在本列表里 = 违规（见 pyproject 顶部说明）。
+dev = [
+    "pytest==8.3.3",
+]
+# M0 探针专用：`tools/m0/wp05_smoke/smoke.py`（MinIO / S3 连通性冒烟）。
+# 刻意**不并入 dev**：boto3 体积大（含 botocore 数据），而 M0 探针只在
+# "验证最小环境"时跑一次，日常开发与 CI 都不需要 → 用一个语义精确的组，
+# 让"我要跑 M0 探针"这件事显式化：`pip install -e .[m0]`。
+# 版本取本机实测（sync-kit 快照一致）。
+m0 = [
+    "boto3==1.43.98",
+    "botocore==1.43.98",
+]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# pythonpath = ["src"] 让 pytest 无需 pip install -e 即可导入包 ——
+# 内网环境安装 editable 包需要额外权限与构建链，能省则省。
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+markers = [
+    "regression: 回归护栏——修过 bug 后的保护测试，防同一根因复现",
+    "cross_wp: 跨包回归——验证新工作包不破坏旧工作包的触发器/约束/共用函数",
+    "slow: 慢速测试——需真库大量数据或长时间等待（默认排除，CI 显式启用）",
+    "smoke: 冒烟测试——3 分钟内跑完的最小集，验证关键路径可通",
+]

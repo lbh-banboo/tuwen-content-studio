@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>生产质量视图 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .qv-pipe { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .qv-node {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 11px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--line);
+    font-size: 11.5px; color: var(--text-2); white-space: nowrap;
+  }
+  .qv-node i { font-size: 10px; color: var(--muted); }
+  .qv-node.on { background: var(--purple-dim); border-color: var(--purple-line); color: #fff; font-weight: 600; }
+  .qv-node.on i { color: var(--purple); }
+  .qv-arrow { color: var(--faint); font-size: 9px; }
+  .qv-field { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.045); }
+  .qv-field:last-child { border-bottom: 0; }
+  .qv-field dt { font-size: 11.5px; color: var(--muted); }
+  .qv-field dd { margin: 0; font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .qv-lu { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+  .qv-lu .qv-field {
+    display: block; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 10px; background: rgba(255,255,255,0.018); border-bottom: 1px solid var(--line);
+  }
+  .qv-lu .qv-field dt { margin-bottom: 4px; font-size: 10.5px; letter-spacing: 0.03em; color: var(--faint); }
+  .qv-lu .qv-field dd { font-size: 11.5px; }
+  @media (max-width: 900px) { .qv-lu { grid-template-columns: minmax(0,1fr); } }
+  .qv-gate { border: 1px solid var(--line); border-radius: 11px; padding: 11px 13px; }
+  .qv-gate.pass { border-color: rgba(52,211,153,0.32); background: rgba(52,211,153,0.05); }
+  .qv-gate.warn { border-color: rgba(251,191,36,0.32); background: rgba(251,191,36,0.05); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-arrows-spin"></i> 学习闭环</span>
+            <span class="code code-purple">Loop 1 · 生产质量</span>
+            <span class="code">近 30 天 · 全部项目</span>
+            <span class="tag tag-warn">3 项待确认根因</span>
+          </div>
+          <h1 class="page-title">生产质量视图</h1>
+          <p class="page-desc">把「问题 → 证据 → 原因 → 修改建议 → 新旧稿比较 → 验证 → 采纳/退回」放在同一条链上。问题表现（issue_code）与根因（root_cause）分开记录，单次重试成功不能作为根因证据。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出近 30 天的根因分布与修复率"><i class="fa-solid fa-file-export"></i>导出</button>
+          <button class="btn btn-ghost" data-toast="演示环境：筛选后只显示某一根因分类的待处置问题"><i class="fa-solid fa-filter"></i>按根因筛选</button>
+          <a class="btn btn-primary" href="effect-view.html">查看效果学习视图 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="grid g4 mb14" data-stagger>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-circle-question"></i>待确认根因</div>
+          <div class="metric-value t-warn" data-count="3">0</div>
+          <div class="metric-foot">已定位表现 · 尚未定因</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-lightbulb"></i>修复提案待采纳</div>
+          <div class="metric-value" data-count="2">0</div>
+          <div class="metric-foot">回归已跑完 · 等人确认</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-vial-circle-check"></i>回归验证中</div>
+          <div class="metric-value t-info" data-count="1">0</div>
+          <div class="metric-foot">四类评测集 · 2/4 已出结果</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-circle-check"></i>本月已生效</div>
+          <div class="metric-value t-ok" data-count="4">0</div>
+          <div class="metric-foot">含 1 项已回退</div>
+        </div>
+      </div>
+
+      <div class="grid g-1-1">
+
+        <div class="col" style="gap:14px">
+
+          <!-- 七段链路导航 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-route t-pur"></i>
+                <h3 class="card-title">七段链路</h3>
+              </div>
+              <span class="card-sub">以 ISS-014 为例 · 当前停在第 5 段</span>
+            </div>
+            <div class="card-body">
+              <div class="qv-pipe">
+                <span class="qv-node"><i class="fa-solid fa-circle-exclamation"></i>问题</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node"><i class="fa-solid fa-link"></i>证据</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node"><i class="fa-solid fa-magnifying-glass-chart"></i>原因</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node"><i class="fa-solid fa-screwdriver-wrench"></i>修改建议</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node on"><i class="fa-solid fa-code-compare"></i>新旧稿比较</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node"><i class="fa-solid fa-vial"></i>验证</span>
+                <i class="fa-solid fa-chevron-right qv-arrow"></i>
+                <span class="qv-node"><i class="fa-solid fa-gavel"></i>采纳/退回</span>
+              </div>
+              <div class="note note-purple mt14">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  七段是<b>一条链</b>，不是七个页面。任一段缺少依据时链路停在原地：例如根因未用最小对照确认，
+                  就不能进入「修改建议」；回归未跑完，就不能进入「采纳」。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 1—2 段：问题与证据 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-list-ul t-pur"></i>
+                <h3 class="card-title">第 1—2 段 · 待处置问题与证据</h3>
+                <span class="tag tag-purple">4 项</span>
+              </div>
+              <div class="card-head-actions">
+                <span class="card-sub">问题表现用 issue_code · 根因另记</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:78px">编号</th>
+                    <th style="width:132px">来源任务</th>
+                    <th>问题表现（issue_code）</th>
+                    <th style="width:150px">证据</th>
+                    <th style="width:76px">状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="tr-danger">
+                    <td class="strong mono">ISS-014</td>
+                    <td class="f11">T01-04 · 素与 Su&amp;</td>
+                    <td class="strong">
+                      初稿写「敏感肌人群可放心使用」
+                      <div class="f10 t-dan mt6"><i class="fa-solid fa-triangle-exclamation"></i> FAC-03 · 无依据的人群扩大</div>
+                    </td>
+                    <td class="f11">批准资料仅覆盖「非敏感肌」<br><span class="t-fai">R-021 未包含敏感肌测试</span></td>
+                    <td><span class="tag tag-danger">待处置</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="strong mono">ISS-015</td>
+                    <td class="f11">T01-07 · 素与 Su&amp;</td>
+                    <td class="strong">
+                      pH 写成「5.5」，丢失 ±0.5 区间
+                      <div class="f10 t-warn mt6"><i class="fa-solid fa-triangle-exclamation"></i> FAC-01 · 参数裁剪丢失</div>
+                    </td>
+                    <td class="f11">Brief v2 P.5 原文含波动区间<br><span class="t-fai">上下文包第 3 段被裁剪</span></td>
+                    <td><span class="tag tag-warn">待处置</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong mono">ISS-016</td>
+                    <td class="f11">T01-09 · 素与 Su&amp;</td>
+                    <td class="strong">
+                      正文空泛：「温和不刺激，值得入手」
+                      <div class="f10 t-mut mt6"><i class="fa-solid fa-circle-info"></i> STR-02 · 缺决策问题</div>
+                    </td>
+                    <td class="f11">本轮任务未登记决策问题<br><span class="t-fai">内容计划第 2 栏为空</span></td>
+                    <td><span class="tag tag-warn">待处置</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong mono">ISS-017</td>
+                    <td class="f11">T02-03 · 除湿机选购</td>
+                    <td class="strong">
+                      初稿写「开着整晚几乎听不到，宝宝睡得香」
+                      <div class="f10 t-dan mt6"><i class="fa-solid fa-triangle-exclamation"></i> FAC-04 · 无依据的亲历体验</div>
+                    </td>
+                    <td class="f11">无 KOC 夜间亲历记录<br><span class="t-fai">体验清单第 4 项为空</span></td>
+                    <td><span class="tag tag-ok">已定位</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 第 3 段：根因确认 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-magnifying-glass-chart t-pur"></i>
+                <h3 class="card-title">第 3 段 · 根因确认</h3>
+              </div>
+              <span class="card-sub">同一种问题表现对应完全不同的修复位置</span>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:112px">问题表现</th>
+                    <th>可能根因</th>
+                    <th style="width:150px">正确修复位置</th>
+                    <th style="width:104px">最小对照结论</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">参数写错</td>
+                    <td>资料错误或缺失</td>
+                    <td class="f11">事实资产及证据补充</td>
+                    <td><span class="tag tag-ok">已排除</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">参数写错</td>
+                    <td>正确资料存在但没检索到</td>
+                    <td class="f11">检索过滤、型号映射、重排</td>
+                    <td><span class="tag tag-ok">已排除</span></td>
+                  </tr>
+                  <tr class="tr-on">
+                    <td class="strong">参数写错</td>
+                    <td class="strong">检索到但裁剪丢失</td>
+                    <td class="f11 strong">上下文预算与必保留字段</td>
+                    <td><span class="tag tag-purple">已确认</span></td>
+                  </tr>
+                  <tr class="tr-on">
+                    <td class="strong">表达越界</td>
+                    <td class="strong">上下文正确但生成未遵守</td>
+                    <td class="f11 strong">生成约束、主张核验、模型流程</td>
+                    <td><span class="tag tag-purple">已确认</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">正文空泛</td>
+                    <td>任务缺决策问题，或证据只能支持泛泛介绍</td>
+                    <td class="f11">Brief 与内容计划；必要时补资料</td>
+                    <td><span class="tag tag-warn">待对照</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">体验编造</td>
+                    <td>生成模板要求第一人称体验，但任务没有体验资料</td>
+                    <td class="f11">体验可用性判断 + 内容计划结构</td>
+                    <td><span class="tag tag-purple">已确认</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">审核反复退回</td>
+                    <td>审核口径冲突或临时客户偏好</td>
+                    <td class="f11">评价标准与项目范围，未必改 Prompt</td>
+                    <td><span class="tag tag-muted">非生产缺陷</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-foot">
+              <div class="note note-warn f1" style="margin:0">
+                <i class="fa-solid fa-scale-unbalanced"></i>
+                <div><b>最小对照口径：</b>同任务只替换正确证据包、检索配置或一条指令，观察问题是否减少。<b>单次重试成功不能证明根因，单次失败也不能认定模型偶发。</b></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 学习单元 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-graduation-cap t-pur"></i>
+                <h3 class="card-title">沉淀单元 · 学习五要素</h3>
+              </div>
+              <span class="card-sub">只有同任务、原因已确认、事实有依据、范围清晰时可沉淀</span>
+            </div>
+            <div class="card-body">
+              <dl class="qv-lu">
+                <div class="qv-field">
+                  <dt>适用条件</dt>
+                  <dd>洁面乳的「人群适用」卖点；账号未提供敏感肌测试资料</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>原始问题</dt>
+                  <dd>初稿写「敏感肌人群可放心使用」</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>正确行为</dt>
+                  <dd>仅使用已核实的人群范围；缺资料时不写适用范围结论</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>依据</dt>
+                  <dd>批准的 FAC-03 资料；体验与测试清单未包含敏感肌记录</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>修复目标</dt>
+                  <dd>人群范围引用规则 + 主张检查，<b>而非给所有内容禁用「敏感肌」</b></dd>
+                </div>
+                <div class="qv-field">
+                  <dt>允许范围</dt>
+                  <dd>当前产品；通用的「不扩大适用人群」规则可独立审定</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>验证</dt>
+                  <dd>有测试资料时仍能正确引用；无资料时不给出范围结论</dd>
+                </div>
+              </dl>
+              <div class="note note-danger mt14">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div><b>同稿的十次修改不是十个独立证据。</b>聚类频次只用于排优先级，不作事实真伪判断；客户一次性的措辞喜好默认留在项目层，不升级为通用规则。</div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左主栏 -->
+
+        <div class="col" style="gap:14px">
+
+          <!-- 第 4 段：修复提案 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-screwdriver-wrench t-pur"></i>
+                <h3 class="card-title">第 4 段 · 修复提案</h3>
+                <span class="code code-purple">PRP-118</span>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-warn">待采纳</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="note note-purple mb14">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>每份提案必须把下面七项答完才允许进入回归。<b>答不全的提案不进入「改哪里」。</b></div>
+              </div>
+              <dl>
+                <div class="qv-field">
+                  <dt>要解决什么</dt>
+                  <dd>FAC-03 人群扩大 · 影响 2 个任务 · 近 30 天重复 3 次</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>为什么发生</dt>
+                  <dd>上下文含「非敏感肌」限定，生成时未遵守；已排除资料缺失与检索失败</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>改哪里</dt>
+                  <dd>生成约束（主张核验清单）＋ 内容计划必填栏，不改检索</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>怎么改</dt>
+                  <dd>最小变更：人群类主张需绑定批准证据；附 1 组修改前后示例</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>对谁生效</dt>
+                  <dd>素与 Su&amp; 项目 · 洁面乳品类 · 全任务类型；排除已批准的历史稿</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>怎么验证</dt>
+                  <dd>修复集 ＋ 正常集 ＋ 边界集 ＋ 保留集；开放表达走匿名成对盲评</dd>
+                </div>
+                <div class="qv-field">
+                  <dt>何时回退</dt>
+                  <dd>目标错误未降 / 正常能力回退超容忍度 / 成本超约束</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <!-- 第 5 段：新旧稿比较 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-code-compare t-pur"></i>
+                <h3 class="card-title">第 5 段 · 新旧稿比较</h3>
+              </div>
+              <span class="card-sub">同任务 · 保留原文位置</span>
+            </div>
+            <div class="card-body">
+              <div class="diff2">
+                <div class="diff-side diff-old">
+                  <div class="diff-h"><i class="fa-solid fa-arrow-left"></i>原稿 v1 · 机器初稿</div>
+                  <div class="diff-b">
+                    「这款氨基酸洁面<span class="hit-d">敏感肌也能天天用</span>，
+                    pH 值 <span class="hit-d">5.5</span> 弱酸性配方，
+                    <span class="hit-d">温和不刺激</span>，值得入手。」
+                  </div>
+                </div>
+                <div class="diff-side diff-new">
+                  <div class="diff-h"><i class="fa-solid fa-arrow-right"></i>当前稿 v3 · 人工确认后</div>
+                  <div class="diff-b">
+                    「这款氨基酸洁面<span class="hit-o">面向非敏感肌人群</span>，
+                    pH 值 <span class="hit-o">5.5±0.5</span> 弱酸性配方，
+                    <span class="hit-o">氨基酸表活占比 62%，清洁力与温和度兼顾</span>。」
+                  </div>
+                </div>
+              </div>
+              <div class="row wrap mt14" style="gap:8px">
+                <span class="tag tag-danger no-dot"><i class="fa-solid fa-circle"></i> 3 处删除／收窄</span>
+                <span class="tag tag-ok no-dot"><i class="fa-solid fa-circle"></i> 3 处替换为可核实表述</span>
+                <span class="tag no-dot">差异已绑定段落位置</span>
+              </div>
+              <div class="divider"></div>
+              <div class="row between f11">
+                <span class="t-mut"><i class="fa-solid fa-user-pen"></i> 人工介入：改了 3 句，其中 2 句为事实收窄</span>
+                <span class="t-fai mono">09-18 14:22</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 6 段：验证 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-vial t-pur"></i>
+                <h3 class="card-title">第 6 段 · 回归验证</h3>
+              </div>
+              <span class="card-sub">四类评测集 · 2/4 已出结果</span>
+            </div>
+            <div class="card-body">
+              <div class="col" style="gap:9px">
+                <div class="qv-gate pass">
+                  <div class="row between mb6">
+                    <span class="f12 fw5"><i class="fa-solid fa-bug t-dan"></i> 1 · 已确认的错误触发任务</span>
+                    <span class="f11 t-ok mono">12 / 12</span>
+                  </div>
+                  <div class="bar"><div class="bar-fill ok" data-w="100%"></div></div>
+                  <div class="f10 t-fai mt6">目标缺陷全部消除 · 硬门不新增失败</div>
+                </div>
+                <div class="qv-gate pass">
+                  <div class="row between mb6">
+                    <span class="f12 fw5"><i class="fa-solid fa-shield-halved t-ok"></i> 2 · 正常任务（应保持能力）</span>
+                    <span class="f11 t-ok mono">26 / 26</span>
+                  </div>
+                  <div class="bar"><div class="bar-fill ok" data-w="100%"></div></div>
+                  <div class="f10 t-fai mt6">零退步 · 未超事先约定的容忍度</div>
+                </div>
+                <div class="qv-gate warn">
+                  <div class="row between mb6">
+                    <span class="f12 fw5"><i class="fa-solid fa-triangle-exclamation t-warn"></i> 3 · 边界任务</span>
+                    <span class="f11 t-warn mono">跑批中 · 8 / 14</span>
+                  </div>
+                  <div class="bar"><div class="bar-fill warn" data-w="57%"></div></div>
+                  <div class="f10 t-fai mt6">无资料 / 资料冲突 / 无体验 / 相似型号</div>
+                </div>
+                <div class="qv-gate warn">
+                  <div class="row between mb6">
+                    <span class="f12 fw5"><i class="fa-solid fa-lock t-info"></i> 4 · 保留任务（未参与提案）</span>
+                    <span class="f11 t-mut mono">未启动</span>
+                  </div>
+                  <div class="bar"><div class="bar-fill" data-w="0%"></div></div>
+                  <div class="f10 t-fai mt6">与提案形成过程隔离 · 按项目与时间切分</div>
+                </div>
+              </div>
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+                <div><b>模型评审只能用于筛查。</b>需随机交换顺序并保留人工校准，不能只靠另一个模型给高分就放行；测试集零错误不代表总体零风险。</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 7 段：采纳 / 退回 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-gavel t-pur"></i>
+                <h3 class="card-title">第 7 段 · 采纳 / 退回</h3>
+              </div>
+              <span class="tag tag-warn">待第 3、4 类集完成</span>
+            </div>
+            <div class="card-body">
+              <div class="note note-info mb14">
+                <i class="fa-solid fa-lock"></i>
+                <div><b>生效动作保留显式确认。</b>系统可自动完成采集、定位、比对、提案和评测，但把规则写进生成链必须由人点这一次。</div>
+              </div>
+              <div class="col" style="gap:8px">
+                <label class="row" style="gap:10px; align-items:flex-start">
+                  <span class="check"></span>
+                  <span class="f11 t-2">目标缺陷在保留任务中改善</span>
+                </label>
+                <label class="row" style="gap:10px; align-items:flex-start">
+                  <span class="check"></span>
+                  <span class="f11 t-2">硬门不新增失败</span>
+                </label>
+                <label class="row" style="gap:10px; align-items:flex-start">
+                  <span class="check"></span>
+                  <span class="f11 t-2">正常任务未超退步容忍度</span>
+                </label>
+                <label class="row" style="gap:10px; align-items:flex-start">
+                  <span class="check"></span>
+                  <span class="f11 t-2">人工处理与生成成本可接受</span>
+                </label>
+              </div>
+              <div class="divider"></div>
+              <div class="row" style="gap:8px">
+                <button class="btn btn-primary f1" data-toast="演示环境：4 项发布门需全部勾选后才可采纳；采纳后写入生成链并记录版本"><i class="fa-solid fa-check"></i>采纳并生效</button>
+                <button class="btn btn-danger f1" data-toast="演示环境：退回需填写原因，提案保留为反面记录，不删除"><i class="fa-solid fa-rotate-left"></i>退回</button>
+              </div>
+              <div class="f10 t-fai mt10">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                生效后仍持续监测；出现环境或效果漂移时进入「待复核」，可撤销回上一版本。
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-1-1 -->
+
+      <div class="grid g-2-1 mt14">
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-layer-group t-pur"></i>
+              <h3 class="card-title">两种时间尺度</h3>
+            </div>
+            <span class="card-sub">修好一篇不等于改全局</span>
+          </div>
+          <div class="card-body">
+            <div class="grid g2">
+              <div class="fcard">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-file-pen t-info"></i> 单任务内修订</span>
+                  <span class="tag tag-info no-dot">可调工程初值</span>
+                </div>
+                <div class="f11 t-2" style="line-height:1.7">
+                  只修当前稿中可定位的缺陷。建议先设<b>最多两轮</b>局部修订；两轮未解决则交人工或补资料，<b>不无限重写</b>。
+                </div>
+                <div class="f10 t-fai mt10"><i class="fa-solid fa-clock"></i> 影响范围：当前这一篇</div>
+              </div>
+              <div class="fcard">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-diagram-project t-pur"></i> 跨任务学习</span>
+                  <span class="tag tag-purple no-dot">需人工确认</span>
+                </div>
+                <div class="f11 t-2" style="line-height:1.7">
+                  按事件聚类、验证并升级资产，影响后续试产与批次。<b>不因修好一篇就静默改全局</b>；生效前展示下一批会怎么变。
+                </div>
+                <div class="f10 t-fai mt10"><i class="fa-solid fa-arrow-up-right-dots"></i> 影响范围：后续新任务</div>
+              </div>
+            </div>
+            <div class="note note-purple mt14">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>两者都属于 Loop 1，<b>不另造第三个业务 Loop</b>。单任务修订产生事件，跨任务学习消费事件。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card pc-sticky">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-right-left t-pur"></i>
+              <h3 class="card-title">与知识库的接口</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="tl-item danger">
+                <div class="tl-time">第 1—3 段</div>
+                <div class="tl-title">问题与根因</div>
+                <div class="tl-desc">进入知识库「生产修复」视图，标记为待验证线索</div>
+              </div>
+              <div class="tl-item purple">
+                <div class="tl-time">第 4—6 段</div>
+                <div class="tl-title">提案与回归</div>
+                <div class="tl-desc">生成修复版本 v 号与回归结果，绑定证据与测试集来源</div>
+              </div>
+              <div class="tl-item ok">
+                <div class="tl-time">第 7 段</div>
+                <div class="tl-title">采纳后写入</div>
+                <div class="tl-desc">结论升级为「范围内支持」，附验证范围与失效原因字段</div>
+              </div>
+            </div>
+            <a class="btn btn-ghost mt14" style="width:100%" href="knowledge.html">
+              <i class="fa-solid fa-book-bookmark"></i>打开知识库 · 生产修复视图
+            </a>
+          </div>
+        </section>
+
+      </div><!-- /g-2-1 -->
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'quality-view', crumb: ['双 Loop 学习闭环', '生产质量视图'] });
+</script>
+</body>
+</html>

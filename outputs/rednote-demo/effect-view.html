@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>效果学习视图 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .ev-pipe { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ev-node {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 11px; border-radius: 999px;
+    background: var(--panel); border: 1px solid var(--line);
+    font-size: 11.5px; color: var(--text-2); white-space: nowrap;
+  }
+  .ev-node i { font-size: 10px; color: var(--muted); }
+  .ev-node.on { background: var(--purple-dim); border-color: var(--purple-line); color: #fff; font-weight: 600; }
+  .ev-node.on i { color: var(--purple); }
+  .ev-arrow { color: var(--faint); font-size: 9px; }
+  .ev-chain { display: flex; flex-direction: column; gap: 0; }
+  .ev-step { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 10px; position: relative; padding-bottom: 12px; }
+  .ev-step:last-child { padding-bottom: 0; }
+  .ev-step::before {
+    content: ""; position: absolute; left: 10px; top: 18px; bottom: 0;
+    width: 1px; background: var(--line-2);
+  }
+  .ev-step:last-child::before { display: none; }
+  .ev-dot {
+    display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%;
+    background: var(--bg-2); border: 1.5px solid var(--line-2);
+    font-size: 9px; color: var(--muted); z-index: 1;
+  }
+  .ev-step.ok .ev-dot { border-color: var(--ok); color: var(--ok); }
+  .ev-step.purple .ev-dot { border-color: var(--purple); color: var(--purple); }
+  .ev-step.warn .ev-dot { border-color: var(--warn); color: var(--warn); }
+  .ev-step.danger .ev-dot { border-color: var(--danger); color: var(--danger); }
+  .ev-step-t { font-size: 12.5px; font-weight: 500; color: var(--text); }
+  .ev-step-d { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
+  .ev-field { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.045); }
+  .ev-field:last-child { border-bottom: 0; }
+  .ev-field dt { font-size: 11.5px; color: var(--muted); }
+  .ev-field dd { margin: 0; font-size: 12px; color: var(--text-2); line-height: 1.65; }
+  .ev-state { border-left: 2px solid var(--line-2); padding: 8px 0 8px 12px; }
+  .ev-state.on { border-left-color: var(--purple); background: rgba(160,107,255,0.06); border-radius: 0 8px 8px 0; }
+  .ev-state:not(.on) { opacity: 0.75; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-arrows-spin"></i> 学习闭环</span>
+            <span class="code code-purple">Loop 2 · 内容效果</span>
+            <span class="code">EXP-007 · 除湿机选购</span>
+            <span class="tag tag-warn">窗口未满 · 3d 已出</span>
+          </div>
+          <h1 class="page-title">效果学习视图</h1>
+          <p class="page-desc">把「假设 → 适用任务 → 分组 → 实际执行 → 窗口数据 → 结论 → 用途范围」串成一条可复核的链。KOC 删掉了实验段落，这篇就不能再算「策略执行成功」。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：登记新假设需先填主指标、质量护栏、窗口与停止规则"><i class="fa-solid fa-plus"></i>登记新假设</button>
+          <a class="btn btn-ghost" href="quality-view.html"><i class="fa-solid fa-arrow-left"></i>生产质量视图</a>
+          <button class="btn btn-primary" data-toast="演示环境：按预登记方法完成分析，不因某天正结果提前结束"><i class="fa-solid fa-square-poll-vertical"></i>查看分析报告</button>
+        </div>
+      </div>
+
+      <div class="grid g4 mb14" data-stagger>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-flask"></i>实验中假设</div>
+          <div class="metric-value" data-count="2">0</div>
+          <div class="metric-foot">仅分配到登记实验任务</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-clipboard-check"></i>待核对执行</div>
+          <div class="metric-value t-warn" data-count="4">0</div>
+          <div class="metric-foot">交付稿与发布稿未对齐</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-window-restore"></i>窗口未满</div>
+          <div class="metric-value t-info" data-count="3">0</div>
+          <div class="metric-foot">3d 已出 · 长尾未到</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-circle-check"></i>范围内支持</div>
+          <div class="metric-value t-ok" data-count="1">0</div>
+          <div class="metric-foot">已验证范围内默认使用</div>
+        </div>
+      </div>
+
+      <div class="grid g-1-1">
+
+        <div class="col" style="gap:14px">
+
+          <!-- 七段链路导航 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-route t-pur"></i>
+                <h3 class="card-title">七段链路</h3>
+              </div>
+              <span class="card-sub">EXP-007 · 当前停在第 5 段（窗口未满）</span>
+            </div>
+            <div class="card-body">
+              <div class="ev-pipe">
+                <span class="ev-node"><i class="fa-solid fa-lightbulb"></i>假设</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node"><i class="fa-solid fa-list-check"></i>适用任务</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node"><i class="fa-solid fa-shuffle"></i>分组</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node"><i class="fa-solid fa-clipboard-check"></i>实际执行</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node on"><i class="fa-solid fa-window-restore"></i>窗口数据</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node"><i class="fa-solid fa-square-poll-vertical"></i>结论</span>
+                <i class="fa-solid fa-chevron-right ev-arrow"></i>
+                <span class="ev-node"><i class="fa-solid fa-compass"></i>用途范围</span>
+              </div>
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <b>验收不要求「必须成功」。</b>一个假设可以合法地走到「无明显差异」「不支持」或「证据不足」；
+                  只要完整走完并留下依据即可。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 1—2 段：假设与适用任务 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-lightbulb t-pur"></i>
+                <h3 class="card-title">第 1—2 段 · 假设与适用任务</h3>
+                <span class="code code-purple">HY-021</span>
+              </div>
+              <span class="tag tag-ok">已登记 · 09-12</span>
+            </div>
+            <div class="card-body">
+              <div class="note note-purple mb14">
+                <i class="fa-solid fa-quote-left"></i>
+                <div>
+                  在除湿机选购说明中，针对担心夜间使用的人群，将<b>已核实的噪声信息、适用限制和使用建议放在正文前部</b>；
+                  检验它是否改善目标读者的决策效率与后续行为。
+                </div>
+              </div>
+              <dl>
+                <div class="ev-field">
+                  <dt>策略动作</dt>
+                  <dd>把决策信息前置到正文前部 — <b>可执行、可检查</b></dd>
+                </div>
+                <div class="ev-field">
+                  <dt>适用任务</dt>
+                  <dd>除湿机 · 选购说明 · 目标读者关注夜间使用 · 有批准的噪声资料</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>明确不适用</dt>
+                  <dd>无对应型号证据；无法确认测试条件；需要真实体验但未提供</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>执行检查点</dt>
+                  <dd>正文是否提前回答噪声顾虑、位置是否符合方案、证据是否支持主张</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>不打包</dt>
+                  <dd>主题、事实、结构、封面、CTA 不合并为一个不可拆解策略</dd>
+                </div>
+              </dl>
+              <div class="note note-danger mt14">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>「这篇是爆文」不能直接复用。<b>策略必须落到具体动作</b>，而不是模糊的「加强真实感」。</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 3 段：分组与预登记 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-shuffle t-pur"></i>
+                <h3 class="card-title">第 3 段 · 分组与预登记</h3>
+              </div>
+              <span class="card-sub">发布前登记 · 事后不改口径</span>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:110px">组别</th>
+                    <th>内容结构</th>
+                    <th style="width:118px">证据状态</th>
+                    <th class="num" style="width:70px">任务数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">对照组</td>
+                    <td>采用当前批准结构（噪声信息在正文末尾）</td>
+                    <td><span class="tag tag-ok">证据正确</span></td>
+                    <td class="num mono">18</td>
+                  </tr>
+                  <tr class="tr-on">
+                    <td class="strong">实验组</td>
+                    <td class="strong">证据前置：先回答噪声顾虑，再解释条件与限制</td>
+                    <td><span class="tag tag-ok">证据正确</span></td>
+                    <td class="num mono">17</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="f11 t-2">
+                      <i class="fa-solid fa-circle-info t-info"></i>
+                      两组都使用正确证据 — <b>不用不实内容作为对照</b>。分层按产品、内容目标、媒体形式、账号基础、发布时间段相近分配。
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="card-foot">
+              <div class="grid g4 f1" style="gap:12px">
+                <div>
+                  <div class="f10 t-fai">主指标</div>
+                  <div class="f11 fw5 mt4">收藏率（预登记其一）</div>
+                </div>
+                <div>
+                  <div class="f10 t-fai">辅助指标</div>
+                  <div class="f11 fw5 mt4">进店率</div>
+                </div>
+                <div>
+                  <div class="f10 t-fai">窗口</div>
+                  <div class="f11 fw5 mt4">3d 主窗 ＋ 长尾</div>
+                </div>
+                <div>
+                  <div class="f10 t-fai">质量护栏</div>
+                  <div class="f11 fw5 mt4">准确性 / 标题兑现 / 处理时长</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 4 段：实际执行核对 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-clipboard-check t-pur"></i>
+                <h3 class="card-title">第 4 段 · 实际执行核对</h3>
+                <span class="tag tag-warn">4 项未对齐</span>
+              </div>
+              <span class="card-sub">计划分组 ≠ 交付执行 ≠ 发布执行</span>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:112px">内容编号</th>
+                    <th style="width:88px">计划分组</th>
+                    <th style="width:118px">交付稿执行</th>
+                    <th style="width:134px">发布稿执行</th>
+                    <th style="width:112px">暴露状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong mono">C-0037-B01-001</td>
+                    <td><span class="tag tag-purple no-dot">实验组</span></td>
+                    <td><span class="tag tag-ok">按方案前置</span></td>
+                    <td><span class="tag tag-ok">保留前置段</span></td>
+                    <td><span class="tag tag-ok">正常暴露</span></td>
+                  </tr>
+                  <tr class="tr-danger">
+                    <td class="strong mono">C-0037-B01-004</td>
+                    <td><span class="tag tag-purple no-dot">实验组</span></td>
+                    <td><span class="tag tag-ok">按方案前置</span></td>
+                    <td><span class="tag tag-danger">KOC 删除前置段</span></td>
+                    <td><span class="tag tag-danger">执行不足</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="strong mono">C-0037-B01-009</td>
+                    <td><span class="tag tag-purple no-dot">实验组</span></td>
+                    <td><span class="tag tag-warn">部分前置</span></td>
+                    <td><span class="tag tag-warn">保留部分</span></td>
+                    <td><span class="tag tag-warn">混合暴露</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong mono">C-0037-B02-002</td>
+                    <td><span class="tag no-dot">对照组</span></td>
+                    <td><span class="tag tag-ok">按方案末尾</span></td>
+                    <td><span class="tag tag-ok">保留末尾</span></td>
+                    <td><span class="tag tag-ok">正常暴露</span></td>
+                  </tr>
+                  <tr class="tr-off">
+                    <td class="strong mono">C-0037-B02-006</td>
+                    <td><span class="tag tag-purple no-dot">实验组</span></td>
+                    <td class="f11 t-fai">未产出</td>
+                    <td class="f11 t-fai">未发布</td>
+                    <td><span class="tag tag-muted">未暴露</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-foot">
+              <div class="note note-danger f1" style="margin:0">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div><b>删除即执行不足。</b>KOC 删除了实验中的证据前置段落，该笔记不能计为「策略执行成功」。拒绝发布、取消、失败与实际改稿、投流事件都要记录，不能只留顺利发布的样本。</div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左主栏 -->
+
+        <div class="col" style="gap:14px">
+
+          <!-- 第 5 段：窗口数据 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-window-restore t-pur"></i>
+                <h3 class="card-title">第 5 段 · 窗口数据</h3>
+              </div>
+              <span class="tag tag-info">3d 已到 · 长尾未满</span>
+            </div>
+            <div class="card-body">
+              <div class="table-wrap">
+                <table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th>窗口</th>
+                      <th class="num">对照 · 收藏率</th>
+                      <th class="num">实验 · 收藏率</th>
+                      <th style="width:76px">完整性</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="strong">3d 主窗</td>
+                      <td class="num mono">3.1%</td>
+                      <td class="num mono t-ok">4.4%</td>
+                      <td><span class="tag tag-warn">缺失 2</span></td>
+                    </tr>
+                    <tr>
+                      <td class="strong">7d 辅助</td>
+                      <td class="num mono">4.2%</td>
+                      <td class="num mono t-ok">4.9%</td>
+                      <td><span class="tag tag-warn">缺失 3</span></td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td class="strong">长尾</td>
+                      <td class="num f11 t-fai">未到窗口</td>
+                      <td class="num f11 t-fai">未到窗口</td>
+                      <td><span class="tag tag-muted">进行中</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="divider"></div>
+              <div class="bar-row mb10">
+                <span class="f11" style="width:66px">对照 3d</span>
+                <div class="bar"><div class="bar-fill" data-w="62%"></div></div>
+                <span class="bar-num f11">3.1%</span>
+              </div>
+              <div class="bar-row">
+                <span class="f11" style="width:66px">实验 3d</span>
+                <div class="bar"><div class="bar-fill ok" data-w="88%"></div></div>
+                <span class="bar-num f11">4.4%</span>
+              </div>
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+                <div>
+                  <b>只显示胜负是不够的。</b>需同时给出提升幅度、不确定性、独立任务／账号数、数据完整率和质量护栏。
+                  不同版本跨同一累计窗口且无法拆分贡献时，标记<b>混合暴露</b>，不能把总效果归到最新稿。
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 三个效果问题 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-bars-staggered t-pur"></i>
+                <h3 class="card-title">分开回答三个效果问题</h3>
+              </div>
+              <span class="card-sub">不能合并成一个结论</span>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:124px">分析对象</th>
+                    <th>回答什么</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">原始随机分组中的全部任务</td>
+                    <td class="f11">采用这个策略方案，整体交付与发布成功情况是否改善 <span class="t-fai">· 未发布任务不伪造平台数据</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">可判定的已发布笔记</td>
+                    <td class="f11">实际发布后指标是否改善 <span class="t-fai">· 子集存在选择偏差，须报告发布率与缺失差异</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">实际执行了策略的笔记</td>
+                    <td class="f11">执行情况与结果的关系 <span class="t-fai">· 仅作诊断，不靠事后剔除样本得漂亮因果</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-foot">
+              <div class="f11 t-mut">
+                <i class="fa-solid fa-circle-info"></i>
+                主分析按预登记分组保留<b>意向分配</b>视角；实际执行视角仅辅助解释。
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 6 段：结论分级 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-square-poll-vertical t-pur"></i>
+                <h3 class="card-title">第 6 段 · 结论分级</h3>
+              </div>
+              <span class="tag tag-info">暂定</span>
+            </div>
+            <div class="card-body">
+              <div class="grid g2">
+                <div class="fcard">
+                  <div class="f11 t-fai">最可能结论</div>
+                  <div class="f13 fw6 t-ok mt6">范围内支持</div>
+                  <div class="f10 t-fai mt6">待长尾窗口与第 4 段执行核对完成</div>
+                </div>
+                <div class="fcard">
+                  <div class="f11 t-fai">备选结论</div>
+                  <div class="f13 fw6 t-warn mt6">证据不足</div>
+                  <div class="f10 t-fai mt6">若执行不足样本占比继续上升</div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="row wrap" style="gap:7px">
+                <span class="tag tag-ok no-dot">范围内支持</span>
+                <span class="tag tag-info no-dot">无明显差异</span>
+                <span class="tag tag-warn no-dot">证据不足</span>
+                <span class="tag tag-danger no-dot">不支持 / 有害</span>
+              </div>
+              <div class="f10 t-fai mt10">
+                <i class="fa-solid fa-circle-info"></i>
+                样本量取决于基线、最小可识别提升、波动、账号聚集与可接受误判概率。<b>每组 30 条不是统一门槛</b>；证据不足时保持「试用／待验证」，不承诺固定时长得出结论。
+              </div>
+            </div>
+          </section>
+
+          <!-- 第 7 段：用途范围 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-compass t-pur"></i>
+                <h3 class="card-title">第 7 段 · 用途范围</h3>
+              </div>
+            </div>
+            <div class="card-body">
+              <dl>
+                <div class="ev-field">
+                  <dt>默认可用</dt>
+                  <dd>除湿机 · 选购说明 · 有批准噪声资料且读者关注夜间使用</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>需复核后用</dt>
+                  <dd>同品牌其他型号；无法确认测试条件的任务</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>明确不得外推</dt>
+                  <dd>无噪声资料、需真实体验但未提供、其他品类选购说明</dd>
+                </div>
+                <div class="ev-field">
+                  <dt>生效前提</dt>
+                  <dd>质量护栏通过 + 证据与产品一致 + 人工显式确认</dd>
+                </div>
+              </dl>
+              <div class="note note-info mt14">
+                <i class="fa-solid fa-right-left"></i>
+                <div>
+                  <b>效果结论不回写生产规则。</b>若只减少咨询、没有足够效果证据，记录这一观察即可，
+                  <b>不升级为转化策略</b>；需要改生成链时走 Loop 1 的修复提案。
+                </div>
+              </div>
+              <a class="btn btn-ghost mt14" style="width:100%" href="knowledge.html">
+                <i class="fa-solid fa-book-bookmark"></i>写入知识库 · 效果策略视图
+              </a>
+            </div>
+          </section>
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-1-1 -->
+
+      <div class="grid g-2-1 mt14">
+
+        <section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-diagram-successor t-pur"></i>
+              <h3 class="card-title">策略双维状态机</h3>
+            </div>
+            <span class="card-sub">「研究状态」与「允许用途」分开维护</span>
+          </div>
+          <div class="card-body">
+            <div class="grid g2" style="gap:0 18px">
+              <div class="col" style="gap:8px">
+                <div class="ev-state"><span class="f12 fw5">观察 / 线索</span><div class="f11 t-mut">查资料、提问题</div></div>
+                <div class="ev-state"><span class="f12 fw5">候选</span><div class="f11 t-mut">设计试产或实验</div></div>
+                <div class="ev-state on"><span class="f12 fw5 t-pur">实验中</span><div class="f11 t-mut">仅分配到登记实验任务</div></div>
+                <div class="ev-state"><span class="f12 fw5">范围内支持</span><div class="f11 t-mut">过质量门后，在验证范围内默认使用</div></div>
+              </div>
+              <div class="col" style="gap:8px">
+                <div class="ev-state"><span class="f12 fw5">无明显差异 / 证据不足</span><div class="f11 t-mut">保留记录，不声称有效；决定继续采样或停止投入</div></div>
+                <div class="ev-state"><span class="f12 fw5">不支持 / 有害</span><div class="f11 t-mut">停止该假设版本，保留反面证据</div></div>
+                <div class="ev-state"><span class="f12 fw5">待复核 / 失效</span><div class="f11 t-mut">暂停或降级使用，检查环境与效果漂移</div></div>
+              </div>
+            </div>
+            <div class="note note-warn mt14">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div>
+                <b>「连续两次没达标就失效」不宜一刀切。</b>应比较同期基线、窗口和数据完整性再决定复核；
+                严重事实或素材问题可立即停用，不等统计判断。
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card pc-sticky">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-stethoscope t-pur"></i>
+              <h3 class="card-title">先诊断，再给策略</h3>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="grid g2" style="gap:0 16px">
+              <div class="f10 t-fai fw6 mb4">能提的问题</div>
+              <div class="f10 t-fai fw6 mb4">不能直接下的结论</div>
+            </div>
+            <div class="grid g2" style="gap:8px 16px">
+              <div class="f11 t-2">曝光是否不足、点击是否不足、账号或时间是否异常</div>
+              <div class="f11 t-dan">正文不吸引人、读者没读完</div>
+              <div class="f11 t-2">标题承诺与内容是否一致、是否有决策信息</div>
+              <div class="f11 t-dan">只需要把 CTA 写强</div>
+              <div class="f11 t-2">是否为长期决策内容、用户阶段是否不同</div>
+              <div class="f11 t-dan">内容没有转化价值</div>
+              <div class="f11 t-2">是咨询、认可、争议、纠错还是作者回复拉高</div>
+              <div class="f11 t-dan">内容好、用户满意</div>
+            </div>
+            <div class="divider"></div>
+            <div class="f10 t-fai">
+              <i class="fa-solid fa-circle-info"></i>
+              评论保留原文位置、采样方式与截断标记；按独立用户／独立笔记观察重复问题，
+              作者回复与用户评论区分开。
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /g-2-1 -->
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'effect-view', crumb: ['双 Loop 学习闭环', '效果学习视图'] });
+</script>
+</body>
+</html>

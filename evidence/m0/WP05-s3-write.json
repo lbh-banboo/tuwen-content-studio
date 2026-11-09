@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "wp05.smoke.v1",
+  "stage": "write",
+  "startedAt": "2026-09-20T23:58:42.504573+00:00",
+  "startedAtLocal": "2026-09-21T07:58:42.504573+08:00",
+  "tool": {
+    "python": "3.13.12",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "hostname": "leedeMacBook-Pro.local",
+    "cwd": "/Users/<user>/内容运营AI Native/rednote-production",
+    "script": "/Users/<user>/内容运营AI Native/rednote-production/tools/m0/wp05_smoke/smoke.py"
+  },
+  "checks": [
+    {
+      "name": "pg.connect",
+      "ok": true,
+      "blocking": true,
+      "detail": "已连接 localhost:5432/postgres"
+    },
+    {
+      "name": "pg.server_version_is_17",
+      "ok": true,
+      "blocking": true,
+      "detail": "PostgreSQL 17.10 (Homebrew)"
+    },
+    {
+      "name": "pg.extension_vector",
+      "ok": true,
+      "blocking": true,
+      "detail": "pgvector 可用"
+    },
+    {
+      "name": "pg.bootstrap_smoke_meta",
+      "ok": true,
+      "blocking": true,
+      "detail": "smoke_meta / 索引已就绪（IF NOT EXISTS）"
+    },
+    {
+      "name": "pg.insert_row",
+      "ok": true,
+      "blocking": true,
+      "detail": "已写入 smoke_meta 并提交事务"
+    },
+    {
+      "name": "pg.readback_matches",
+      "ok": true,
+      "blocking": true,
+      "detail": "读回一致"
+    },
+    {
+      "name": "s3.bucket_ready",
+      "ok": true,
+      "blocking": true,
+      "detail": "bucket=rednote-dev 可用（不存在则已创建）"
+    },
+    {
+      "name": "blob.put",
+      "ok": true,
+      "blocking": true,
+      "detail": "已写入 s3"
+    },
+    {
+      "name": "blob.exists_after_put",
+      "ok": true,
+      "blocking": true,
+      "detail": "object_key=wp05/smoke/c043e97f-da56-444f-aff0-458c0f42d62b.bin"
+    },
+    {
+      "name": "blob.readback_digest",
+      "ok": true,
+      "blocking": true,
+      "detail": "读回 65661 字节，sha256 与写入值一致"
+    },
+    {
+      "name": "s3.etag_vs_md5",
+      "ok": true,
+      "blocking": false,
+      "detail": "etag=3e2af4db0f96ff791d52a7c6df6cc82e md5=3e2af4db0f96ff791d52a7c6df6cc82e 一致（单次 PUT 且未启用 SSE）"
+    }
+  ],
+  "pg": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "rednote",
+    "database": "postgres",
+    "passwordProvided": false,
+    "serverVersion": "PostgreSQL 17.10 (Homebrew) on aarch64-apple-darwin25.6.0, compiled by Apple clang version 21.0.0 (clang-2100.1.1.101), 64-bit",
+    "extensionsInstalled": {
+      "plpgsql": "1.0",
+      "vector": "0.8.6"
+    },
+    "extensionsAvailable": [
+      "pg_trgm",
+      "pgcrypto",
+      "uuid-ossp",
+      "vector"
+    ]
+  },
+  "blob": {
+    "backend": "s3",
+    "degraded": false,
+    "endpoint": "http://localhost:9000",
+    "bucket": "rednote-dev",
+    "region": "us-east-1",
+    "objectKey": "wp05/smoke/c043e97f-da56-444f-aff0-458c0f42d62b.bin",
+    "put": {
+      "backend": "s3",
+      "degraded": false,
+      "bucket": "rednote-dev",
+      "bytes": 65661,
+      "etag": "3e2af4db0f96ff791d52a7c6df6cc82e"
+    }
+  },
+  "runId": "c043e97f-da56-444f-aff0-458c0f42d62b",
+  "contentDigest": "2697fc796988bba7c8069af5b548a9a7f3b446c597fd0e13692e525f64930666",
+  "contentBytes": 65661,
+  "finishedAt": "2026-09-20T23:58:42.860480+00:00",
+  "durationMs": 355,
+  "counts": {
+    "total": 11,
+    "blockingPassed": 10,
+    "blockingFailed": 0,
+    "info": 1
+  },
+  "passed": true
+}

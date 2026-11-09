@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>项目总览 · 八步关口 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div id="po-head">
+          <h1 class="page-title">正在读取项目…</h1>
+          <p class="page-desc">GET /projects/{id}</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="projects.v2.html"><i class="fa-solid fa-arrow-left"></i>项目中心</a>
+          <a class="btn btn-primary" href="delivery.v2.html"><i class="fa-solid fa-box-open"></i>交付管理</a>
+        </div>
+      </div>
+
+      <div class="grid g-3-2">
+        <div class="col" style="gap:14px">
+          <div id="po-gates" aria-live="polite"></div>
+
+          <div class="note note-info">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+              <b>关口口径：</b>每个关口的「已批准 / 已驳回」取自该 stepNo 下 decidedAt 最新的一行批准记录；
+              没有记录即「未开始」。本页不根据项目阶段推断关口进度，也不伪造批准记录。
+            </div>
+          </div>
+        </div>
+
+        <div class="col" style="gap:14px">
+          <div id="po-info"></div>
+          <div id="po-budget"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/project-overview.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'project-overview', crumb: ['项目中心', '项目总览'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML。可测逻辑全部在 render/project-overview.js。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI;
+    var R = window.RednoteRender.projectOverview;
+    var head = document.getElementById('po-head');
+    var gates = document.getElementById('po-gates');
+    var info = document.getElementById('po-info');
+    var budget = document.getElementById('po-budget');
+
+    function renderAll(data) {
+      head.innerHTML = R.renderProjectHead(data.project);
+      gates.innerHTML = R.renderGateHub(data.approvals);
+      info.innerHTML = R.renderProjectInfoCard(data.project);
+      budget.innerHTML = R.renderBudgetCard(data.budget);
+    }
+
+    async function load() {
+      head.innerHTML = R.renderHeadLoading();
+      [gates, info, budget].forEach(function (el) { el.innerHTML = R.renderCardLoading('正在读取项目数据…'); });
+      try {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) { var list = await API.page('/projects', { limit: 100 }); id = list.items.length ? list.items[0].id : ''; }
+        if (!id) { renderAll({ project: null, approvals: [], budget: null }); return; }
+        var base = '/projects/' + encodeURIComponent(id);
+        var res = await Promise.all([
+          API.get(base),
+          API.page(base + '/step-approvals', { limit: 100 }),
+          API.get(base + '/budget')
+        ]);
+        renderAll({ project: res[0], approvals: res[1].items, budget: res[2] });
+      } catch (err) {
+        head.innerHTML = R.renderHeadError(err);
+        [gates, info, budget].forEach(function (el) { el.innerHTML = R.renderCardError(err); });
+      }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      if (e.target.closest('[data-action="retry"]')) load();
+    });
+    var bar = document.querySelector('.flowbar'); if (bar) bar.remove(); // 静态演示流程条与真实批准记录冲突
+    load();
+  })();
+</script>
+</body>
+</html>

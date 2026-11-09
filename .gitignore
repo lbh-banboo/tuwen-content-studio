@@ -1,0 +1,84 @@
+# Python 字节码与缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 测试与工具缓存
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# 虚拟环境（本机 venv 在 ~/.workbuddy 下，此处仅防误建）
+.venv/
+venv/
+env/
+
+# 环境变量（样例保留，真实 .env 绝不入库）
+.env
+.env.local
+*.env.local
+!.env.example
+
+# 密钥与证书
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials*
+
+# 编辑器与系统
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# 构建产物
+build/
+dist/
+*.egg-info/
+
+# 工具产物：本仓内的 agent 会话记忆目录（`git log -- .workbuddy` 为空，从未被追踪）。
+# 它是**工具产物不是项目源** —— 同名的项目级记忆在仓库之外的工作区根目录，
+# 这里这份是历史遗留。显式忽略，避免将来 `git add -A` 把它扫进来。
+.workbuddy/
+
+# 运行期数据（本地 PG 数据目录、临时上传、归档）
+.data/
+tmp/
+*.log.local
+
+
+# ============================================================
+# 开源快照范围加固（防止将来 git add -A 误带入仓库外隐私目录）
+# 本仓库只应包含：services/backend、migrations、contracts、docs、
+# evidence、tools、datasets、templates、deploy、outputs/rednote-demo
+# ============================================================
+历史版本文档/
+outputs/知识库第一期/
+outputs/ticket-agent/
+outputs/demo-build/
+outputs/demo-build-extras/
+outputs/附件-WP25质检探针-2026-10-08/
+sync-kit/
+_开源前审计_*/
+_开源产物备份_*/
+.pytest-tmp/
+.pytest_cache/
+.workbuddy/
+.claude/
+collector-browser-profile/
+*.tar.gz
+*.docx
+*.db
+*.sqlite
+*.env.local
+.DS_Store
+
+# 发布门禁 G03：执行日志属研发过程产物，不进公开仓库
+*.log

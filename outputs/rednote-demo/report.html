@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>项目报告与结项 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .rtype { border: 1px solid var(--line); border-radius: 14px; padding: 15px 16px; background: rgba(255,255,255,0.018); transition: border-color .18s ease, background .18s ease; }
+  .rtype:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.032); }
+  .rtype-on { border-color: var(--purple-line); background: linear-gradient(160deg, rgba(160,107,255,0.11), rgba(160,107,255,0.025)); }
+  .rt-ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 12px; border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,0.04); }
+  .rtype-on .rt-ic { color: var(--purple); border-color: var(--purple-line); background: var(--purple-dim); }
+  .md { border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.34); padding: 16px 18px; font-family: var(--mono); font-size: 11.5px; line-height: 1.85; color: var(--text-2); white-space: pre-wrap; max-height: 460px; overflow-y: auto; }
+  .md b { color: var(--text-1); font-weight: 600; }
+  .md .h { color: #c4a5ff; font-weight: 600; }
+  .md .miss { color: var(--warn); }
+  .md .cite { color: var(--info); }
+  .snapref { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-family: var(--mono); color: var(--info); background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.24); }
+  .rv { display: flex; gap: 11px; padding: 11px 0; border-bottom: 1px dashed var(--line); }
+  .rv:last-child { border-bottom: 0; }
+  .rv-n { width: 46px; flex: none; font-family: var(--mono); font-size: 11px; color: var(--purple); font-weight: 600; }
+  .closebox { border: 1px solid rgba(251,113,133,0.28); background: rgba(251,113,133,0.055); border-radius: 14px; padding: 16px 17px; }
+  .reopen { border: 1px solid rgba(96,165,250,0.28); background: rgba(96,165,250,0.05); border-radius: 14px; padding: 16px 17px; }
+  .disp { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: rgba(0,0,0,0.24); }
+  .lockrow { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--line); background: rgba(255,255,255,0.018); font-size: 11.5px; }
+  .lock-no { color: var(--danger); }
+  .lock-yes { color: var(--ok); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-file-contract"></i> 报告与结项</span>
+            <span class="code">PRJ-2026-0037</span>
+            <span class="tag tag-warn">结项前置项 4 条未清</span>
+          </div>
+          <h1 class="page-title">项目报告与结项</h1>
+          <p class="page-desc">报告由运营主动生成，可编辑，默认提供 Markdown 与 PDF 导出。每版保存统计截止时间、指标口径、引用快照与生成模板版本；<b class="t-warn">AI 不补造缺失指标</b>，缺口以「数据缺失」显式标注（PRD §18.1）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：导出 Markdown（含引用快照编号与口径说明）"><i class="fa-brands fa-markdown"></i>导出 MD</button>
+          <button class="btn btn-ghost" data-toast="演示环境：导出 PDF，页脚固定标注统计截止时间与模板版本"><i class="fa-solid fa-file-pdf"></i>导出 PDF</button>
+          <button class="btn btn-primary" data-toast="演示环境：生成结项报告 v1（将锁定统计截止时间）"><i class="fa-solid fa-wand-magic-sparkles"></i>生成新版报告</button>
+        </div>
+      </div>
+
+      <!-- ============ 看板收窄至左主区，与下方内容对齐 ============ -->
+      <div class="grid g-3-2 mb18">
+
+        <!-- 左主区：报告概览指标 -->
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 报告概览指标 ============ -->
+          <section class="grid g3">
+            <div class="metric">
+              <div class="metric-label">已生成报告</div>
+              <div class="metric-value">7 <span class="unit">版</span></div>
+              <div class="metric-foot t-mut">试产 2 · 阶段 4 · 结项 1（草稿）</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">统计截止时间</div>
+              <div class="metric-value f16 mono">09-16 18:00</div>
+              <div class="metric-foot t-mut">报告内所有指标以此刻为界</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">引用快照</div>
+              <div class="metric-value">5 <span class="unit">个</span></div>
+              <div class="metric-foot t-info">SNAP-001 ~ SNAP-005</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">指标覆盖率</div>
+              <div class="metric-value">78.3<span class="unit">%</span></div>
+              <div class="metric-foot t-warn">46 / 58 篇有有效快照</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">缺失指标</div>
+              <div class="metric-value t-warn">12 <span class="unit">项</span></div>
+              <div class="metric-foot t-warn">报告标注「数据缺失」，不补 0</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">结项前置项</div>
+              <div class="metric-value t-dan">4 <span class="unit">条</span></div>
+              <div class="metric-foot t-dan">需填写处置说明后方可结项</div>
+            </div>
+          </section>
+
+        </div><!-- /左主区 -->
+
+        <!-- 右辅助栏：口径提示 -->
+        <div class="col" style="gap:14px">
+
+          <div class="note note-warn">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <div>
+              <b>报告口径提示：</b>本项目 58 篇发布内容中有 12 项指标处于「无权限 / 采集失败 / 待回收」状态。报告正文对这些字段输出「数据缺失（原因）」，
+              <b class="t-warn">不使用 0 或平均值填补</b>；「浏览量」与「商品跳转」因口径不一致（人工录入 + 自动采集混合）在项目层不做求和，仅分口径列示（AC-21 / §12.4）。
+            </div>
+          </div>
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-3-2 -->
+
+      <!-- ============ 结项正文与版本历史并排 ============ -->
+      <div class="grid g-3-2 mb18">
+
+        <!-- 左主区：结项报告正文 -->
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 结项报告正文预览 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-file-lines"></i>结项报告正文（草稿 v1 · 可编辑）</h2>
+                <p class="card-sub">Markdown 源视图。<b class="t-warn">紫色</b>为标题层级，<b class="t-info">蓝色</b>为快照与版本引用，<b class="t-warn">黄色</b>为数据缺失显式标注</p>
+              </div>
+              <div class="card-head-actions">
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：切换为富文本编辑视图"><i class="fa-solid fa-pen"></i>编辑</button>
+                <button class="btn btn-sm btn-ghost" data-toast="演示环境：复制 Markdown 到剪贴板"><i class="fa-solid fa-copy"></i>复制</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="md"><span class="h"># 素与 Su& 氨基酸洁面 · 8 月大促内容项目 结项报告</span>
+
+    <b>项目编号</b>：PRJ-2026-0037
+    <b>统计截止时间</b>：2026-09-16 18:00:00 (GMT+8)
+    <b>引用快照</b>：<span class="cite">SNAP-001 / SNAP-002 / SNAP-003 / SNAP-004 / SNAP-005</span>
+    <b>生产基线</b>：<span class="cite">BASE-2026-0037-v2</span>　<b>方案版本</b>：<span class="cite">PLAN-v3</span>　<b>模板</b>：<span class="cite">RPT-TPL-v2.3</span>
+
+    <span class="h">## 1. 最终交付</span>
+
+    | 阶段 | 计划 | 已生成 | 人工通过 | 显式标记交付 |
+    |---|---|---|---|---|
+    | 试产 | 10 | 10 | 8 | 8 |
+    | 扩产 | 30 | 30 | 26 | 26 |
+    | 批产 | 50 | 52 | 24 | 24 |
+    | 合计 | 90 | 92 | 58 | 58 |
+
+    批产阶段实际生成 52 条，超出计划 50 条 2 条（重做替换产生新版本，旧版本保留不计入交付）。
+    交付完成率 = 58 / 90 = <b>64.4%</b>（口径：已显式标记交付 / 计划数）。
+    下载不自动等于交付：另有 <b>6 条</b>处于「已下载待标记」，未计入交付数。
+
+    <span class="h">## 2. 发布情况</span>
+
+    已登记发布 52 条，其中链接有效 47 条、链接失效 3 条、已删除 1 条、取消发布 1 条。
+    待确认重复 1 条（C-0231 与 C-0245 疑似同一笔记标识），已登记未合并。
+
+    <span class="h">## 3. 效果数据与截止快照</span>
+
+    | 指标 | 值 | 口径 / 状态 |
+    |---|---|---|
+    | 浏览量（自动采集口径） | 1,247,300 | 43 篇有效，来源：平台后台 |
+    | 浏览量（人工录入口径） | 1,284,000 | 9 篇，<span class="miss">与自动采集口径冲突，未解决，不合并求和</span> |
+    | 点赞数 | 38,412 | 46 篇有效 |
+    | 收藏数 | 21,905 | 46 篇有效 |
+    | 评论数 | 4,268 | 46 篇有效（计数 4,268 ≠ 已导入正文 1,392 条） |
+    | 商品跳转 | <span class="miss">数据缺失（无权限）</span> | 32 篇无采集权限，<span class="miss">不按 0 计算，不做项目层求和</span> |
+    | 数据覆盖率 | 78.3% | 46 / 58，12 项字段缺失 |
+
+    <span class="miss">说明：缺失指标共 12 项（无权限 8 / 采集失败 3 / 待回收 1）。AI 未对缺失字段做估算或补值。</span>
+
+    <span class="h">## 4. 效果标签分布</span>
+
+    | 标签 | 篇数 | 阈值口径 |
+    |---|---|---|
+    | 表现良好 | 11 | 浏览量 ≥ 项目 P75 且互动率 ≥ 3% |
+    | 有潜力 | 14 | 互动率 ≥ 3% 但浏览量 < P50 |
+    | 表现偏低 | 15 | 浏览量 < P25 |
+    | 待观察 | 6 | 发布未满 72 小时 |
+    | 数据冲突 | <span class="miss">1</span> | <span class="miss">来源冲突未解决，不参与分布统计</span> |
+    | 无标签 | 5 | 缺失关键指标，不强行归类 |
+
+    <span class="h">## 5. 费用</span>
+
+    实际 <b>¥2,938.12</b>　预估未结 <b>¥945.60</b>　待核对 <b>¥74.80</b>　退款抵扣 <b>-¥32.50</b>
+    单篇通过成本 = ¥2,938.12 / 61 = <b>¥48.17</b>（含失败重试费用 ¥186.40）
+    分组：研究 12.4% · 生产 79.8% · 报告 4.2% · 其他 3.6%
+    <span class="miss">待核对 2 项为结果未知的外部生成请求，不记作无费用。</span>
+
+    <span class="h">## 6. 知识沉淀</span>
+
+    本项目新增／更新知识资产 <b>9</b> 条：事实账本 3（含 1 条替代旧版本）· 人群场景 2 · 风格指纹 1 · 审核规则 2 · 反馈与实验 1。
+    线上效果闭环产出结论 5 条：支持 2 · 无明显差异 1 · 不支持 1 · 证据不足 1。
+    <span class="miss">跨品牌事实未迁移；风格指纹仅限本品牌范围生效。</span>
+
+    <span class="h">## 7. 未完成说明（结项必填）</span>
+
+    1. <b>BATCH-B03 运行中任务 3 个</b> — 处置：等待结果，预计 09-16 20:30 完成。
+    2. <b>已下载待标记 6 条</b> — 处置：本周内由协作者确认是否交付，逾期视为未交付。
+    3. <b>商品跳转数据 32 篇无权限</b> — 处置：不再补录，报告以「数据缺失」结论呈现。
+    4. <b>浏览量来源冲突 1 项</b> — 处置：保留双口径记录，不做覆盖，下季度统一采集方式。
+    </div>
+
+              <div class="note note-info mt14">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  <b>不补造机制：</b>报告生成任务的提示词中固定注入「缺失字段必须输出『数据缺失（原因）』，禁止推算、插值或使用同类均值代替」。
+                  上表 <b class="t-warn">商品跳转</b> 与 <b class="t-warn">浏览量冲突项</b> 即为触发该规则的实际输出（AC-21 / §12.3）。
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左主区 -->
+
+        <!-- 右辅助栏：版本历史 -->
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 报告版本历史 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i>报告版本历史</h2>
+                <p class="card-sub">每版独立保存截止时间与引用快照；新版不覆盖旧版，旧版可单独导出</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="rv">
+                <div class="rv-n">v7</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">结项报告 · 草稿</span>
+                    <span class="f10 t-fai mono">09-16 18:05</span>
+                  </div>
+                  <div class="f11 t-mut">截止 09-16 18:00 · 引用 SNAP-001~005 · 模板 v2.3 · 林知远 · <span class="tag tag-warn no-dot">未提交结项</span></div>
+                </div>
+              </div>
+              <div class="rv">
+                <div class="rv-n">v6</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">阶段报告 · 已导出 PDF</span>
+                    <span class="f10 t-fai mono">09-16 09:40</span>
+                  </div>
+                  <div class="f11 t-mut">截止 09-16 09:00 · 引用 SNAP-001~004 · 模板 v2.3 · 林知远</div>
+                </div>
+              </div>
+              <div class="rv">
+                <div class="rv-n">v5</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">阶段报告</span>
+                    <span class="f10 t-fai mono">09-15 17:10</span>
+                  </div>
+                  <div class="f11 t-mut">截止 09-15 17:00 · 引用 SNAP-001~003 · 模板 <b class="t-warn">v2.2</b>（旧模板，保留原样）· 陈见</div>
+                </div>
+              </div>
+              <div class="rv">
+                <div class="rv-n">v4</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">阶段报告</span>
+                    <span class="f10 t-fai mono">09-14 20:02</span>
+                  </div>
+                  <div class="f11 t-mut">截止 09-14 20:00 · 引用 SNAP-001 · 模板 v2.2 · 林知远</div>
+                </div>
+              </div>
+              <div class="rv">
+                <div class="rv-n">v2</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">试产总结</span>
+                    <span class="f10 t-fai mono">09-14 16:22</span>
+                  </div>
+                  <div class="f11 t-mut">10 条 → 通过 8 / 淘汰 1 / 待处置 1 · 确认方向 4 个 · 林知远</div>
+                </div>
+              </div>
+              <div class="rv">
+                <div class="rv-n">v1</div>
+                <div class="f1">
+                  <div class="row between mb4">
+                    <span class="f12 fw6">试产总结 · 初版</span>
+                    <span class="f10 t-fai mono">09-14 11:35</span>
+                  </div>
+                  <div class="f11 t-mut">生成后经人工编辑 3 处（修正淘汰原因表述）· 编辑痕迹保留 · 林知远</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /右辅助栏 -->
+
+      </div><!-- /g-3-2 -->
+
+      <!-- ============ 报告类型 / 结项检查 / 重开（并排收束） ============ -->
+      <div class="grid g-5-6">
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 三类报告 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-layer-group"></i>三类报告</h2>
+                <p class="card-sub">试产总结 / 阶段报告 / 结项报告。三类内容范围不同，共用「截止时间 + 口径 + 快照 + 模板版本」四项元信息（PRD §18.1）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-muted">模板版本 RPT-TPL-v2.3</span>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="grid g-5-3 card-split">
+              <div class="cs-main">
+                <div class="table-wrap">
+                  <table class="tbl tbl-compact">
+                    <thead>
+                      <tr>
+                        <th style="width:104px">报告元信息</th>
+                        <th>值</th>
+                        <th style="width:170px">约束说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="fw6">统计截止时间</td>
+                        <td class="mono t-2">2026-09-16 18:00:00 (GMT+8)</td>
+                        <td class="f11 t-mut">报告生成时锁定，后续新增数据不回溯改写已发布报告版本</td>
+                      </tr>
+                      <tr>
+                        <td class="fw6">指标口径</td>
+                        <td class="f11 t-2">交付完成率 = 已显式标记交付 / 计划数；通过率 = 人工审核通过 / 已生成</td>
+                        <td class="f11 t-mut">与项目总览口径一致，不用八步完成比例替代交付完成率（§4.4）</td>
+                      </tr>
+                      <tr>
+                        <td class="fw6">引用快照</td>
+                        <td>
+                          <div class="row gap6" style="flex-wrap:wrap">
+                            <span class="snapref">SNAP-001</span>
+                            <span class="snapref">SNAP-002</span>
+                            <span class="snapref">SNAP-003</span>
+                            <span class="snapref">SNAP-004</span>
+                            <span class="snapref">SNAP-005</span>
+                          </div>
+                        </td>
+                        <td class="f11 t-mut">快照为不可覆盖记录；SNAP-003 与 SNAP-004 存在来源冲突，报告注明未解决</td>
+                      </tr>
+                      <tr>
+                        <td class="fw6">生成模板版本</td>
+                        <td class="mono t-2">RPT-TPL-v2.3</td>
+                        <td class="f11 t-mut">模板升级不改写历史报告版本，可用新模板生成新版</td>
+                      </tr>
+                      <tr>
+                        <td class="fw6">生产基线引用</td>
+                        <td class="mono t-2">BASE-2026-0037-v2 · PLAN-v3</td>
+                        <td class="f11 t-mut">基线不可原地修改；报告记录批次实际使用的版本号</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="cs-side">
+                <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-layer-group"></i>三类报告<span class="sec-sub">共用四项元信息</span></div>
+                <div class="col" style="gap:10px">
+
+                <div class="rtype">
+                  <div class="row between mb10">
+                    <div class="row gap6">
+                      <span class="rt-ic"><i class="fa-solid fa-flask"></i></span>
+                      <div>
+                        <div class="f13 fw6">试产总结</div>
+                        <div class="f10 t-mut">步骤 5 完成后生成</div>
+                      </div>
+                    </div>
+                    <span class="tag tag-ok">2 版</span>
+                  </div>
+                  <div class="f11 t-2" style="line-height:1.8">
+                    配置（场景 / 形式比例、基线版本）· 通过与淘汰情况 · 主要问题分类 · 确认方向
+                  </div>
+                  <div class="divider"></div>
+                  <div class="row gap6" style="flex-wrap:wrap">
+                    <span class="tag tag-muted no-dot">10 条 → 通过 8</span>
+                    <span class="tag tag-muted no-dot">淘汰 1</span>
+                    <span class="tag tag-muted no-dot">方向 4/5 验证</span>
+                  </div>
+                  <div class="f10 t-fai mt10">最新：v2 · 09-14 16:22 · 林知远</div>
+                </div>
+
+                <div class="rtype">
+                  <div class="row between mb10">
+                    <div class="row gap6">
+                      <span class="rt-ic"><i class="fa-solid fa-chart-column"></i></span>
+                      <div>
+                        <div class="f13 fw6">阶段报告</div>
+                        <div class="f10 t-mut">任意阶段可生成</div>
+                      </div>
+                    </div>
+                    <span class="tag tag-ok">4 版</span>
+                  </div>
+                  <div class="f11 t-2" style="line-height:1.8">
+                    目标 · 数量 · 交付与发布 · 费用 · 数据覆盖 · 问题与行动项
+                  </div>
+                  <div class="divider"></div>
+                  <div class="row gap6" style="flex-wrap:wrap">
+                    <span class="tag tag-muted no-dot">交付 58</span>
+                    <span class="tag tag-muted no-dot">发布 52</span>
+                    <span class="tag tag-warn no-dot">覆盖 78.3%</span>
+                  </div>
+                  <div class="f10 t-fai mt10">最新：v4 · 09-16 09:40 · 林知远</div>
+                </div>
+
+                <div class="rtype rtype-on">
+                  <div class="row between mb10">
+                    <div class="row gap6">
+                      <span class="rt-ic"><i class="fa-solid fa-flag-checkered"></i></span>
+                      <div>
+                        <div class="f13 fw6">结项报告</div>
+                        <div class="f10 t-pur">当前预览</div>
+                      </div>
+                    </div>
+                    <span class="tag tag-warn">草稿 v1</span>
+                  </div>
+                  <div class="f11 t-2" style="line-height:1.8">
+                    最终交付 · 发布 · 截止快照 · 效果标签 · 费用 · 知识沉淀 · <b class="t-warn">未完成说明</b>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="row gap6" style="flex-wrap:wrap">
+                    <span class="tag tag-purple no-dot">引用 5 快照</span>
+                    <span class="tag tag-warn no-dot">未完成 4 项</span>
+                    <span class="tag tag-muted no-dot">知识 9 条</span>
+                  </div>
+                  <div class="f10 t-fai mt10">草稿 · 09-16 18:05 · 未提交结项</div>
+                </div>
+
+                </div>
+              </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 重开 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-rotate-left"></i>重开已结项项目</h2>
+                <p class="card-sub">仅管理者可操作。填写原因并选择恢复阶段；<b class="t-ok">旧结项事件与报告保留</b>，不被新的项目阶段覆盖（PRD §18.3）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-info">历史重开 1 次</span>
+              </div>
+            </div>
+            <div class="card-body p0">
+              <div class="grid g-3-2 card-split">
+              <div class="cs-main">
+              <div class="reopen">
+                <div class="row gap6 mb10">
+                  <span class="li-icon" style="color:var(--info);background:rgba(96,165,250,0.13);border-color:rgba(96,165,250,0.26)"><i class="fa-solid fa-unlock"></i></span>
+                  <div>
+                    <div class="f13 fw6">重开表单</div>
+                    <div class="f10 t-mut">当前项目未结项，此表单为演示态预览</div>
+                  </div>
+                </div>
+                <div class="col gap14 mb10" style="gap:14px">
+                  <div class="field">
+                    <label class="label">恢复到阶段 <span class="req">*</span></label>
+                    <div class="seg">
+                      <span class="seg-item is-active">投产期</span>
+                      <span class="seg-item">数据回收期</span>
+                    </div>
+                    <div class="hint mt6">投产期 = 恢复生产 / 交付能力；数据回收期 = 仅恢复发布登记与数据补录，仍禁止新生产任务</div>
+                  </div>
+                  <div class="field">
+                    <label class="label">重开原因 <span class="req">*</span></label>
+                    <textarea class="textarea" rows="3" placeholder="必填。示例：客户追加 10 条投放需求，需在原基线下补充生产。">客户追加 10 条秋冬场景投放需求，沿用 BASE-2026-0037-v2 基线补充生产。</textarea>
+                  </div>
+                </div>
+                <div class="note note-info mb0">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <div>
+                    <b>保留规则：</b>重开后项目阶段回到所选阶段，但 <span class="code">CLOSE-EVT-0091</span> 结项事件、结项报告 v7 与其引用快照
+                    <span class="snapref">SNAP-001~005</span> 均保留原样。新增生产产生的新交付与新报告以<b>新版本</b>追加，不改写结项时点的数据。
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-timeline"></i>结项 / 重开事件流<span class="sec-sub">AuditEvent 业务操作历史</span></div>
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-time mono">09-16 18:05</div>
+                  <div class="f1">
+                    <div class="tl-title">结项报告 v7 生成（草稿）</div>
+                    <div class="tl-desc">林知远 · 统计截止 09-16 18:00 · 4 条前置项中 3 条已填写处置说明</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time mono">08-28 10:12</div>
+                  <div class="f1">
+                    <div class="tl-title">项目重开 · 恢复到投产期</div>
+                    <div class="tl-desc">管理者 周执 · 原因：客户追加 30 条扩产需求 · 旧结项事件 CLOSE-EVT-0074 与报告 v3 保留</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time mono">08-27 19:40</div>
+                  <div class="f1">
+                    <div class="tl-title">首次结项 · CLOSE-EVT-0074</div>
+                    <div class="tl-desc">林知远 · 结项报告 v3 · 当时未完成 2 项（费用待核对 1 / 缺失数据 5）均已填写处置说明</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time mono">08-27 18:55</div>
+                  <div class="f1">
+                    <div class="tl-title">结项前置检查通过</div>
+                    <div class="tl-desc">运行中任务 0 · 无法取消的外部任务 1（标记费用待核对）</div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /左 -->
+
+        <div class="col" style="gap:14px">
+
+          <!-- ============ 结项 ============ -->
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2 class="card-title"><i class="fa-solid fa-flag-checkered"></i>结项检查</h2>
+                <p class="card-sub">负责人或管理者操作。未完成事项<b class="t-ok">不一律阻断结项</b>，但必须逐条填写处置说明；运行中任务应取消或等待结果（PRD §18.2）</p>
+              </div>
+              <div class="card-head-actions">
+                <span class="tag tag-danger">4 条待处置</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="closebox mb14">
+                <div class="row between mb10">
+                  <div class="row gap6">
+                    <span class="li-icon" style="color:var(--danger);background:rgba(251,113,133,0.13);border-color:rgba(251,113,133,0.26)"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    <div>
+                      <div class="f13 fw6">结项前置项清单</div>
+                      <div class="f10 t-mut">未完成任务 3 · 未交付 6 · 未发布 6 · 缺失数据 12 项</div>
+                    </div>
+                  </div>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：刷新前置项检查"><i class="fa-solid fa-rotate"></i>重新检查</button>
+                </div>
+
+                <div class="grid g-5-2 card-split">
+                <div class="table-wrap">
+                  <table class="tbl tbl-compact">
+                    <thead>
+                      <tr>
+                        <th style="width:112px">类别</th>
+                        <th style="width:56px">数量</th>
+                        <th>明细</th>
+                        <th style="width:190px">处置说明（必填）</th>
+                        <th style="width:80px">状态</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="tr-danger">
+                        <td class="fw6">未完成任务</td>
+                        <td class="mono t-dan">3</td>
+                        <td class="f11 t-2">JOB-2288 / 2289 / 2290 · BATCH-B03 Live 封装 · 运行中 · 供应商已计费</td>
+                        <td>
+                          <div class="disp f11 t-2">等待结果，预计 20:30 完成。不取消（已计费，取消不退款）。</div>
+                        </td>
+                        <td><span class="tag tag-ok">已填写</span></td>
+                      </tr>
+                      <tr class="tr-warn">
+                        <td class="fw6">未交付</td>
+                        <td class="mono t-warn">6</td>
+                        <td class="f11 t-2">C-0248 ~ C-0253 · 已下载待标记，未显式标记交付</td>
+                        <td>
+                          <div class="disp f11 t-2">本周内由协作者陈见确认；逾期视为未交付，不补记。</div>
+                        </td>
+                        <td><span class="tag tag-ok">已填写</span></td>
+                      </tr>
+                      <tr class="tr-warn">
+                        <td class="fw6">未发布</td>
+                        <td class="mono t-warn">6</td>
+                        <td class="f11 t-2">已交付但无发布登记 · 其中 2 条客户自行发布未回传链接</td>
+                        <td>
+                          <div class="disp f11 t-2" style="border-color:rgba(251,113,133,0.3);color:var(--danger)">尚未填写 —— 结项按钮保持禁用</div>
+                        </td>
+                        <td><span class="tag tag-danger">待填写</span></td>
+                      </tr>
+                      <tr class="tr-warn">
+                        <td class="fw6">缺失数据</td>
+                        <td class="mono t-warn">12</td>
+                        <td class="f11 t-2">商品跳转无权限 8 · 采集失败 3 · 待回收 1</td>
+                        <td>
+                          <div class="disp f11 t-2">不再补录，报告输出「数据缺失（无权限）」。</div>
+                        </td>
+                        <td><span class="tag tag-ok">已填写</span></td>
+                      </tr>
+                      <tr class="tr-warn">
+                        <td class="fw6">费用待核对</td>
+                        <td class="mono t-warn">2</td>
+                        <td class="f11 t-2">JOB-2276 / JOB-2281 · 结果未知的外部生成请求 · ¥74.80</td>
+                        <td>
+                          <div class="disp f11 t-2">存在无法取消的外部任务，明确标记<b class="t-warn">费用待核对</b>状态后结项。</div>
+                        </td>
+                        <td><span class="tag tag-ok">已填写</span></td>
+                      </tr>
+                      <tr>
+                        <td class="fw6">事实纠错待办</td>
+                        <td class="mono t-2">1</td>
+                        <td class="f11 t-2">已发布内容 C-0197 事实表述有误 · 跟进待办未关闭</td>
+                        <td>
+                          <div class="disp f11 t-2">结项后仍可处理事实纠错待办，不阻断结项。</div>
+                        </td>
+                        <td><span class="tag tag-ok">已填写</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="cs-side">
+                <div class="note note-warn mb0">
+                  <i class="fa-solid fa-circle-exclamation"></i>
+                  <div>
+                    <b>结项按钮当前禁用：</b>「未发布 6 条」尚未填写处置说明。系统不检查处置说明的正确性，只要求<b>存在且非空</b>——责任归属人工。
+                    另：存在无法取消的外部任务时，结项事件必须携带<b class="t-warn">费用待核对</b>标记，不假设费用为 0。
+                  </div>
+                </div>
+                </div>
+                </div>
+              </div>
+
+              <div class="grid g-1-1-fix gap14 mb14">
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-lock"></i>结项后权限变化<span class="sec-sub">生产性操作全部关闭</span></div>
+                  <div class="grid" style="gap:7px">
+                    <div class="lockrow"><i class="fa-solid fa-xmark lock-no"></i><span class="f1">新建生产任务（文案 / 图片 / Live）</span><span class="tag tag-danger no-dot">禁止</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-xmark lock-no"></i><span class="f1">修改内容、替换媒体、调整方案比例</span><span class="tag tag-danger no-dot">禁止</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-xmark lock-no"></i><span class="f1">新增批次 / 扩产 / 批产</span><span class="tag tag-danger no-dot">禁止</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-check lock-yes"></i><span class="f1">查看全部内容与历史版本</span><span class="tag tag-ok no-dot">允许</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-check lock-yes"></i><span class="f1">下载已交付内容包（链接可重新生成）</span><span class="tag tag-ok no-dot">允许</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-check lock-yes"></i><span class="f1">补录 / 按需刷新发布数据</span><span class="tag tag-ok no-dot">允许</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-check lock-yes"></i><span class="f1">处理事实纠错待办</span><span class="tag tag-ok no-dot">允许</span></div>
+                    <div class="lockrow"><i class="fa-solid fa-check lock-yes"></i><span class="f1">生成新版报告（基于新数据）</span><span class="tag tag-ok no-dot">允许</span></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="sec-title"><i class="fa-solid fa-user-shield"></i>操作权限<span class="sec-sub">§2.2 权限矩阵</span></div>
+                  <div class="table-wrap">
+                    <table class="tbl tbl-compact">
+                      <thead>
+                        <tr><th>操作</th><th class="center" style="width:66px">管理者</th><th class="center" style="width:74px">负责人</th><th class="center" style="width:74px">协作者</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td class="f11">生成阶段报告</td><td class="center t-ok">是</td><td class="center t-ok">是</td><td class="center t-ok">是</td></tr>
+                        <tr><td class="f11">主动结项</td><td class="center t-ok">是</td><td class="center t-ok">是</td><td class="center t-dan">否</td></tr>
+                        <tr><td class="f11">重新打开已结项项目</td><td class="center t-ok">是</td><td class="center t-dan">否</td><td class="center t-dan">否</td></tr>
+                        <tr><td class="f11">查看本项目费用</td><td class="center t-ok">是</td><td class="center t-ok">是</td><td class="center t-ok">是</td></tr>
+                        <tr><td class="f11">设置预算 / 公司费用</td><td class="center t-ok">是</td><td class="center t-dan">否</td><td class="center t-dan">否</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="note note-info mt10 mb0">
+                    <i class="fa-solid fa-robot"></i>
+                    <div class="f11">AI Agent 不拥有最终人工审核权，<b>不可执行结项</b>，也不能独立改变项目负责人（§2.1）。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row between" style="padding-top:4px">
+                <div class="f11 t-mut"><i class="fa-solid fa-circle-info t-warn"></i> 结项将生成不可撤销的结项事件与结项报告版本；旧结项事件与报告永久保留。</div>
+                <div class="row gap6">
+                  <button class="btn btn-ghost btn-sm" data-toast="演示环境：保存处置说明草稿"><i class="fa-solid fa-floppy-disk"></i>保存草稿</button>
+                  <button class="btn btn-danger btn-sm is-disabled" data-toast="演示环境：仍有 1 条前置项未填写处置说明，结项被阻止"><i class="fa-solid fa-flag-checkered"></i>确认结项（禁用）</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /右 -->
+
+      </div>
+
+      <!-- 三稿分别展示 + 同期对照 —— 双 Loop 建议 §10 项目报告 -->
+      <div class="grid g-1-1 mt14">
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title"><i class="fa-solid fa-layer-group"></i>三稿分别展示</h2>
+              <p class="card-sub">原始初稿 / 人工介入前 / 最终稿分开计算，才能判断改善来自规则还是来自人（§12.3）</p>
+            </div>
+            <div class="card-head-actions">
+              <span class="tag tag-purple">24 个保留任务</span>
+            </div>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-3-1 card-split">
+            <div class="cs-main">
+            <div class="col mb14" style="gap:11px">
+              <div>
+                <div class="row between f11 mb6"><span>原始初稿 · 事实错误</span><span class="mono t-dan">8 / 24 · 33.3%</span></div>
+                <div class="bar"><div class="bar-fill danger" style="width:33%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>人工介入前 · 事实错误</span><span class="mono t-warn">3 / 24 · 12.5%</span></div>
+                <div class="bar"><div class="bar-fill warn" style="width:12.5%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>最终稿 · 事实错误</span><span class="mono t-ok">2 / 24 · 8.3%</span></div>
+                <div class="bar"><div class="bar-fill ok" style="width:8.3%"></div></div>
+              </div>
+              <div>
+                <div class="row between f11 mb6"><span>同期对照 · 旧流程重放最终稿</span><span class="mono">8 / 24 · 33.3%</span></div>
+                <div class="bar"><div class="bar-fill" style="width:33%"></div></div>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="tbl tbl-compact" style="min-width:520px">
+                <thead>
+                  <tr>
+                    <th style="width:100px">稿别</th>
+                    <th style="width:170px">定义</th>
+                    <th style="width:104px">事实错误任务</th>
+                    <th>口径</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw6">原始初稿</td>
+                    <td class="f11 t-sub">模型首次输出，未接任何人工或规则修订</td>
+                    <td><span class="mono f11 t-dan">8 / 24</span></td>
+                    <td class="f11 t-mut">只反映 AIGC 起点，不代表产品能力</td>
+                  </tr>
+                  <tr>
+                    <td class="fw6">人工介入前</td>
+                    <td class="f11 t-sub">机器稿 + 自动规则修复，不接人工</td>
+                    <td><span class="mono f11 t-warn">3 / 24</span></td>
+                    <td class="f11 t-mut">反映「规则层」改善 −5</td>
+                  </tr>
+                  <tr>
+                    <td class="fw6">最终稿</td>
+                    <td class="f11 t-sub">人工审核通过并交付</td>
+                    <td><span class="mono f11 t-ok">2 / 24</span></td>
+                    <td class="f11 t-mut">反映「人机合计」改善 −1</td>
+                  </tr>
+                  <tr>
+                    <td class="fw6">发布稿</td>
+                    <td class="f11 t-sub">实际发布版本，剔除撤回条目</td>
+                    <td><span class="mono f11 t-ok">2 / 24</span></td>
+                    <td class="f11 t-mut">含未审核新增表述的条目单独标注</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="fw6 t-mut">四个稿别必须分开统计 —— 拿最终稿指标当 AIGC 能力，会同时高估模型、低估人工。</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            </div>
+            <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-arrow-down-short-wide"></i>改善分解</div>
+              <div class="col" style="gap:8px">
+                <div class="row between f11"><span>规则层</span><span class="mono t-ok">−5</span></div>
+                <div class="row between f11"><span>人工层</span><span class="mono t-ok">−1</span></div>
+                <div class="row between f11"><span>合计</span><span class="mono">8 → 2</span></div>
+              </div>
+              <div class="divider"></div>
+              <div class="note note-purple f11">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                  <b>改善来源可分解：</b>原始初稿 8 → 人工介入前 3（规则层 −5）→ 最终稿 2（人工层 −1）。对外只写「新版本在 <b>24 个保留任务</b>中减少了 <b>6 个</b>事实错误任务」，并同时标明样本与基线（旧流程重放）；不写「AI 质量提升 N%」。
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h2 class="card-title"><i class="fa-solid fa-code-compare"></i>同期对照 · AIGC 与业务分开改善多少</h2>
+              <p class="card-sub">生产侧与业务侧指标分开写，不同口径的条目不得混算</p>
+            </div>
+            <div class="card-head-actions">
+              <span class="tag tag-warn">长尾未满 · 暂不出结论</span>
+            </div>
+          </div>
+          <div class="card-body p0">
+            <div class="grid g-2-1 card-split">
+            <div class="cs-main">
+            <div class="row mb14" style="flex-wrap:wrap;gap:8px">
+              <span class="tag tag-purple no-dot f10">同期对照 24 条</span>
+              <span class="tag tag-info no-dot f10">业务对照 12 条</span>
+              <span class="tag tag-muted no-dot f10">同任务 · 同素材 · 同窗口</span>
+            </div>
+
+            <div class="grid g2 mb14" style="gap:14px">
+              <div>
+                <div class="sec-title"><i class="fa-solid fa-robot"></i>生产侧（AIGC）</div>
+                <div class="col" style="gap:10px">
+                  <div class="row between f11"><span>事实错误任务</span><span class="mono"><span class="t-mut">8 / 24</span> → <b class="t-ok">2 / 24</b></span></div>
+                  <div class="row between f11"><span>首次通过率</span><span class="mono">70.0% → <b class="t-ok">83.3%</b></span></div>
+                  <div class="row between f11"><span>单条平均修改次数</span><span class="mono">2.4 → <b class="t-ok">1.6</b></span></div>
+                  <div class="row between f11"><span>人工查证时间</span><span class="mono">18 min → <b class="t-ok">11 min</b></span></div>
+                </div>
+              </div>
+              <div>
+                <div class="sec-title"><i class="fa-solid fa-chart-line"></i>业务侧（效果）</div>
+                <div class="col" style="gap:10px">
+                  <div class="row between f11"><span>3d 点赞中位数</span><span class="mono">对照 100 → <b class="t-ok">112</b></span></div>
+                  <div class="row between f11"><span>收藏率</span><span class="mono"><b class="t-ok">+8%</b></span></div>
+                  <div class="row between f11"><span>商品跳转率</span><span class="mono"><b class="t-ok">+5%</b></span></div>
+                  <div class="row between f11"><span>长尾窗口（30d）</span><span class="mono t-mut">未满 · 不出结论</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-title"><i class="fa-solid fa-list-check"></i>对照口径</div>
+            <div class="table-wrap mb14">
+              <table class="tbl tbl-compact">
+                <thead>
+                  <tr>
+                    <th style="width:110px">对照项</th>
+                    <th class="num" style="width:64px">条目</th>
+                    <th>说明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw6">新版本</td>
+                    <td class="num mono">24</td>
+                    <td class="f11 t-sub">保留任务全集，覆盖四类体验可用性</td>
+                  </tr>
+                  <tr>
+                    <td class="fw6">旧流程重放</td>
+                    <td class="num mono">24</td>
+                    <td class="f11 t-sub">同任务、同素材，用基线 BL-v2 重跑一遍</td>
+                  </tr>
+                  <tr>
+                    <td class="fw6">同期未用新版</td>
+                    <td class="num mono">12</td>
+                    <td class="f11 t-sub">同期真实业务中的对照条目，仅用于业务侧比较</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3" class="fw6 t-mut">对照必须同任务、同素材、同窗口；缺失不填 0，晚采的 7d 累计值不补写成 3d。</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            </div>
+            <div class="cs-side">
+              <div class="note note-warn f11">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <b>必须分开写：</b>生产侧指标只说明生产改善，业务侧指标只说明效果。不能用生产指标替代效果结论，也不能把业务提升直接归为模型升级 —— 同期还有账号、选题与流量因素。
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'report', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '报告与结项'] });
+</script>
+</body>
+</html>

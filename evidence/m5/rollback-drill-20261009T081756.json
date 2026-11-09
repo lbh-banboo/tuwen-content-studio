@@ -1,0 +1,61 @@
+{
+  "drill_at": "2026-10-09T08:18:07.715865+00:00",
+  "database": "rednote_roll_20261009T081756",
+  "head_revision": "c4d9f2a17e35",
+  "rolled_back_revision": "b7c1e4a9d203",
+  "chain_length": 23,
+  "first_migration_failure_seconds": null,
+  "rollback_budget_seconds": 28800,
+  "data_incompatible_target": null,
+  "injections": {
+    "first_migration": null,
+    "last_migration": null
+  },
+  "tpm_ab": {
+    "true_landed_version": "df6bb2f41f84",
+    "true_tables_present": [],
+    "false_arm": {
+      "db": "rednote_rollrev_20261009T081756",
+      "upgrade_head_rc": 0,
+      "downgrade_rc": 0
+    }
+  },
+  "fingerprint_at_head": {
+    "tables": {
+      "count": 67,
+      "objects_sha256": "85dd0ba66804708e41919f9c222e80d5c2d1a78f137cfce79de440e9d789743d"
+    },
+    "columns": {
+      "count": 731,
+      "objects_sha256": "da53a824e1fe2203cfa6618ce6b9f712a1c649f5ff83ee18757037a7a729618d"
+    },
+    "constraints": {
+      "count": 605,
+      "objects_sha256": "d04d3b282a7e300b5ab5979263c86dbb3c91c3cf6d8809eae5e930492fa45551",
+      "defs_sha256": "39e94450582392fac5cfd7bda49cd023ecca3fe690ace5112124f0a400784b82",
+      "distinct_raw_defs": 381,
+      "distinct_norm_defs": 381
+    },
+    "indexes": {
+      "count": 252,
+      "objects_sha256": "0b89c394809e2b0a44d71b1672822dd1f259a661a1a834dacd57b764ed5bae80",
+      "defs_sha256": "7cb8115eab33d005fad39c834031be0656f2b560080881ac4784260dfef18761",
+      "distinct_raw_defs": 252,
+      "distinct_norm_defs": 252
+    },
+    "triggers": {
+      "count": 53,
+      "objects_sha256": "ce40d15aae1e610603f8cf0d5f6c7b218ef9adbfdba8c23750c03eb52c4687d8",
+      "defs_sha256": "60357aab4bfef1e59c73e3efcaa55b255a40c1d10d719710bad22aea20c4634a",
+      "distinct_raw_defs": 53,
+      "distinct_norm_defs": 53
+    },
+    "functions": {
+      "count": 146,
+      "objects_sha256": "5da30d2e131f5e2c5711ebce80d52016dbab1d88c0b2a9d6f65fa16969478675",
+      "defs_sha256": "4bd19a9d672910a90b20540f87ef4ed7024a4c16f61455798cd1456db2350d57",
+      "distinct_raw_defs": 144,
+      "distinct_norm_defs": 144
+    }
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "drill_at": "2026-10-09T08:58:28.273918+00:00",
+  "database": "rednote_roll_20261009T085812",
+  "head_revision": "c4d9f2a17e35",
+  "rolled_back_revision": "b7c1e4a9d203",
+  "chain_length": 23,
+  "first_migration_failure_seconds": 0.96,
+  "rollback_budget_seconds": 28800,
+  "data_incompatible_target": [
+    "prompt_templates",
+    "ck_prompt_templates_task_kind_valid",
+    "<resolved-at-nav>",
+    "STATIC_IMAGE"
+  ],
+  "data_incompatible_drill_revision": "e8f07ba8f2bb",
+  "data_incompatible_below_revision": "1c1c814b248e",
+  "narrowing_revisions": [
+    {
+      "index": 3,
+      "revision": "e8f07ba8f2bb"
+    }
+  ],
+  "injections": {
+    "first_migration": {
+      "kind": "pre_create_constraint",
+      "obstacle": {
+        "kind": "constraint",
+        "table": "media_items",
+        "name": "ck_media_items_pending_bindings_size"
+      },
+      "obstacle_index": 2,
+      "steps": [
+        {
+          "kind": "column",
+          "table": "media_items",
+          "name": "pending_reference_bindings"
+        },
+        {
+          "kind": "constraint",
+          "table": "media_items",
+          "name": "ck_media_items_pending_bindings_is_array"
+        },
+        {
+          "kind": "constraint",
+          "table": "media_items",
+          "name": "ck_media_items_pending_bindings_size"
+        }
+      ],
+      "ident": "media_items.ck_media_items_pending_bindings_size",
+      "table": "media_items",
+      "name": "ck_media_items_pending_bindings_size",
+      "objects": [
+        "media_items.pending_reference_bindings",
+        "media_items.ck_media_items_pending_bindings_is_array",
+        "media_items.ck_media_items_pending_bindings_size"
+      ],
+      "prior_objects": [
+        "media_items.pending_reference_bindings",
+        "media_items.ck_media_items_pending_bindings_is_array"
+      ],
+      "migration": "20261008_0610_b7c1e4a9d203_wp27_pending_reference_bindings.py"
+    },
+    "last_migration": {
+      "kind": "pre_create_constraint",
+      "obstacle": {
+        "kind": "constraint",
+        "table": "media_items",
+        "name": "ck_media_items_pending_regeneration_reason_length"
+      },
+      "obstacle_index": 4,
+      "steps": [
+        {
+          "kind": "column",
+          "table": "media_items",
+          "name": "job_id"
+        },
+        {
+          "kind": "constraint",
+          "table": "media_items",
+          "name": "fk_media_items_job_id_jobs"
+        },
+        {
+          "kind": "column",
+          "table": "media_items",
+          "name": "pending_regeneration_reason"
+        },
+        {
+          "kind": "index",
+          "table": "media_items",
+          "name": "uq_media_items_job_id"
+        },
+        {
+          "kind": "constraint",
+          "table": "media_items",
+          "name": "ck_media_items_pending_regeneration_reason_length"
+        }
+      ],
+      "ident": "media_items.ck_media_items_pending_regeneration_reason_length",
+      "table": "media_items",
+      "name": "ck_media_items_pending_regeneration_reason_length",
+      "objects": [
+        "media_items.job_id",
+        "media_items.fk_media_items_job_id_jobs",
+        "media_items.pending_regeneration_reason",
+        "media_items.uq_media_items_job_id",
+        "media_items.ck_media_items_pending_regeneration_reason_length"
+      ],
+      "prior_objects": [
+        "media_items.job_id",
+        "media_items.fk_media_items_job_id_jobs",
+        "media_items.pending_regeneration_reason",
+        "media_items.uq_media_items_job_id"
+      ],
+      "migration": "20261008_0930_c4d9f2a17e35_wp27_job_addressing_and_regen_reason.py"
+    }
+  },
+  "tpm_ab": {
+    "true_landed_version": "b7c1e4a9d203",
+    "true_objects_present": [
+      "media_items.pending_reference_bindings",
+      "media_items.ck_media_items_pending_bindings_is_array",
+      "media_items.ck_media_items_pending_bindings_size"
+    ],
+    "false_arm": {
+      "db": "rednote_rollrev_20261009T085812",
+      "upgrade_head_rc": 0,
+      "downgrade_rc": 0,
+      "injected_upgrade_rc": 1,
+      "landed_version": "df6bb2f41f84",
+      "objects_present": {
+        "media_items.pending_reference_bindings": true,
+        "media_items.ck_media_items_pending_bindings_is_array": false,
+        "media_items.ck_media_items_pending_bindings_size": false
+      },
+      "tail": "ingError: (psycopg.errors.DuplicateObject) constraint \"ck_media_items_pending_regeneration_reason_length\" for relation \"media_items\" already exists [SQL: ALTER TABLE media_items ADD CONSTRAINT ck_media_items_pending_regeneration_reason_length CHECK (pending_regeneration_reason IS NULL OR char_length(pending_regeneration_reason) <= 500)] (Background on this error at: https://sqlalche.me/e/20/f405) "
+    }
+  },
+  "fingerprint_at_head": {
+    "tables": {
+      "count": 67,
+      "objects_sha256": "85dd0ba66804708e41919f9c222e80d5c2d1a78f137cfce79de440e9d789743d"
+    },
+    "columns": {
+      "count": 731,
+      "objects_sha256": "da53a824e1fe2203cfa6618ce6b9f712a1c649f5ff83ee18757037a7a729618d"
+    },
+    "constraints": {
+      "count": 605,
+      "objects_sha256": "d04d3b282a7e300b5ab5979263c86dbb3c91c3cf6d8809eae5e930492fa45551",
+      "defs_sha256": "39e94450582392fac5cfd7bda49cd023ecca3fe690ace5112124f0a400784b82",
+      "distinct_raw_defs": 381,
+      "distinct_norm_defs": 381
+    },
+    "indexes": {
+      "count": 252,
+      "objects_sha256": "0b89c394809e2b0a44d71b1672822dd1f259a661a1a834dacd57b764ed5bae80",
+      "defs_sha256": "7cb8115eab33d005fad39c834031be0656f2b560080881ac4784260dfef18761",
+      "distinct_raw_defs": 252,
+      "distinct_norm_defs": 252
+    },
+    "triggers": {
+      "count": 53,
+      "objects_sha256": "ce40d15aae1e610603f8cf0d5f6c7b218ef9adbfdba8c23750c03eb52c4687d8",
+      "defs_sha256": "60357aab4bfef1e59c73e3efcaa55b255a40c1d10d719710bad22aea20c4634a",
+      "distinct_raw_defs": 53,
+      "distinct_norm_defs": 53
+    },
+    "functions": {
+      "count": 146,
+      "objects_sha256": "5da30d2e131f5e2c5711ebce80d52016dbab1d88c0b2a9d6f65fa16969478675",
+      "defs_sha256": "4bd19a9d672910a90b20540f87ef4ed7024a4c16f61455798cd1456db2350d57",
+      "distinct_raw_defs": 144,
+      "distinct_norm_defs": 144
+    }
+  }
+}

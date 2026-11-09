@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>登记 KOC 轻量记录与交付记录 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .tree { font-family: var(--mono); font-size: 11.5px; line-height: 1.95; color: var(--text-2); }
+  .tree .d { color: #c4a5ff; }
+  .tree .f { color: var(--text-2); }
+  .tree .c { color: var(--faint); }
+  .tree .n { color: var(--ok); }
+  .tree .ind { color: rgba(255,255,255,0.14); }
+  .zipbox { border: 1px solid var(--purple-line); border-radius: 12px; padding: 15px 17px; background: linear-gradient(165deg, rgba(160,107,255,0.09), rgba(160,107,255,0.02)); }
+  .koc { display: flex; gap: 11px; align-items: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); }
+  .kav { width: 34px; height: 34px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: linear-gradient(150deg, rgba(160,107,255,0.34), rgba(160,107,255,0.12)); color: #e2d1ff; }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-7"></i> 步骤 7 / 8</span>
+            <span class="code code-purple">BATCH-B01</span>
+            <span class="tag tag-ok">交付记录已标记</span>
+          </div>
+          <h1 class="page-title">登记 KOC 轻量记录与交付记录</h1>
+          <p class="page-desc">KOC 记录仅保留必要字段，不做重资产协作流程。交付记录需运营显式标记已交付，并可与发布登记逐条对应（AC-17）。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" href="delivery.html"><i class="fa-solid fa-arrow-left"></i>上一步</a>
+          <button class="btn btn-ghost" data-toast="演示环境：新增 KOC 轻量记录"><i class="fa-solid fa-user-plus"></i>新增 KOC</button>
+          <a class="btn btn-primary" href="data-feedback.html">前往发布登记 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-1-1">
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-user-group t-pur"></i>
+              <h3 class="card-title">KOC 轻量记录</h3>
+              <span class="tag tag-info no-dot">无登录账号 · 不含合同结算</span>
+            </div>
+            <div class="row">
+              <input class="input input-sm" style="width:130px" placeholder="搜索昵称或标识" />
+              <button class="btn btn-sm btn-ghost" data-toast="演示环境：新增 KOC 仅需标识、昵称、主页链接"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="col mb14" style="gap:8px">
+              <div class="koc">
+                <span class="kav">柚</span>
+                <div class="f1">
+                  <div class="row" style="gap:7px">
+                    <span class="f12 fw6">柚子不加冰</span>
+                    <span class="code f10">KOC-0112</span>
+                  </div>
+                  <div class="f10 t-mut mt4">
+                    <i class="fa-solid fa-link"></i> xiaohongshu.com/user/profile/5f8a…c31
+                    <span class="t-fai">· 备注：护肤垂类，配合度高</span>
+                  </div>
+                </div>
+                <div class="right">
+                  <div class="f12 mono fw6">4</div>
+                  <div class="f10 t-mut">已交付</div>
+                </div>
+              </div>
+              <div class="koc">
+                <span class="kav">阿</span>
+                <div class="f1">
+                  <div class="row" style="gap:7px">
+                    <span class="f12 fw6">阿栗的日常</span>
+                    <span class="code f10">KOC-0098</span>
+                  </div>
+                  <div class="f10 t-mut mt4">
+                    <i class="fa-solid fa-link"></i> xiaohongshu.com/user/profile/61b3…7ae
+                    <span class="t-fai">· 备注：学生党人群匹配</span>
+                  </div>
+                </div>
+                <div class="right">
+                  <div class="f12 mono fw6">3</div>
+                  <div class="f10 t-mut">已交付</div>
+                </div>
+              </div>
+              <div class="koc">
+                <span class="kav">莫</span>
+                <div class="f1">
+                  <div class="row" style="gap:7px">
+                    <span class="f12 fw6">莫莉在健身</span>
+                    <span class="code f10">KOC-0143</span>
+                  </div>
+                  <div class="f10 t-mut mt4">
+                    <i class="fa-solid fa-link"></i> xiaohongshu.com/user/profile/63d9…102
+                    <span class="t-fai">· 备注：运动场景</span>
+                  </div>
+                </div>
+                <div class="right">
+                  <div class="f12 mono fw6">2</div>
+                  <div class="f10 t-mut">已交付</div>
+                </div>
+              </div>
+              <div class="koc">
+                <span class="kav">好</span>
+                <div class="f1">
+                  <div class="row" style="gap:7px">
+                    <span class="f12 fw6">好好睡觉bot</span>
+                    <span class="code f10">KOC-0155</span>
+                    <span class="tag tag-muted no-dot f10">无备注</span>
+                  </div>
+                  <div class="f10 t-mut mt4"><i class="fa-solid fa-link"></i> xiaohongshu.com/user/profile/64f1…8bc</div>
+                </div>
+                <div class="right">
+                  <div class="f12 mono fw6">2</div>
+                  <div class="f10 t-mut">已交付</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row between mb14">
+              <span class="f11 t-mut">共 23 位 KOC · 仅显示前 4 位</span>
+              <button class="btn btn-sm btn-ghost">查看全部</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="sec-title"><i class="fa-solid fa-copy"></i>同内容多 KOC 提示</div>
+            <div class="col mb14" style="gap:8px">
+              <div class="warnrow">
+                <div class="row between">
+                  <span><i class="fa-solid fa-triangle-exclamation"></i> <b class="mono">C-0037-B01-004</b> 分配给 3 位 KOC</span>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：复制为新内容后可个性化改写并分别交付">复制为新内容</button>
+                </div>
+                <div class="mt6" style="color:var(--muted)">柚子不加冰 · 阿栗的日常 · 好好睡觉bot —— 存在重复表达风险，建议个性化后分别交付。</div>
+              </div>
+              <div class="warnrow">
+                <div class="row between">
+                  <span><i class="fa-solid fa-triangle-exclamation"></i> <b class="mono">C-0037-S01-011</b> 分配给 2 位 KOC</span>
+                  <button class="btn btn-sm btn-ghost">复制为新内容</button>
+                </div>
+                <div class="mt6" style="color:var(--muted)">莫莉在健身 · 柚子不加冰</div>
+              </div>
+            </div>
+
+            <div class="note note-info f11">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>
+                <b>已交付版本不随原内容修改自动更新。</b>如原内容后续产生 v4，已交付的 v3 记录保持不变；重新交付将创建新记录并说明替代关系（PRD §11.4）。
+              </div>
+            </div>
+          </div>
+        </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-clipboard-check t-pur"></i>
+              <h3 class="card-title">交付记录</h3>
+              <div class="seg" data-seg>
+                <button class="seg-item is-active">全部 58</button>
+                <button class="seg-item">已交付 52</button>
+                <button class="seg-item">待标记 7</button>
+                <button class="seg-item">已替代 3</button>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn btn-sm btn-purple" data-toast="演示环境：已显式标记 3 条为已交付，记录操作人林知远 09-16 19:18"><i class="fa-solid fa-check"></i>批量标记已交付</button>
+              <button class="btn btn-sm btn-ghost" data-toast="演示环境：导出交付记录 CSV"><i class="fa-solid fa-download"></i></button>
+            </div>
+          </div>
+          <div class="card-body p0">
+            <div class="table-wrap">
+              <div class="table-wrap"><div class="table-wrap"><table class="tbl">
+                <thead>
+                  <tr>
+                    <th style="width:34px"></th>
+                    <th style="width:150px">内容编号</th>
+                    <th style="width:66px">版本</th>
+                    <th style="width:130px">KOC</th>
+                    <th style="width:120px">交付时间</th>
+                    <th style="width:86px">操作人</th>
+                    <th style="width:110px">状态</th>
+                    <th>备注</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code code-purple">C-0037-B01-001</span></td>
+                    <td class="mono f11">v3</td>
+                    <td class="f11">柚子不加冰</td>
+                    <td class="f11 mono">09-16 15:22</td>
+                    <td class="f11">林知远</td>
+                    <td><span class="tag tag-ok">已交付</span></td>
+                    <td class="f11 t-mut">—</td>
+                  </tr>
+                  <tr>
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-004</span></td>
+                    <td class="mono f11">v2</td>
+                    <td class="f11">柚子不加冰</td>
+                    <td class="f11 mono">09-16 15:22</td>
+                    <td class="f11">林知远</td>
+                    <td><span class="tag tag-ok">已交付</span></td>
+                    <td class="f11 t-warn">同内容分配给 3 位 KOC</td>
+                  </tr>
+                  <tr>
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-004</span></td>
+                    <td class="mono f11">v2</td>
+                    <td class="f11">阿栗的日常</td>
+                    <td class="f11 mono">09-16 15:24</td>
+                    <td class="f11">林知远</td>
+                    <td><span class="tag tag-ok">已交付</span></td>
+                    <td class="f11 t-warn">重复表达风险已提示</td>
+                  </tr>
+                  <tr>
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-004</span></td>
+                    <td class="mono f11">v2</td>
+                    <td class="f11">好好睡觉bot</td>
+                    <td class="f11 mono">09-16 15:26</td>
+                    <td class="f11">陈嘉玥</td>
+                    <td><span class="tag tag-ok">已交付</span></td>
+                    <td class="f11 t-warn">建议复制为新内容个性化</td>
+                  </tr>
+                  <tr class="tr-off">
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code">C-0037-S01-007</span></td>
+                    <td class="mono f11">v2</td>
+                    <td class="f11">莫莉在健身</td>
+                    <td class="f11 mono">09-14 11:08</td>
+                    <td class="f11">林知远</td>
+                    <td><span class="tag tag-muted">已替代</span></td>
+                    <td class="f11 t-mut">被 v3 记录替代（09-15 16:40）</td>
+                  </tr>
+                  <tr class="tr-on">
+                    <td><label class="check"><input type="checkbox" /><span></span></label></td>
+                    <td><span class="code">C-0037-S01-007</span></td>
+                    <td class="mono f11">v3</td>
+                    <td class="f11">莫莉在健身</td>
+                    <td class="f11 mono">09-15 16:40</td>
+                    <td class="f11">林知远</td>
+                    <td><span class="tag tag-ok">已交付</span></td>
+                    <td class="f11 t-info">替代 09-14 的 v2 交付记录</td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-018</span></td>
+                    <td class="mono f11">v1</td>
+                    <td class="f11 t-mut">未分配</td>
+                    <td class="f11 t-mut">—</td>
+                    <td class="f11 t-mut">—</td>
+                    <td><span class="tag tag-warn">已下载待标记</span></td>
+                    <td class="f11 t-warn">下载于 09-16 15:20，尚未显式标记交付</td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-019</span></td>
+                    <td class="mono f11">v1</td>
+                    <td class="f11 t-mut">未分配</td>
+                    <td class="f11 t-mut">—</td>
+                    <td class="f11 t-mut">—</td>
+                    <td><span class="tag tag-warn">已下载待标记</span></td>
+                    <td class="f11 t-warn">下载 ≠ 已交付</td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td><label class="check checked"><input type="checkbox" checked /><span></span></label></td>
+                    <td><span class="code">C-0037-B01-020</span></td>
+                    <td class="mono f11">v2</td>
+                    <td class="f11">阿栗的日常</td>
+                    <td class="f11 t-mut">—</td>
+                    <td class="f11 t-mut">—</td>
+                    <td><span class="tag tag-warn">待标记</span></td>
+                    <td class="f11 t-warn">已分配 KOC，等待运营确认交付时间</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3" class="fw6">已选 3 条待标记</td>
+                    <td colspan="3">
+                      <div class="row" style="gap:8px">
+                        <span class="f11">交付时间</span>
+                        <input class="input input-sm" style="width:130px" value="2026-09-16 19:18" />
+                      </div>
+                    </td>
+                    <td colspan="2">
+                      <div class="row" style="gap:8px">
+                        <button class="btn btn-sm btn-purple" data-toast="演示环境：已显式标记 3 条为已交付，操作人林知远"><i class="fa-solid fa-check"></i>标记为已交付</button>
+                        <span class="f10 t-fai">操作人自动记录为当前登录用户</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table></div></div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="row wrap between" style="gap:10px">
+              <span class="f11 t-mut">
+                交付记录字段：内容编号 · 准确版本 · KOC · 交付时间 · 操作人 · 状态 · 备注（PRD §11.4）
+              </span>
+              <div class="pager">
+                <button class="pg"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="pg is-active">1</button>
+                <button class="pg">2</button>
+                <button class="pg">3</button>
+                <button class="pg"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'delivery-koc', crumb: ['项目中心', '素与 Su& 氨基酸洁面', 'KOC 与交付记录'] });
+</script>
+</body>
+</html>

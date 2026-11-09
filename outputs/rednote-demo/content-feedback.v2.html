@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>试产反馈 · 预览与逐条处置 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fb-row { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .fb-row:last-child { border-bottom: 0; }
+  .tbl tbody tr.tr-sel { background: rgba(160,107,255,0.10); }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <!-- 页头：原型的「1 项阻断事实问题」「4 / 10」「本轮 10 条」「BATCH-T01」
+           四处硬编码声称全部删除。阻断条数改由 #cf-counters 的真实计数给出；
+           批次概念无 batch 资源，不显示。 -->
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-comments"></i> 试产反馈</span>
+            <span class="code" id="cf-content">—</span>
+            <span class="tag tag-muted no-dot f10" id="cf-source">读取中…</span>
+          </div>
+          <h1 class="page-title">预览当前稿、逐条处置意见、给出审核结论</h1>
+          <p class="page-desc">四种处置方式：直接编辑（带 If-Match 乐观锁）、添加意见、推进意见状态、给出审核结论。关键事实问题未解决不能通过 —— 这一条由服务端硬规则兜底（409 + blockingFeedbackIds），不是前端校验。</p>
+        </div>
+        <div class="page-head-actions">
+          <a class="btn btn-ghost" data-keep-id href="plan-detail.v2.html"><i class="fa-solid fa-arrow-left"></i>逐行计划</a>
+          <a class="btn btn-primary" data-keep-cid href="feedback-fix.v2.html">下一步：对照与修复 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div id="cf-counters" aria-live="polite"></div>
+      <div id="cf-result" aria-live="polite"></div>
+
+      <div class="grid g-3-2" style="margin-top:14px">
+        <div class="col" style="gap:14px">
+          <div id="cf-preview" aria-live="polite"></div>
+          <div id="cf-edit" aria-live="polite"></div>
+          <div id="cf-selfcheck" aria-live="polite"></div>
+          <div id="cf-feedback" aria-live="polite"></div>
+          <div id="cf-contents" aria-live="polite"></div>
+          <div id="cf-media" aria-live="polite"></div>
+        </div>
+        <div class="col" style="gap:14px">
+          <div id="cf-meta" aria-live="polite"></div>
+          <div id="cf-gate" aria-live="polite"></div>
+          <div id="cf-gates" aria-live="polite"></div>
+          <div id="cf-form" aria-live="polite"></div>
+          <div id="cf-advance" aria-live="polite"></div>
+          <div id="cf-review" aria-live="polite"></div>
+          <div id="cf-anchors" aria-live="polite"></div>
+          <div id="cf-regen"></div>
+          <div id="cf-upload"></div>
+          <div id="cf-direction"></div>
+          <div id="cf-doctrine"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.REDNOTE_API_BASE = '/api/v1';
+</script>
+<script src="api.js"></script>
+<script src="render/content-feedback.js"></script>
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'content-feedback', crumb: ['项目中心', '试产与反馈', '试产反馈'] });
+
+  /* 挂载层：取数 → 纯函数 → innerHTML；4 个写动作全部走 *Request() 请求描述符。
+     IIFE 67 行 —— 超 41 行软上限，原因有二且都省不掉：① 本页有 4 个写动作
+     （编辑 / 新建意见 / 推进状态 / 审核），其余 20 页都是纯读页；② 本页有 17 个
+     容器。fill(map) 已把搬运收成一处，URL/body/If-Match 的拼装全在 *Request()
+     纯函数里（有 65 条单测），这里一行可测逻辑都没有。 */
+  (function () {
+    'use strict';
+    var API = window.RednoteAPI, R = window.RednoteRender.contentFeedback;
+    var el = function (id) { return document.getElementById(id); };
+    var val = function (id) { var n = el(id); return n ? n.value : ''; };
+    /* 只把「真被改过」的字段交给 editRequest —— 端点语义是「未传沿用上一版」 */
+    function edited() { var p = S.preview || {}, o = {}, g = val('cf-tags').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+      if (val('cf-title') !== (p.title || '')) o.title = val('cf-title');
+      if (val('cf-bodytext') !== (p.body || '')) o.body = val('cf-bodytext');
+      if (g.join(',') !== (p.tags || []).join(',')) o.tags = g; return o; }
+    var SLOTS = ['cf-counters', 'cf-preview', 'cf-edit', 'cf-selfcheck', 'cf-feedback', 'cf-contents', 'cf-media', 'cf-meta', 'cf-gate', 'cf-gates', 'cf-form', 'cf-review', 'cf-anchors'];
+    var src = el('cf-source'), S = { pid: '', cid: '', preview: null, items: [], contents: [], idx: {}, form: { anchorKind: 'WHOLE' }, regen: 'FULL' };
+    /* fill(map)：容器 id → 已渲染好的 HTML 串。挂载层只负责搬运，不拼字符串。 */
+    var fill = function (map) { Object.keys(map).forEach(function (k) { el(k).innerHTML = map[k]; }); };
+    var tag = function (cls, label) { src.className = 'tag ' + cls + ' no-dot f10'; src.textContent = label; };
+    fill({ 'cf-upload': R.renderUploadUnavailable(), 'cf-direction': R.renderDirectionUnavailable(), 'cf-doctrine': R.renderReviewDoctrine() });
+    function paint() {
+      fill({ 'cf-counters': R.renderFeedbackCounters(S.items), 'cf-preview': R.renderPreviewPhone(S.preview), 'cf-edit': R.renderEditForm(S.preview), 'cf-selfcheck': R.renderSelfCheckGrid(S.preview), 'cf-feedback': R.renderFeedbackList(S.items, S.idx) });
+      fill({ 'cf-contents': R.renderContentsTable(S.contents, S.cid), 'cf-meta': R.renderMetaFields(S.preview), 'cf-gate': R.renderBlockingGate(S.items), 'cf-gates': R.renderGateChecks(S.items, S.contents) });
+      fill({ 'cf-form': R.renderFeedbackForm(S.preview, S.form), 'cf-review': R.renderReviewActions(S.preview, S.contents), 'cf-anchors': R.renderParagraphAnchors(S.preview), 'cf-regen': R.renderRegenScopeOptions(S.regen) });
+    }
+    async function load() {
+      SLOTS.forEach(function (id) { el(id).innerHTML = R.renderLoading('正在读取内容与意见…'); });
+      try {
+        var q = new URLSearchParams(window.location.search); S.pid = q.get('id') || ''; S.cid = S.cid || q.get('contentId') || '';
+        if (!S.pid) { var ps = await API.page('/projects', { limit: 100 }); S.pid = ps.items.length ? ps.items[0].id : ''; }
+        var cs = await API.page('/projects/' + encodeURIComponent(S.pid) + '/contents', { limit: 100 });
+        S.contents = cs.items;
+        if (!S.cid) S.cid = S.contents.length ? S.contents[0].contentId : '';
+        if (!S.cid) throw { code: 'RESOURCE_NOT_FOUND', message: '项目下没有内容条目，无法预览。' };
+        var c = '/contents/' + encodeURIComponent(S.cid);
+        el('cf-content').textContent = S.cid;
+        document.querySelectorAll('[data-keep-id]').forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?id=' + encodeURIComponent(S.pid); });
+        document.querySelectorAll('[data-keep-cid]').forEach(function (a) { a.href = a.getAttribute('href').split('?')[0] + '?contentId=' + encodeURIComponent(S.cid); });
+        var r = await Promise.all([API.get(c + '/preview'), API.page(c + '/feedback', { limit: 100 }), API.page(c + '/media', { limit: 100 }), API.page(c + '/versions', { limit: 100 })]);
+        S.preview = r[0]; S.items = r[1].items; S.idx = R.indexVersions(r[3].items); paint();
+        el('cf-media').innerHTML = R.renderMediaStrip(r[2].items);
+        var demo = r[1].static || r[2].static || cs.static;
+        tag(demo ? 'tag-warn' : 'tag-ok', demo ? '演示数据 · 静态降级' : '实时数据 · v' + r[0].versionNo + ' / ' + S.items.length + ' 条意见');
+      } catch (err) {
+        SLOTS.forEach(function (id) { el(id).innerHTML = ''; });
+        el('cf-preview').innerHTML = R.renderError(err); tag('tag-danger', '读取失败');
+      }
+    }
+    async function send(req, after) {
+      el('cf-result').innerHTML = R.renderLoading('正在提交…');
+      try {
+        var res = await API.request(req.method, req.path, { body: req.body, ifMatch: req.ifMatch || undefined });
+        el('cf-result').innerHTML = after ? after(res) : ''; await load();
+      } catch (err) { el('cf-result').innerHTML = R.renderError(err); }
+    }
+    document.querySelector('.canvas').addEventListener('click', function (e) {
+      var t = e.target, ak = t.closest('[data-anchor-kind]'), ap = t.closest('[data-action="anchor-paragraph"]'), adv = t.closest('[data-action="advance"]'), open = t.closest('[data-action="open-advance"]'), sc = t.closest('[data-content-id]'), rg = t.closest('[data-regen-scope]');
+      if (t.closest('[data-action="retry"]')) load();
+      else if (ak) { S.form.anchorKind = ak.getAttribute('data-anchor-kind'); el('cf-form').innerHTML = R.renderFeedbackForm(S.preview, S.form); }
+      else if (ap) { e.preventDefault(); S.form.anchorKind = 'PARAGRAPH'; S.form.paragraphRef = ap.getAttribute('data-paragraph-ref'); el('cf-form').innerHTML = R.renderFeedbackForm(S.preview, S.form); }
+      else if (sc) { e.preventDefault(); S.cid = sc.getAttribute('data-content-id'); load(); }
+      else if (rg) { e.preventDefault(); S.regen = rg.getAttribute('data-regen-scope'); el('cf-regen').innerHTML = R.renderRegenScopeOptions(S.regen); }
+      else if (open) { e.preventDefault(); el('cf-advance').innerHTML = R.renderAdvanceForm(S.items.filter(function (x) { return x.id === open.getAttribute('data-feedback-id'); })[0]); }
+      else if (adv) { var it = S.items.filter(function (x) { return x.id === adv.getAttribute('data-feedback-id'); })[0]; send(R.advanceRequest(it, adv.getAttribute('data-to-state'), { rejectReason: val('cf-reject') })); }
+      else if (t.closest('[data-action="add-feedback"]')) send(R.createFeedbackRequest(S.preview, { anchorKind: S.form.anchorKind, paragraphRef: val('cf-pref') || S.form.paragraphRef, mediaItemId: val('cf-media'), category: val('cf-category'), severity: val('cf-severity'), scope: val('cf-scope'), body: val('cf-body') }));
+      else if (t.closest('[data-action="save-edit"]')) send(R.editRequest(S.preview, edited()), R.renderEditResult);
+      else if (t.closest('[data-action="review"]')) send(R.reviewRequest(S.preview, t.closest('[data-decision]').getAttribute('data-decision'), val('cf-reason')));
+      else if (t.closest('[data-action="batch-review"]')) send(R.batchReviewRequest(S.pid, S.contents.map(function (x) { return x.contentId; }), t.closest('[data-decision]').getAttribute('data-decision'), val('cf-reason')), R.renderBatchReviewResult);
+    });
+    load();
+  })();
+</script>
+</body>
+</html>

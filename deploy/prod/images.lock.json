@@ -1,0 +1,130 @@
+{
+  "schema": "rednote.images.lock/1",
+  "generated_by": "人工编写（不是脚本产出）——它是『应该装哪个镜像』的声明，不是『装了哪个』的观测",
+  "updated": "2026-10-18",
+  "doc": "deploy/prod/README.md；判据 tools/quality/check_offline_bundle.py；SBOM 镜像侧输入 tools/ops/gen_sbom.py",
+
+  "_读法": [
+    "本文件是 deploy/prod/docker-compose.yml 的镜像引用**唯一权威**。",
+    "compose 里每个 image: 都写成 ${IMAGE_*}，取值在 .env.example / .env —— 这不是风格偏好：",
+    "内网走 Harbor（ADR-11 C5），镜像**名字前缀本身会变**（registry.example.com/rednote/...），",
+    "写死 image: 的话内网第一步就要改 compose，而改过的 compose 不再被任何判据守。",
+    "⚠️ 本文件当前 7 条全部 digest 未回填 ⇒ **这份编排在回填前起不来**，这是刻意的 fail-closed：",
+    "   起不来比『悄悄拉到一个别的版本』安全。读法见 README.md §0 禁用句式。"
+  ],
+
+  "_pin_state 三态（与 ref 形态双向对账，判据 S6e）": {
+    "digest": "ref 形如 name@sha256:<64hex>。真正锁死。**当前 0 条**。",
+    "tag-channel": "ref 带一个真实存在的上游 tag，但它是通道/次版本（pg17 / 4-management / 26.0），不是精确补丁，也没锁 digest ⇒ 同一 tag 不同时间拉到不同内容。",
+    "unresolved": "连 tag 都不知道 ⇒ ref 里写显式 PENDING 标记。`docker pull` 必失败。**刻意的**：此处若凭印象填一个版本号，就是 OP-14 备注里点名禁止的那件事（『当前刻意留空，不凭印象填』）。"
+  },
+
+  "target_registry": {
+    "value": null,
+    "pending_op": "[待申领]",
+    "pending_reason": "内网 Harbor 的仓库前缀未定（ADR-11 C5 / S1 宿主设施）。回填后各 ref 需整体加前缀，由 .env 的 IMAGE_* 承载，compose 不动。"
+  },
+
+  "target_platform": {
+    "os": null,
+    "arch": null,
+    "libc": null,
+    "python_version": null,
+    "pending_op": "[待申领]",
+    "pending_reason": "目标平台三元组未定（方案 §10 第 1/2 项）。硬件采购未落地；可能是信创 ARM。wheelhouse 的全部内容由它决定 —— 见 tools/ops/build_offline_bundle.py 的 --platform-tag/--python-version，本机构建只是**演示构建**。"
+  },
+
+  "images": [
+    {
+      "service": ["postgres"],
+      "env_var": "IMAGE_POSTGRES",
+      "component": "C1 主库 PostgreSQL 17 + pgvector",
+      "ref": "pgvector/pgvector:pg17",
+      "name": "pgvector/pgvector",
+      "tag": "pg17",
+      "digest": null,
+      "pin_state": "tag-channel",
+      "pending_op": "[待申领]",
+      "pending_reason": "`pg17` 是通道 tag（跟随 17.x 最新），不是精确补丁。需可出网机 `docker pull` 后取 digest 回填。登记册 B 组（OP-14~OP-21）下无此条，编号待主会话串行申领。",
+      "source": "deploy/dev/docker-compose.yml:38（tag 照抄 dev，不自创版本号）"
+    },
+    {
+      "service": ["rabbitmq"],
+      "env_var": "IMAGE_RABBITMQ",
+      "component": "C2 队列 RabbitMQ 4（quorum queue）",
+      "ref": "rabbitmq:4-management",
+      "name": "rabbitmq",
+      "tag": "4-management",
+      "digest": null,
+      "pin_state": "tag-channel",
+      "pending_op": "[待申领]",
+      "pending_reason": "`4-management` 是大版本通道 tag。同上，digest 需出网拉取后回填；编号待申领。",
+      "source": "deploy/dev/docker-compose.yml:111"
+    },
+    {
+      "service": ["minio"],
+      "env_var": "IMAGE_MINIO",
+      "component": "C3 对象存储 MinIO（S3 兼容）",
+      "ref": "minio/minio:PENDING",
+      "name": "minio/minio",
+      "tag": "PENDING",
+      "digest": null,
+      "pin_state": "unresolved",
+      "pending_op": "OP-14",
+      "pending_reason": "OP-14（登记册:393）『MinIO 生产用具体 RELEASE digest（64 位十六进制）』，备注原文**『当前刻意留空，不凭印象填』**。dev 用的是 `minio/minio:latest`（dev compose:79）—— 生产禁用，故此处既不抄 latest 也不编 RELEASE 日期 tag。",
+      "source": "docs/待定项与问题登记册.md:393（OP-14）；deploy/dev/docker-compose.yml:73-76 的『生产必须锁 digest』注释"
+    },
+    {
+      "service": ["keycloak"],
+      "env_var": "IMAGE_KEYCLOAK",
+      "component": "C4 身份 Keycloak 26.x（profile=auth，默认不启动）",
+      "ref": "quay.io/keycloak/keycloak:26.0",
+      "name": "quay.io/keycloak/keycloak",
+      "tag": "26.0",
+      "digest": null,
+      "pin_state": "tag-channel",
+      "pending_op": "OP-52",
+      "pending_reason": "OP-52（登记册:456）『Keycloak 版本与 OIDC 端点路径（当前按常规路径填默认值，未实测）』。`26.0` 是次版本通道，不是补丁号。",
+      "source": "deploy/dev/docker-compose.yml:144"
+    },
+    {
+      "service": ["api-1", "api-2", "worker"],
+      "env_var": "IMAGE_APP",
+      "component": "C8 应用镜像（双 API 实例 + Worker 共用同一镜像，入口命令不同）",
+      "ref": "rednote/backend:0.1.0",
+      "name": "rednote/backend",
+      "tag": "0.1.0",
+      "digest": null,
+      "pin_state": "tag-channel",
+      "pending_op": "[待申领]",
+      "pending_reason": "版本号取自 services/backend/pyproject.toml:3 的 `version = \"0.1.0\"`（不是自创）。digest 要等**镜像真的被构建并推进 Harbor** 之后才存在。⚠️ 另有一个更前置的缺口：**本仓当前没有 Dockerfile**，这个镜像现在造不出来 —— 已在 docs/m5/WP46-内网安装包与SBOM说明.md §0.1 覆盖矩阵里按 ❌ 登记，归属待主会话拍板。",
+      "source": "services/backend/pyproject.toml:3"
+    },
+    {
+      "service": ["gateway"],
+      "env_var": "IMAGE_GATEWAY",
+      "component": "C8 反向代理 + HTTPS 终结",
+      "ref": "nginx:PENDING",
+      "name": "nginx",
+      "tag": "PENDING",
+      "digest": null,
+      "pin_state": "unresolved",
+      "pending_op": "[待申领]",
+      "pending_reason": "ADR-11 与研发计划均未定反代的具体实现与版本（C8 只写『反向代理 + HTTPS』）。此处选 nginx 是**实现选择**，版本号无任何仓内依据 ⇒ 不编。另依赖 E2（内部域名 / DNS / 内部 CA）未落地。",
+      "source": "docs/adr/ADR-11-基础设施全自建.md C8（组件表）"
+    },
+    {
+      "service": ["prometheus"],
+      "env_var": "IMAGE_PROMETHEUS",
+      "component": "C6 监控抓取（配置只读挂载 deploy/monitoring/，WP47② 已建，本包不复制第二份）",
+      "ref": "prom/prometheus:PENDING",
+      "name": "prom/prometheus",
+      "tag": "PENDING",
+      "digest": null,
+      "pin_state": "unresolved",
+      "pending_op": "[待申领]",
+      "pending_reason": "WP47② 交付的是抓取配置与告警规则（deploy/monitoring/），**没有定镜像版本**（它用本机 promtool 验证，不起容器）。版本无仓内依据 ⇒ 不编。",
+      "source": "deploy/monitoring/prometheus.yml（WP47②）"
+    }
+  ]
+}

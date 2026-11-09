@@ -1,0 +1,2727 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:dd1ce6e5-71bc-4151-bfa1-91429d524b85",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-18T16:59:08Z",
+    "tools": [
+      {
+        "vendor": "rednote",
+        "name": "tools/ops/gen_sbom.py",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "bom-ref": "pkg:pypi/rednote-backend@0.1.0",
+      "name": "rednote-backend",
+      "version": "0.1.0",
+      "description": "Rednote 内容生产 AI Native 系统 — 后端 API"
+    },
+    "properties": [
+      {
+        "name": "rednote:coverage:layers",
+        "value": "L-A,L-B,L-C"
+      },
+      {
+        "name": "rednote:coverage:not-covered",
+        "value": "image-os-packages,frontend-assets,ocr-model-weights,dynamic-imports"
+      },
+      {
+        "name": "rednote:source:pyproject",
+        "value": "services/backend/pyproject.toml"
+      },
+      {
+        "name": "rednote:source:wheelhouse",
+        "value": "dist/bundle/wheelhouse"
+      },
+      {
+        "name": "rednote:source:images-lock",
+        "value": "deploy/prod/images.lock.json"
+      },
+      {
+        "name": "rednote:runtime:facts-source",
+        "value": "live-query"
+      },
+      {
+        "name": "rednote:count:direct-requirements",
+        "value": "19"
+      },
+      {
+        "name": "rednote:count:wheelhouse-wheels",
+        "value": "51"
+      },
+      {
+        "name": "rednote:count:images",
+        "value": "7"
+      },
+      {
+        "name": "rednote:uncovered-layer:image-os-packages",
+        "value": "镜像内 OS 包层（dpkg/rpm 级清单）：需 syft/trivy 解析镜像层与发行版包数据库，本机四个工具实测全缺、内网也装不了；自己写是另一个工作包的体量。"
+      },
+      {
+        "name": "rednote:uncovered-layer:frontend-assets",
+        "value": "前端静态资产：本仓当前无前端产物目录（apps/ 不存在），demo 在仓库外；且实测 demo 依赖 cdnjs 与 Google Fonts 外链，断网会降级 —— 处置归前端赛道。"
+      },
+      {
+        "name": "rednote:uncovered-layer:ocr-model-weights",
+        "value": "OCR（PaddleOCR）版本与模型权重：OP-137 未定版本与权重来源，离线包体积未知。"
+      },
+      {
+        "name": "rednote:uncovered-layer:dynamic-imports",
+        "value": "运行期动态导入（importlib / __import__ 构造出来的模块名）：wheelhouse 覆盖的是 pip 解析出的发行包，解析不出「代码在运行时才拼出模块名」这一类；那要靠 check_dependency_declarations.py 的 AST 扫描兜。"
+      },
+      {
+        "name": "rednote:runtime:postgresql",
+        "value": "PostgreSQL 17.10 (Homebrew) on aarch64-apple-darwin25.6.0, compiled by Apple clang version 21.0.0 (clang-2100.1.1.101), 64-bit"
+      },
+      {
+        "name": "rednote:runtime:extension",
+        "value": "plpgsql=1.0"
+      },
+      {
+        "name": "rednote:runtime:extension",
+        "value": "vector=0.8.6"
+      },
+      {
+        "name": "rednote:runtime:query",
+        "value": "select version()"
+      },
+      {
+        "name": "rednote:runtime:query",
+        "value": "select extname || '=' || extversion from pg_extension order by 1"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/sqlalchemy@2.0.35",
+      "name": "sqlalchemy",
+      "version": "2.0.35",
+      "purl": "pkg:pypi/sqlalchemy@2.0.35",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2ab3f0336c0387662ce6221ad30ab3a5e6499aab01b9790879b6578fd9b8faa1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "SQLAlchemy==2.0.35"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "SQLAlchemy-2.0.35-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "1881276"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/alembic@1.18.5",
+      "name": "alembic",
+      "version": "1.18.5",
+      "purl": "pkg:pypi/alembic@1.18.5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06d8ba9d04558022f5395e9317de03d270f3dced49cee01f89fe7a13c26f14bc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "alembic==1.18.5"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "alembic-1.18.5-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "264664"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/annotated-types@0.8.0",
+      "name": "annotated-types",
+      "version": "0.8.0",
+      "purl": "pkg:pypi/annotated-types@0.8.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "annotated_types-0.8.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "13427"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/anyio@4.15.1",
+      "name": "anyio",
+      "version": "4.15.1",
+      "purl": "pkg:pypi/anyio@4.15.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "anyio-4.15.1-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "132079"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/boto3@1.43.98",
+      "name": "boto3",
+      "version": "1.43.98",
+      "purl": "pkg:pypi/boto3@1.43.98",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7454f666a9e852a56db0a7fa23be33a899f64e27828930eac43c3edba7b34e17"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "boto3==1.43.98"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "boto3-1.43.98-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "140033"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/botocore@1.43.98",
+      "name": "botocore",
+      "version": "1.43.98",
+      "purl": "pkg:pypi/botocore@1.43.98",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "84b35b10402c2fc0c265f634fbf86336eecc6489ee23f55074b329924b2cfd6f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "botocore==1.43.98"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "botocore-1.43.98-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "15817751"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/certifi@2026.7.22",
+      "name": "certifi",
+      "version": "2026.7.22",
+      "purl": "pkg:pypi/certifi@2026.7.22",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "certifi-2026.7.22-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "136983"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cffi@2.1.1",
+      "name": "cffi",
+      "version": "2.1.1",
+      "purl": "pkg:pypi/cffi@2.1.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a931079504ecc49efed7744c476a5c343a92fabf66dec2db95edb1b2fdc770e2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux2014_x86_64.manylinux_2_17_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "221824"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/click@8.5.0",
+      "name": "click",
+      "version": "8.5.0",
+      "purl": "pkg:pypi/click@8.5.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "click-8.5.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "125251"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/cryptography@50.0.0",
+      "name": "cryptography",
+      "version": "50.0.0",
+      "purl": "pkg:pypi/cryptography@50.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b42a28c1844fd9de8f3f7d540e36b66f3a9c83fceac7170ebc7a6a19edd9dcae"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "cryptography==50.0.0"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "cryptography-50.0.0-cp311-abi3-manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp311"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "abi3"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "4734609"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/et-xmlfile@2.0.0",
+      "name": "et-xmlfile",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/et-xmlfile@2.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "et_xmlfile-2.0.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "18059"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/fastapi@0.115.0",
+      "name": "fastapi",
+      "version": "0.115.0",
+      "purl": "pkg:pypi/fastapi@0.115.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "17ea427674467486e997206a5ab25760f6b09e069f099b96f5b55a32fb6f1631"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "fastapi==0.115.0"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "fastapi-0.115.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "94625"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/h11@0.16.0",
+      "name": "h11",
+      "version": "0.16.0",
+      "purl": "pkg:pypi/h11@0.16.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "h11-0.16.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "37515"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/httpcore@1.0.9",
+      "name": "httpcore",
+      "version": "1.0.9",
+      "purl": "pkg:pypi/httpcore@1.0.9",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "httpcore-1.0.9-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "78784"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/httptools@0.9.0",
+      "name": "httptools",
+      "version": "0.9.0",
+      "purl": "pkg:pypi/httptools@0.9.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "088de1738e1af624466a01c35d652dbe6fb825be887c76d68aa850621d81db88"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "httptools-0.9.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "520112"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/httpx@0.27.2",
+      "name": "httpx",
+      "version": "0.27.2",
+      "purl": "pkg:pypi/httpx@0.27.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7bb2708e112d8fdd7829cd4243970f0c223274051cb35ee80c03301ee29a3df0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "httpx==0.27.2"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "httpx-0.27.2-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "76395"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/idna@3.20",
+      "name": "idna",
+      "version": "3.20",
+      "purl": "pkg:pypi/idna@3.20",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "idna-3.20-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "69583"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/iniconfig@2.3.1",
+      "name": "iniconfig",
+      "version": "2.3.1",
+      "purl": "pkg:pypi/iniconfig@2.3.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9121e2c1fdb355232495be3194c8dfe87ccc2d5dee45947b78e68f499790d7a7"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "iniconfig-2.3.1-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "7552"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/jmespath@1.1.0",
+      "name": "jmespath",
+      "version": "1.1.0",
+      "purl": "pkg:pypi/jmespath@1.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "jmespath-1.1.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "20419"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/lxml@6.1.3",
+      "name": "lxml",
+      "version": "6.1.3",
+      "purl": "pkg:pypi/lxml@6.1.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d85dfab42dd672f87a7f76e9de7172962aee69fa12044f0d6e1a23cbd53fb80e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "lxml-6.1.3-cp313-cp313-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_26_x86_64.manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "5232385"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/mako@1.4.3",
+      "name": "mako",
+      "version": "1.4.3",
+      "purl": "pkg:pypi/mako@1.4.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "723296007c870bfd6b3f0c3230dba7198096e5269297ebf5e4eff9e7ffa39d4f"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "mako-1.4.3-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "80164"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/markupsafe@3.0.4",
+      "name": "markupsafe",
+      "version": "3.0.4",
+      "purl": "pkg:pypi/markupsafe@3.0.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "434139499bb20b502ed3baa1f169e618f924a97e7a777fea1a49446d80106cf6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "markupsafe-3.0.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "23017"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/numpy@2.5.4",
+      "name": "numpy",
+      "version": "2.5.4",
+      "purl": "pkg:pypi/numpy@2.5.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6ffa07666f8da0eef81d149934a626d0d95fbd6838432a33e66245423a9062c0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "numpy-2.5.4-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_27_x86_64.manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "16718044"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/openpyxl@3.1.5",
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "purl": "pkg:pypi/openpyxl@3.1.5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "openpyxl==3.1.5"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "openpyxl-3.1.5-py2.py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py2.py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "250910"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/packaging@26.3",
+      "name": "packaging",
+      "version": "26.3",
+      "purl": "pkg:pypi/packaging@26.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "packaging-26.3-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "129956"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pgvector@0.3.3",
+      "name": "pgvector",
+      "version": "0.3.3",
+      "purl": "pkg:pypi/pgvector@0.3.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2c14c9a5219ccf3757cda493dc756506992afad6233dafcecb6d8ab08155f177"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "pgvector==0.3.3"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pgvector-0.3.3-py2.py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py2.py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "24115"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pillow@10.4.0",
+      "name": "pillow",
+      "version": "10.4.0",
+      "purl": "pkg:pypi/pillow@10.4.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e4db64794ccdf6cb83a59d73405f63adbe2a1887012e308828596100a0b2f6cc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "Pillow==10.4.0"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pillow-10.4.0-cp313-cp313-manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "4536767"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pluggy@1.7.0",
+      "name": "pluggy",
+      "version": "1.7.0",
+      "purl": "pkg:pypi/pluggy@1.7.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7dd7b0d8832ba3cb632c306926ded123429211b83641b35dc5c41ad2d34f9bec"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pluggy-1.7.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "27082"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/prometheus-client@0.21.1",
+      "name": "prometheus-client",
+      "version": "0.21.1",
+      "purl": "pkg:pypi/prometheus-client@0.21.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "594b45c410d6f4f8888940fe80b5cc2521b305a1fafe1c58609ef715a001f301"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "prometheus_client==0.21.1"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "prometheus_client-0.21.1-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "54682"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/psycopg@3.3.5",
+      "name": "psycopg",
+      "version": "3.3.5",
+      "purl": "pkg:pypi/psycopg@3.3.5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ce5aa5cdb4f9379f00f487590e5890bfa7df9a164648c969ffa628505e21af4e"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "psycopg[binary]==3.3.5"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "psycopg-3.3.5-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "213598"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/psycopg-binary@3.3.5",
+      "name": "psycopg-binary",
+      "version": "3.3.5",
+      "purl": "pkg:pypi/psycopg-binary@3.3.5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cb3b3bffebfe07110730626e76238161124f35ac87b748d663316a28d22f58b0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "psycopg_binary-3.3.5-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux2014_x86_64.manylinux_2_17_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "5227577"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pycparser@3.11",
+      "name": "pycparser",
+      "version": "3.11",
+      "purl": "pkg:pypi/pycparser@3.11",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pycparser-3.11-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "51178"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pydantic@2.9.2",
+      "name": "pydantic",
+      "version": "2.9.2",
+      "purl": "pkg:pypi/pydantic@2.9.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f048cec7b26778210e28a0459867920654d48e5e62db0958433636cde4254f12"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "pydantic==2.9.2"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pydantic-2.9.2-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "434928"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pydantic-core@2.23.4",
+      "name": "pydantic-core",
+      "version": "2.23.4",
+      "purl": "pkg:pypi/pydantic-core@2.23.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8394d940e5d400d04cad4f75c0598665cbb81aecefaca82ca85bd28264af7f9b"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pydantic_core-2.23.4-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_17_x86_64.manylinux2014_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "2071635"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pydantic-settings@2.5.2",
+      "name": "pydantic-settings",
+      "version": "2.5.2",
+      "purl": "pkg:pypi/pydantic-settings@2.5.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2c912e55fd5794a59bf8c832b9de832dcfdf4778d79ff79b708744eed499a907"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "pydantic-settings==2.5.2"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pydantic_settings-2.5.2-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "26864"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pypdf@5.1.0",
+      "name": "pypdf",
+      "version": "5.1.0",
+      "purl": "pkg:pypi/pypdf@5.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3bd4f503f4ebc58bae40d81e81a9176c400cbbac2ba2d877367595fb524dfdfc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "pypdf==5.1.0"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pypdf-5.1.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "297976"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pytest@8.3.3",
+      "name": "pytest",
+      "version": "8.3.3",
+      "purl": "pkg:pypi/pytest@8.3.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a6853c7375b2663155079443d2e45de913a911a11d669df02a50814944db57b2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "pytest==8.3.3"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pytest-8.3.3-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "342341"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/python-dateutil@2.9.0.post0",
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "purl": "pkg:pypi/python-dateutil@2.9.0.post0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py2.py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "229892"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/python-docx@1.1.2",
+      "name": "python-docx",
+      "version": "1.1.2",
+      "purl": "pkg:pypi/python-docx@1.1.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "08c20d6058916fb19853fcf080f7f42b6270d89eac9fa5f8c15f691c0017fabe"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "python-docx==1.1.2"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "python_docx-1.1.2-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "244315"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/python-dotenv@1.2.4",
+      "name": "python-dotenv",
+      "version": "1.2.4",
+      "purl": "pkg:pypi/python-dotenv@1.2.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "42269a8a5b3fd54ffa6f3d84b18abed50064717576b4ecf03dc4a55d8aa04fdc"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "python_dotenv-1.2.4-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "23266"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/pyyaml@6.0.3",
+      "name": "pyyaml",
+      "version": "6.0.3",
+      "purl": "pkg:pypi/pyyaml@6.0.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0f29edc409a6392443abf94b9cf89ce99889a1dd5376d94316ae5145dfedd5d6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "pyyaml-6.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "801626"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/s3transfer@0.19.2",
+      "name": "s3transfer",
+      "version": "0.19.2",
+      "purl": "pkg:pypi/s3transfer@0.19.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d8168eccca828cbb2cd573675333f3bddd254313a9c42494b84c76b539e8ba25"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "s3transfer-0.19.2-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "90216"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/six@1.17.0",
+      "name": "six",
+      "version": "1.17.0",
+      "purl": "pkg:pypi/six@1.17.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "six-1.17.0-py2.py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py2.py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "11050"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/sniffio@1.3.1",
+      "name": "sniffio",
+      "version": "1.3.1",
+      "purl": "pkg:pypi/sniffio@1.3.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "sniffio-1.3.1-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "10235"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/starlette@0.38.6",
+      "name": "starlette",
+      "version": "0.38.6",
+      "purl": "pkg:pypi/starlette@0.38.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4517a1409e2e73ee4951214ba012052b9e16f60e90d73cfb06192c19203bbb05"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "starlette==0.38.6"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "starlette-0.38.6-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "71451"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/typing-extensions@4.16.0",
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "purl": "pkg:pypi/typing-extensions@4.16.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "typing_extensions-4.16.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "45571"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/urllib3@2.8.0",
+      "name": "urllib3",
+      "version": "2.8.0",
+      "purl": "pkg:pypi/urllib3@2.8.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "urllib3-2.8.0-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "135717"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/uvicorn@0.30.6",
+      "name": "uvicorn",
+      "version": "0.30.6",
+      "purl": "pkg:pypi/uvicorn@0.30.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65fd46fe3fda5bdc1b03b94eb634923ff18cd35b2f084813ea79d1f103f711b5"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-A"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "true"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": "uvicorn[standard]==0.30.6"
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "uvicorn-0.30.6-py3-none-any.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "py3"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "none"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "any"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "62835"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/uvloop@0.23.0",
+      "name": "uvloop",
+      "version": "0.23.0",
+      "purl": "pkg:pypi/uvloop@0.23.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e2cba180d6451822763eda8364f342435a873bcfb3849cbd82fdeca248ca65eb"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "uvloop-0.23.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "4480449"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/watchfiles@1.3.0",
+      "name": "watchfiles",
+      "version": "1.3.0",
+      "purl": "pkg:pypi/watchfiles@1.3.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b5768b49e426fd5b550b012c866db347cdf15c398ef98dc557b6e6b72fa74cd1"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp310"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "abi3"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux_2_17_x86_64.manylinux2014_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "458353"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:pypi/websockets@17.2",
+      "name": "websockets",
+      "version": "17.2",
+      "purl": "pkg:pypi/websockets@17.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d87091c4347daadbcc0833b65812ff38d7350c67339625d4e4a512cf38e3e8ef"
+        }
+      ],
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-B"
+        },
+        {
+          "name": "rednote:direct",
+          "value": "false"
+        },
+        {
+          "name": "rednote:requirement",
+          "value": ""
+        },
+        {
+          "name": "rednote:wheel-filename",
+          "value": "websockets-17.2-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl"
+        },
+        {
+          "name": "rednote:wheel-python-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-abi-tag",
+          "value": "cp313"
+        },
+        {
+          "name": "rednote:wheel-platform-tag",
+          "value": "manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64"
+        },
+        {
+          "name": "rednote:wheel-size-bytes",
+          "value": "225361"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:pgvector/pgvector:pg17",
+      "name": "pgvector/pgvector",
+      "version": "pg17",
+      "purl": "pkg:docker/pgvector/pgvector?tag=pg17",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "pgvector/pgvector:pg17"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "tag-channel"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "[待申领]"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_POSTGRES"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C1 主库 PostgreSQL 17 + pgvector"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:rabbitmq:4-management",
+      "name": "rabbitmq",
+      "version": "4-management",
+      "purl": "pkg:docker/rabbitmq?tag=4-management",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "rabbitmq:4-management"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "tag-channel"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "[待申领]"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_RABBITMQ"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C2 队列 RabbitMQ 4（quorum queue）"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:minio/minio:PENDING",
+      "name": "minio/minio",
+      "version": "PENDING",
+      "purl": "pkg:docker/minio/minio?tag=PENDING",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "minio/minio:PENDING"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "unresolved"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "OP-14"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_MINIO"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C3 对象存储 MinIO（S3 兼容）"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:quay.io/keycloak/keycloak:26.0",
+      "name": "quay.io/keycloak/keycloak",
+      "version": "26.0",
+      "purl": "pkg:docker/quay.io/keycloak/keycloak?tag=26.0",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "quay.io/keycloak/keycloak:26.0"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "tag-channel"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "OP-52"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_KEYCLOAK"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C4 身份 Keycloak 26.x（profile=auth，默认不启动）"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:rednote/backend:0.1.0",
+      "name": "rednote/backend",
+      "version": "0.1.0",
+      "purl": "pkg:docker/rednote/backend?tag=0.1.0",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "rednote/backend:0.1.0"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "tag-channel"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "[待申领]"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_APP"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C8 应用镜像（双 API 实例 + Worker 共用同一镜像，入口命令不同）"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:nginx:PENDING",
+      "name": "nginx",
+      "version": "PENDING",
+      "purl": "pkg:docker/nginx?tag=PENDING",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "nginx:PENDING"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "unresolved"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "[待申领]"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_GATEWAY"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C8 反向代理 + HTTPS 终结"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "image:prom/prometheus:PENDING",
+      "name": "prom/prometheus",
+      "version": "PENDING",
+      "purl": "pkg:docker/prom/prometheus?tag=PENDING",
+      "properties": [
+        {
+          "name": "rednote:layer",
+          "value": "L-C"
+        },
+        {
+          "name": "rednote:image-ref",
+          "value": "prom/prometheus:PENDING"
+        },
+        {
+          "name": "rednote:pin-state",
+          "value": "unresolved"
+        },
+        {
+          "name": "rednote:pending-op",
+          "value": "[待申领]"
+        },
+        {
+          "name": "rednote:env-var",
+          "value": "IMAGE_PROMETHEUS"
+        },
+        {
+          "name": "rednote:component",
+          "value": "C6 监控抓取（配置只读挂载 deploy/monitoring/，WP47② 已建，本包不复制第二份）"
+        }
+      ]
+    }
+  ]
+}

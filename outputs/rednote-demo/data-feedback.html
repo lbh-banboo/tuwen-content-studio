@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>登记发布信息与采集状态 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .fs { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .fs-got { color: var(--ok); background: var(--ok-dim); border-color: rgba(52,211,153,0.28); }
+  .fs-none { color: var(--muted); background: rgba(255,255,255,0.05); border-color: var(--line-strong); }
+  .fs-noauth { color: var(--warn); background: var(--warn-dim); border-color: rgba(251,191,36,0.28); }
+  .fs-na { color: var(--faint); background: rgba(255,255,255,0.03); border-color: var(--line); }
+  .fs-fail { color: var(--danger); background: var(--danger-dim); border-color: rgba(251,113,133,0.28); }
+  .fs-todo { color: var(--info); background: var(--info-dim); border-color: rgba(96,165,250,0.28); }
+  .approx { color: var(--warn); border-bottom: 1px dashed var(--warn); cursor: help; }
+  .snap { border-left: 2px solid var(--purple-line); padding: 0 0 0 13px; position: relative; }
+  .snap-i { position: relative; padding-bottom: 15px; }
+  .snap-i::before { content: ''; position: absolute; left: -19px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--purple); box-shadow: 0 0 0 3px rgba(160,107,255,0.18); }
+  .snap-i.old::before { background: var(--faint); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); }
+  .conf { border: 1px solid rgba(251,113,133,0.36); background: rgba(251,113,133,0.06); border-radius: 10px; padding: 11px 12px; }
+  .bt { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 600; }
+  .bt-good { color: #34d399; background: rgba(52,211,153,0.14); }
+  .bt-pot { color: #fbbf24; background: rgba(251,191,36,0.14); }
+  .bt-low { color: var(--muted); background: rgba(255,255,255,0.06); }
+  .bt-wait { color: #60a5fa; background: rgba(96,165,250,0.14); }
+  .bt-conf { color: #fb7185; background: rgba(251,113,133,0.14); }
+  .warnrow { padding: 9px 11px; border-radius: 9px; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.26); font-size: 11px; color: #f5d78e; }
+</style>
+<style>
+  /* 窄栏内的卡内分栏折回单列，避免 8 列表格被压爆 */
+  .canvas .card-split { grid-template-columns: minmax(0, 1fr) !important; }
+  .canvas .card-split > .cs-side { border-left: 0 !important; border-top: 1px solid var(--line) !important; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-8"></i> 步骤 8 / 8</span>
+            <span class="code code-purple">持续工作区</span>
+            <span class="tag tag-warn">2 条链接失效</span>
+          </div>
+          <h1 class="page-title">登记发布信息与采集状态</h1>
+          <p class="page-desc">登记每条内容的发布身份与发布稿，并监控采集状态。链接失效不等于零，窗口内保留缺失标记，缺失不填 0。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：支持人工导入 CSV，第一版不做自动抓取"><i class="fa-solid fa-file-import"></i>导入数据</button>
+          <button class="btn btn-ghost" data-toast="演示环境：数据截至 09-16 19:12"><i class="fa-solid fa-rotate"></i>刷新数据</button>
+          <a class="btn btn-primary" href="data-snapshot.html">下一步：快照与汇总 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g3" data-stagger>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-paper-plane"></i>已发布</div>
+          <div class="metric-value t-ok" data-count="38">0</div>
+          <div class="metric-foot">去重后笔记数 36</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-clock"></i>待发布</div>
+          <div class="metric-value t-warn" data-count="14">0</div>
+          <div class="metric-foot">已交付但未登记发布</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-link-slash"></i>链接失效</div>
+          <div class="metric-value t-warn" data-count="2">0</div>
+          <div class="metric-foot t-warn">不自动判定为已删除</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-database"></i>已回收数据</div>
+          <div class="metric-value" data-count="31">0</div>
+          <div class="metric-foot">覆盖 36 条中的 86.1%</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-pen"></i>改写未核对</div>
+          <div class="metric-value t-warn" data-count="5">0</div>
+          <div class="metric-foot t-warn">证据完整度降低</div>
+        </div>
+        <div class="card metric">
+          <div class="metric-label"><i class="fa-solid fa-hourglass-half"></i>采集任务</div>
+          <div class="metric-value t-info" data-count="1">0</div>
+          <div class="metric-foot">1 进行中 · 2 已停止</div>
+        </div>
+      </div>
+
+<div class="grid g-1-1 mb14">
+<section class="card">
+        <div class="card-head">
+          <div class="row">
+            <i class="fa-solid fa-clipboard-list t-pur"></i>
+            <h3 class="card-title">发布登记</h3>
+            <div class="seg" data-seg>
+              <button class="seg-item is-active">全部 52</button>
+              <button class="seg-item">已发布 38</button>
+              <button class="seg-item">待发布 14</button>
+              <button class="seg-item">链接失效 2</button>
+              <button class="seg-item">已删除 1</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn btn-sm btn-ghost" data-toast="演示环境：短链与跟踪参数链接已尝试归一到同一笔记标识"><i class="fa-solid fa-link"></i>链接归一化</button>
+            <button class="btn btn-sm btn-ghost"><i class="fa-solid fa-plus"></i>新增登记</button>
+          </div>
+        </div>
+        <div class="card-body p0">
+          <div class="grid g-4-1 card-split">
+          <div class="table-wrap">
+            <div class="table-wrap"><div class="table-wrap"><table class="tbl">
+              <thead>
+                <tr>
+                  <th style="width:106px">发布记录</th>
+                  <th style="width:112px">KOC</th>
+                  <th style="width:128px">交付记录 / 版本</th>
+                  <th style="width:180px">笔记链接 / 标识</th>
+                  <th style="width:118px">发布时间</th>
+                  <th style="width:108px">发布状态</th>
+                  <th style="width:126px">是否改写</th>
+                  <th>投流信息</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="code code-purple">PUB-0001</span></td>
+                  <td class="f11">柚子不加冰</td>
+                  <td class="f11"><span class="code f10">B01-001</span> <span class="mono t-mut">v3</span></td>
+                  <td class="f11">
+                    <div class="mono">7f2a…c91</div>
+                    <div class="f10 t-mut mt4">已归一 · 原链接含 xhsshare 参数</div>
+                  </td>
+                  <td class="f11 mono">09-16 10:32</td>
+                  <td><span class="tag tag-ok">已发布</span></td>
+                  <td><span class="tag tag-ok no-dot f10">未改写</span></td>
+                  <td class="f11 t-mut">未投流</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td><span class="code">PUB-0002</span></td>
+                  <td class="f11">阿栗的日常</td>
+                  <td class="f11"><span class="code f10">B01-004</span> <span class="mono t-mut">v2</span></td>
+                  <td class="f11"><div class="mono">63b1…4de</div></td>
+                  <td class="f11 mono">09-16 12:15</td>
+                  <td><span class="tag tag-ok">已发布</span></td>
+                  <td>
+                    <span class="tag tag-warn no-dot f10">已改写</span>
+                    <div class="f10 t-warn mt4">实际版本未核对</div>
+                  </td>
+                  <td class="f11 t-mut">未投流</td>
+                </tr>
+                <tr>
+                  <td><span class="code">PUB-0003</span></td>
+                  <td class="f11">莫莉在健身</td>
+                  <td class="f11"><span class="code f10">S01-007</span> <span class="mono t-mut">v3</span></td>
+                  <td class="f11"><div class="mono">6a05…8f2</div></td>
+                  <td class="f11 mono">09-15 19:40</td>
+                  <td><span class="tag tag-ok">已发布</span></td>
+                  <td><span class="tag tag-ok no-dot f10">未改写</span></td>
+                  <td class="f11 t-info">已投流 · 信息流 ¥300（KOC 提供）</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td><span class="code">PUB-0004</span></td>
+                  <td class="f11">好好睡觉bot</td>
+                  <td class="f11"><span class="code f10">B01-004</span> <span class="mono t-mut">v2</span></td>
+                  <td class="f11">
+                    <div class="mono">7f2a…c91</div>
+                    <div class="f10 t-dan mt4"><i class="fa-solid fa-triangle-exclamation"></i> 与 PUB-0001 同一笔记标识</div>
+                  </td>
+                  <td class="f11 mono">09-16 14:20</td>
+                  <td><span class="tag tag-warn">待确认</span></td>
+                  <td><span class="tag tag-muted no-dot f10">未知</span></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr class="tr-warn">
+                  <td><span class="code">PUB-0005</span></td>
+                  <td class="f11">小满今天护肤</td>
+                  <td class="f11"><span class="code f10">B01-012</span> <span class="mono t-mut">v1</span></td>
+                  <td class="f11">
+                    <div class="mono t-mut">解析失败</div>
+                    <div class="f10 t-warn mt4">保留原链接，待运营确认</div>
+                  </td>
+                  <td class="f11 mono">09-16 09:05</td>
+                  <td><span class="tag tag-warn">链接失效</span></td>
+                  <td><span class="tag tag-muted no-dot f10">未知</span></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr>
+                  <td><span class="code">PUB-0006</span></td>
+                  <td class="f11">Kiki的碎片</td>
+                  <td class="f11"><span class="code f10">S02-003</span> <span class="mono t-mut">v2</span></td>
+                  <td class="f11"><div class="mono">5c8e…a13</div></td>
+                  <td class="f11 mono">09-14 20:11</td>
+                  <td><span class="tag tag-danger">笔记已删除</span></td>
+                  <td><span class="tag tag-ok no-dot f10">未改写</span></td>
+                  <td class="f11 t-mut">KOC 已确认主动删除</td>
+                </tr>
+                <tr class="tr-off">
+                  <td><span class="code">PUB-0007</span></td>
+                  <td class="f11">果冻不吃糖</td>
+                  <td class="f11"><span class="code f10">B01-020</span> <span class="mono t-mut">v2</span></td>
+                  <td class="f11 t-mut">—</td>
+                  <td class="f11 t-mut">—</td>
+                  <td><span class="tag tag-muted">待发布</span></td>
+                  <td><span class="tag tag-muted no-dot f10">—</span></td>
+                  <td class="f11 t-mut">—</td>
+                </tr>
+                <tr class="tr-off">
+                  <td><span class="code">PUB-0008</span></td>
+                  <td class="f11">大脸妹儿</td>
+                  <td class="f11"><span class="code f10">S01-011</span> <span class="mono t-mut">v1</span></td>
+                  <td class="f11"><div class="mono">4b17…7c0</div></td>
+                  <td class="f11 mono">09-13 15:22</td>
+                  <td><span class="tag tag-muted">取消发布</span></td>
+                  <td><span class="tag tag-ok no-dot f10">未改写</span></td>
+                  <td class="f11 t-mut">KOC 档期冲突，已协商取消</td>
+                </tr>
+              </tbody>
+            </table></div></div>
+          </div>
+          <div class="cs-side">
+            <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-circle-exclamation"></i>需要核对的登记<span class="sec-sub">3 条</span></div>
+            <div class="col" style="gap:11px">
+              <div class="row-t f11">
+                <i class="fa-solid fa-triangle-exclamation t-dan" style="margin-top:2px"></i>
+                <div><b>PUB-0004 与 PUB-0001 归一到同一笔记标识。</b>重复笔记不能重复计入发布数 —— 当前发布数按去重后 36 计算，非记录数 38。跨项目重复关联已提示管理者核对。</div>
+              </div>
+              <div class="row-t f11">
+                <i class="fa-solid fa-circle-info t-info" style="margin-top:2px"></i>
+                <div><b>PUB-0005 链接获取失败，不自动判定笔记删除。</b>系统区分「无法访问」与「确认删除」两种状态；PUB-0006 为 KOC 确认删除。</div>
+              </div>
+              <div class="row-t f11">
+                <i class="fa-solid fa-pen t-warn" style="margin-top:2px"></i>
+                <div><b>PUB-0002 KOC 已改写但未提供实际内容。</b>保留「实际版本未核对」标记，策略分析中降低该条证据完整度，<b>不假定发布稿等于交付稿</b>（PRD §12.1）。</div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </section>
+<div class="col" style="gap:14px">
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-satellite-dish t-pur"></i>
+              <h3 class="card-title">采集状态</h3>
+            </div>
+            <span class="tag tag-info no-dot f10">非实时全量</span>
+          </div>
+          <div class="card-body">
+            <div class="col" style="gap:10px">
+              <div class="field">
+                <span class="label">最后成功采集时间</span>
+                <div class="f13 fw6 mono">2026-09-16 18:05</div>
+                <span class="hint mt4">来源：渠道 A（已验证）</span>
+              </div>
+              <div class="field">
+                <span class="label">当前来源</span>
+                <div class="f13 fw6">渠道 A + 人工录入</div>
+                <span class="hint mt4">渠道 B 已停止，未参与本次采集</span>
+              </div>
+              <div class="field">
+                <span class="label">失败原因</span>
+                <div class="f13 fw6 t-warn">渠道 B · 触发验证码</div>
+                <span class="hint mt4">09-16 17:42 停止 · 等待人工处理</span>
+              </div>
+            </div>
+            <div class="note note-info f11 mt14">
+              <i class="fa-solid fa-circle-info"></i>
+              <div>
+                「刷新数据」创建采集任务，可选一条 / 多条 / 全部。<b>相同进行中任务不重复创建</b>，不轮询永久运行（PRD §12.2）。
+              </div>
+            </div>
+          </div>
+        </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-inbox t-pur"></i>
+              <h3 class="card-title">获取方式</h3>
+            </div>
+            <span class="f11 t-mut">限速 · 缓存 · 失败停止</span>
+          </div>
+          <div class="card-body">
+            <div class="col" style="gap:8px" data-stagger>
+              <div class="fcard fcard-on">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-keyboard t-pur"></i> 人工录入</span>
+                  <span class="tag tag-ok no-dot f10">必备</span>
+                </div>
+                <div class="row between">
+                  <span class="f11 t-mut">已录入 <b class="t-2">18</b> 条 · 09-16 18:05</span>
+                  <button class="btn btn-sm btn-purple" data-toast="演示环境：打开逐条录入表单"><i class="fa-solid fa-plus"></i>录入</button>
+                </div>
+              </div>
+              <div class="fcard">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-file-csv t-pur"></i> CSV / XLSX</span>
+                  <span class="tag tag-ok no-dot f10">必备</span>
+                </div>
+                <div class="row between">
+                  <span class="f11 t-mut">已导入 <b class="t-2">9</b> 条 · 09-15 22:11</span>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：上传 CSV/XLSX 并映射字段"><i class="fa-solid fa-upload"></i>上传</button>
+                </div>
+              </div>
+              <div class="fcard">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-camera t-pur"></i> 截图识别</span>
+                  <span class="tag tag-warn no-dot f10">需确认</span>
+                </div>
+                <div class="row between">
+                  <span class="f11 t-mut">已识别 <b class="t-2">6</b> · <b class="t-warn">2 待确认</b></span>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：识别结果须运营逐字段确认后入库"><i class="fa-solid fa-image"></i>上传</button>
+                </div>
+              </div>
+              <div class="fcard">
+                <div class="row between mb6">
+                  <span class="f12 fw6"><i class="fa-solid fa-robot t-pur"></i> 自动回收</span>
+                  <span class="tag tag-warn no-dot f10">1 停止</span>
+                </div>
+                <div class="row between">
+                  <span class="f11 t-mut">渠道 A 正常 · <b class="t-warn">B 验证码</b></span>
+                  <button class="btn btn-sm btn-ghost" data-toast="演示环境：仅接入经验证可用且具备访问条件的渠道"><i class="fa-solid fa-gear"></i>设置</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+</div>
+</div>
+
+<div class="grid g-1-1">
+<div class="note note-danger f11">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>1 项同时刻来源冲突待确认。</strong>
+            笔记 <span class="mono">7f2a…c91</span> 点赞数在 09-16 18:00 有两个来源：截图识别 <b>1,284</b> / 人工录入 <b>1,247</b>。未确认前保留冲突提示，不自动取值。
+          </div>
+        </div>
+<div class="note note-warn f11">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <strong>1 个采集渠道已停止。</strong>
+            渠道 B 于 09-16 17:42 遇验证码，系统已停止该渠道并等待处理 —— <b>不自动反复绕过</b>（PRD §12.2）。
+          </div>
+        </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'data-feedback', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '数据反馈'] });
+</script>
+</body>
+</html>

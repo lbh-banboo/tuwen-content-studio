@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>工作台 · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">工作台</h1>
+          <p class="page-desc">早上好，林知远。你有 <b class="t-warn">7 项</b> 待办需要处理，其中 <b class="t-dan">2 项</b> 会阻断流程推进。</p>
+        </div>
+        <div class="page-head-actions">
+          <span class="tag tag-muted no-dot"><i class="fa-regular fa-clock"></i>数据截至 09-16 19:12</span>
+          <a class="btn btn-ghost" href="projects.html"><i class="fa-solid fa-folder-open"></i>全部项目</a>
+          <a class="btn btn-primary" href="brief.html"><i class="fa-solid fa-plus"></i>新建项目</a>
+        </div>
+      </div>
+
+      <div class="grid g-3-2">
+
+        <!-- 左列 -->
+        <div class="col" style="gap:14px">
+
+          <!-- 五类待办计数 —— PRD §3.2 工作台（收窄至左主区，与下方分栏对齐） -->
+          <div class="grid g3" data-stagger>
+            <a class="card metric card-hover" href="projects.html">
+              <div class="metric-label"><i class="fa-solid fa-folder-open"></i>我的项目</div>
+              <div class="metric-value" data-count="6">0</div>
+              <div class="metric-foot">负责 4 · 协作 2</div>
+            </a>
+            <a class="card metric card-hover" href="content-feedback.html">
+              <div class="metric-label"><i class="fa-solid fa-clipboard-check"></i>待审核内容</div>
+              <div class="metric-value t-warn" data-count="23">0</div>
+              <div class="metric-foot"><span class="t-warn">3 条含阻断项</span></div>
+            </a>
+            <a class="card metric card-hover" href="tasks.html">
+              <div class="metric-label"><i class="fa-solid fa-triangle-exclamation"></i>失败任务</div>
+              <div class="metric-value t-dan" data-count="4">0</div>
+              <div class="metric-foot">2 项可重试 · 2 项待核对费用</div>
+            </a>
+            <a class="card metric card-hover" href="projects.html">
+              <div class="metric-label"><i class="fa-regular fa-calendar-xmark"></i>临近截止</div>
+              <div class="metric-value" data-count="2">0</div>
+              <div class="metric-foot"><span class="t-dan">1 个已逾期</span></div>
+            </a>
+            <a class="card metric card-hover" href="data-feedback.html">
+              <div class="metric-label"><i class="fa-solid fa-database"></i>数据待补</div>
+              <div class="metric-value t-info" data-count="18">0</div>
+              <div class="metric-foot">发布记录缺核心指标</div>
+            </a>
+            <!-- 改善口径示例（双 Loop 建议 §10）：必须带样本与基线，不写「质量提升 N%」 -->
+            <a class="card metric card-hover" href="quality-view.html">
+              <div class="metric-label"><i class="fa-solid fa-arrow-trend-down"></i>事实错误减少</div>
+              <div class="metric-value t-ok" data-count="6" data-pre="−">0</div>
+              <div class="metric-foot">24 个保留任务 · 基线：旧流程重放</div>
+            </a>
+          </div>
+
+          <!-- 需要我处理 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title">需要我处理</span>
+              <span class="tag tag-danger">2 项阻断</span>
+              <div class="card-head-actions">
+                <div class="seg">
+                  <span class="seg-item is-active">全部 7</span>
+                  <span class="seg-item">阻断 2</span>
+                  <span class="seg-item">今日 4</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-shield-halved"></i></span>
+                <div class="li-main">
+                  <div class="li-title">事实冲突未处理，阻断进入试产</div>
+                  <div class="li-sub">素与 Su& 氨基酸洁面 · 「氨基酸表活占比 62%」与研究资料 R-014 中「≥60%」表述不一致</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-danger">阻断</span>
+                  <a class="btn btn-sm" href="info-review.html">去处置</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon danger"><i class="fa-solid fa-circle-exclamation"></i></span>
+                <div class="li-main">
+                  <div class="li-title">Live 图设备链路未验证，不能标记能力完成</div>
+                  <div class="li-sub">初见 Chuu 精华水 · 批次 B-2026-0912-03 的 4 条 Live 内容待真机发布验证</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-danger">阻断</span>
+                  <a class="btn btn-sm" href="scale-batch.html">查看批次</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon warn"><i class="fa-solid fa-comments"></i></span>
+                <div class="li-main">
+                  <div class="li-title">试产反馈待处置：8 条内容未完成通过或淘汰</div>
+                  <div class="li-sub">素与 Su& 氨基酸洁面 · 第 1 轮试产 T-01 · 本轮全部处置后才能进入扩产</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-warn">待处置</span>
+                  <a class="btn btn-sm" href="content-feedback.html">去审核</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon warn"><i class="fa-solid fa-file-circle-question"></i></span>
+                <div class="li-main">
+                  <div class="li-title">Brief 核心字段待补充：产品图片使用权限说明</div>
+                  <div class="li-sub">木野 MUYE 蒸汽眼罩 · 缺失字段不被 AI 编造，无法直接推进步骤 1</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-warn">待补充</span>
+                  <a class="btn btn-sm" href="brief.html">去补充</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon info"><i class="fa-solid fa-link-slash"></i></span>
+                <div class="li-main">
+                  <div class="li-title">数据采集受阻：登录态失效已停止该渠道</div>
+                  <div class="li-sub">素与 Su& 氨基酸洁面 · 6 条发布记录改由人工录入或 CSV 导入补录</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-info">需人工</span>
+                  <a class="btn btn-sm" href="data-feedback.html">去补录</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon"><i class="fa-solid fa-lightbulb"></i></span>
+                <div class="li-main">
+                  <div class="li-title">AI 提交 3 条待确认知识建议</div>
+                  <div class="li-sub">反馈归因产出 · AI 只能提交待确认建议，须人工显式确认生效</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-purple">待确认</span>
+                  <a class="btn btn-sm" href="knowledge.html">去确认</a>
+                </div>
+              </div>
+
+              <div class="list-item">
+                <span class="li-icon warn"><i class="fa-solid fa-coins"></i></span>
+                <div class="li-main">
+                  <div class="li-title">预算提醒：已用 78% 项目预算</div>
+                  <div class="li-sub">初见 Chuu 精华水 · ¥9,360 / ¥12,000 · 提醒模式，未设硬限制</div>
+                </div>
+                <div class="li-right">
+                  <span class="tag tag-warn">提醒</span>
+                  <a class="btn btn-sm" href="cost.html">看费用</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 我的项目 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title">我的项目</span>
+              <span class="card-sub">按截止日期排序</span>
+              <div class="card-head-actions">
+                <a class="btn btn-sm btn-ghost" href="projects.html">查看全部 <i class="fa-solid fa-arrow-right"></i></a>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>项目 / 品牌</th>
+                    <th>阶段</th>
+                    <th style="min-width:150px">交付进度</th>
+                    <th>截止</th>
+                    <th class="num">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">
+                      素与 Su& 氨基酸洁面
+                      <div class="f10 t-fai mono">PRJ-2026-0037 · 负责人</div>
+                    </td>
+                    <td><span class="tag tag-purple">准备期 · 步骤 5</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill" data-w="12%"></span></span>
+                        <span class="bar-num">6 / 50</span>
+                      </div>
+                    </td>
+                    <td><span class="t-warn">09-24</span><div class="f10 t-fai">剩 8 天</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="project-overview.html">进入</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      初见 Chuu 精华水
+                      <div class="f10 t-fai mono">PRJ-2026-0034 · 负责人</div>
+                    </td>
+                    <td><span class="tag tag-info">投产期 · 步骤 7</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill ok" data-w="72%"></span></span>
+                        <span class="bar-num">36 / 50</span>
+                      </div>
+                    </td>
+                    <td><span class="t-dan">09-18</span><div class="f10 t-fai">剩 2 天</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="scale-batch.html">进入</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      木野 MUYE 蒸汽眼罩
+                      <div class="f10 t-fai mono">PRJ-2026-0041 · 负责人</div>
+                    </td>
+                    <td><span class="tag tag-muted">准备期 · 步骤 1</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill" data-w="0%"></span></span>
+                        <span class="bar-num">0 / 30</span>
+                      </div>
+                    </td>
+                    <td>10-08<div class="f10 t-fai">剩 22 天</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="brief.html">进入</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      光屿 Glowis 防晒霜
+                      <div class="f10 t-fai mono">PRJ-2026-0029 · 负责人</div>
+                    </td>
+                    <td><span class="tag tag-ok">数据回收期 · 步骤 8</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill ok" data-w="100%"><span class="bar-over"></span></span></span>
+                        <span class="bar-num t-gold">52 / 50</span>
+                      </div>
+                    </td>
+                    <td>09-30<div class="f10 t-fai">剩 14 天</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="data-feedback.html">进入</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      茶栖 Chaqi 冷萃茶
+                      <div class="f10 t-fai mono">PRJ-2026-0031 · 协作者</div>
+                    </td>
+                    <td><span class="tag tag-info">投产期 · 步骤 6</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill" data-w="40%"></span></span>
+                        <span class="bar-num">12 / 30</span>
+                      </div>
+                    </td>
+                    <td>10-02<div class="f10 t-fai">剩 16 天</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="scale-batch.html">进入</a></div></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">
+                      叁物 SANWU 香薰
+                      <div class="f10 t-fai mono">PRJ-2026-0022 · 协作者</div>
+                    </td>
+                    <td><span class="tag tag-muted no-dot"><i class="fa-solid fa-lock"></i> 已结束</span></td>
+                    <td>
+                      <div class="bar-row">
+                        <span class="bar"><span class="bar-fill ok" data-w="100%"></span></span>
+                        <span class="bar-num">40 / 40</span>
+                      </div>
+                    </td>
+                    <td class="t-fai">08-29<div class="f10 t-fai">已结项</div></td>
+                    <td class="num"><div class="row-act"><a class="btn btn-sm" href="report.html">看报告</a></div></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- 右列 -->
+        <div class="col" style="gap:14px">
+
+          <!-- 运行中任务 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title">任务队列</span>
+              <div class="card-head-actions">
+                <a class="btn btn-sm btn-ghost" href="tasks.html">全部</a>
+              </div>
+            </div>
+            <div class="card-body" style="padding-top:12px">
+              <div class="row between mb10">
+                <span class="f11 t-mut">运行中 3 · 排队 5 · 今日失败 4</span>
+                <span class="spinner"></span>
+              </div>
+
+              <div class="col" style="gap:11px">
+                <div>
+                  <div class="row between f11 mb6">
+                    <span class="t-2"><span class="tag tag-purple tag-running" style="height:19px">运行</span> 静态图生成 · 批次 B-0916-02</span>
+                    <span class="mono t-mut">18/30</span>
+                  </div>
+                  <span class="bar"><span class="bar-fill" data-w="60%"></span></span>
+                </div>
+                <div>
+                  <div class="row between f11 mb6">
+                    <span class="t-2"><span class="tag tag-purple tag-running" style="height:19px">运行</span> Live 生成与封装</span>
+                    <span class="mono t-mut">3/8</span>
+                  </div>
+                  <span class="bar"><span class="bar-fill" data-w="38%"></span></span>
+                </div>
+                <div>
+                  <div class="row between f11 mb6">
+                    <span class="t-2"><span class="tag tag-purple tag-running" style="height:19px">运行</span> 资料解析 OCR · 12 个文件</span>
+                    <span class="mono t-mut">9/12</span>
+                  </div>
+                  <span class="bar"><span class="bar-fill" data-w="75%"></span></span>
+                </div>
+              </div>
+
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div><b>2 项待核对费用</b>：供应商返回结果未知，已标记待核对，不直接记作无费用。</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 本月费用 -->
+          <section class="card">
+            <div class="card-head">
+              <span class="card-title">本月费用</span>
+              <span class="card-sub">9 月</span>
+              <div class="card-head-actions"><a class="btn btn-sm btn-ghost" href="cost.html">明细</a></div>
+            </div>
+            <div class="card-body">
+              <div class="metric-value" data-count="28460" data-pre="¥">¥0</div>
+              <div class="metric-foot mb14">
+                <span class="delta-up"><i class="fa-solid fa-arrow-up"></i> 12.4%</span> 较上月 · 实际 ¥26,180 + 待核对 ¥2,280
+              </div>
+
+              <div class="col" style="gap:9px">
+                <div class="bar-row"><span style="width:52px" class="f11">文案</span><span class="bar"><span class="bar-fill" data-w="28%"></span></span><span class="bar-num">¥7,970</span></div>
+                <div class="bar-row"><span style="width:52px" class="f11">静态图</span><span class="bar"><span class="bar-fill" data-w="46%"></span></span><span class="bar-num">¥13,090</span></div>
+                <div class="bar-row"><span style="width:52px" class="f11">Live</span><span class="bar"><span class="bar-fill warn" data-w="18%"></span></span><span class="bar-num">¥5,120</span></div>
+                <div class="bar-row"><span style="width:52px" class="f11">其他</span><span class="bar"><span class="bar-fill" data-w="8%"></span></span><span class="bar-num">¥2,280</span></div>
+              </div>
+
+              <div class="divider"></div>
+              <div class="row between f12">
+                <span class="t-mut">单篇通过成本</span>
+                <span class="fw6">¥196.28</span>
+              </div>
+              <div class="f10 t-fai mt6">= 项目归属生产费用 / 当前通过内容数（145 条）</div>
+            </div>
+          </section>
+
+          <!-- 最近动态 -->
+          <section class="card">
+            <div class="card-head"><span class="card-title">最近动态</span></div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="tl-item ok">
+                  <div class="tl-time">19:04</div>
+                  <div class="tl-title">批次 B-0916-01 生成完成</div>
+                  <div class="tl-desc">30 条内容 · 28 完整成功 · 2 部分成功（媒体未完成不计完整）</div>
+                </div>
+                <div class="tl-item purple">
+                  <div class="tl-time">18:22</div>
+                  <div class="tl-title">生产基线 BL-v3 已批准</div>
+                  <div class="tl-desc">素与 Su& · 绑定 Brief v2 + 12 项事实 + 4 条风格资产</div>
+                </div>
+                <div class="tl-item warn">
+                  <div class="tl-time">17:45</div>
+                  <div class="tl-title">采集任务停止：访问受限</div>
+                  <div class="tl-desc">遇验证码已停止该渠道，未自动反复绕过</div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-time">16:10</div>
+                  <div class="tl-title">周予桐 通过 4 条内容</div>
+                  <div class="tl-desc">初见 Chuu · 已保存审核人、时间与对象版本</div>
+                </div>
+                <div class="tl-item ok">
+                  <div class="tl-time">14:38</div>
+                  <div class="tl-title">交付记录新增 6 条</div>
+                  <div class="tl-desc">光屿 Glowis · 6 名 KOC · 已显式标记交付</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'workbench', crumb: ['Rednote 系统', '工作台'] });
+</script>
+</body>
+</html>

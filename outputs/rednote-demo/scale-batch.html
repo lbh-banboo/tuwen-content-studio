@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05040a" />
+<title>新建扩产批次（每批 1—30 条） · Rednote 内容生产 AI Native 系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="theme.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  .qbox { display: flex; align-items: stretch; border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; width: 148px; }
+  .qbox button { width: 34px; background: rgba(255,255,255,0.04); border: 0; color: var(--text-2); cursor: pointer; font-size: 13px; transition: background .16s ease; }
+  .qbox button:hover { background: rgba(160,107,255,0.16); color: #fff; }
+  .qbox input { flex: 1; min-width: 0; background: transparent; border: 0; color: #fff; text-align: center; font-size: 15px; font-weight: 600; font-family: var(--mono); height: 36px; outline: none; }
+  .qbox.err { border-color: var(--danger); }
+  .dif { display: grid; grid-template-columns: 116px minmax(0,1fr) 62px; gap: 10px; align-items: center; }
+  .dif-bar { height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .dif-bar i { display: block; height: 100%; border-radius: 999px; }
+  .qrow { display: flex; gap: 11px; align-items: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: rgba(255,255,255,0.018); }
+  .qrow.run { border-color: var(--purple-line); background: rgba(160,107,255,0.07); }
+  .qrow.wait { border-style: dashed; }
+  .qn { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 700; font-family: var(--mono); background: rgba(255,255,255,0.06); color: var(--muted); }
+  .qrow.run .qn { background: rgba(160,107,255,0.22); color: #d9c2ff; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="shell">
+  <aside class="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar"></header>
+
+    <div class="canvas">
+      <div class="page-head">
+        <div>
+          <div class="row mb6">
+            <span class="tag tag-purple no-dot"><i class="fa-solid fa-6"></i> 步骤 6 / 8</span>
+            <span class="code code-purple">基线 BL-v3</span>
+            <span class="tag tag-ok">扩产已批准 · 09-16 14:02</span>
+          </div>
+          <h1 class="page-title">新建扩产批次（每批 1—30 条）</h1>
+          <p class="page-desc">扩产每批 1—30 条，均为整数且不含原试产内容。项目累计批次数不设业务上限，受供应商并发与预算限制（AC-14）。</p>
+        </div>
+        <div class="page-head-actions">
+          <button class="btn btn-ghost" data-toast="演示环境：回到试产调整方向不会删除已有扩产内容"><i class="fa-solid fa-rotate-left"></i>回到试产调整</button>
+          <a class="btn btn-primary" href="batch-run.html">下一步：新建批产批次 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+
+<div class="grid g-3-2 mb14">
+<div class="col" style="gap:14px">
+
+          <!-- 批次时间线 -->
+          <section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-timeline t-pur"></i>
+                <h3 class="card-title">项目批次链路</h3>
+              </div>
+              <span class="f11 t-mut">所有批次可对比；回到试产不删除已有扩产内容</span>
+            </div>
+            <div class="card-body p0">
+              <div class="grid g-4-1 card-split">
+              <div class="table-wrap">
+                <div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                  <thead>
+                    <tr>
+                      <th style="width:86px">批次编号</th>
+                      <th style="width:58px">类型</th>
+                      <th class="num" style="width:44px">数量</th>
+                      <th style="width:50px">基线</th>
+                      <th style="width:50px">方案</th>
+                      <th style="width:92px">方向</th>
+                      <th style="width:78px">通过 / 淘汰</th>
+                      <th style="width:68px">状态</th>
+                      <th style="min-width:90px">说明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="code">BATCH-T01</span></td>
+                      <td><span class="tag tag-muted no-dot f10">试产</span></td>
+                      <td class="num mono">10</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v2</span></td>
+                      <td class="f11 t-sub">4 个方向</td>
+                      <td class="f11"><b class="t-ok">7</b> / <b class="t-mut">3</b></td>
+                      <td><span class="tag tag-ok">已完成</span></td>
+                      <td class="f11 t-mut">第 1 轮试产</td>
+                    </tr>
+                    <tr>
+                      <td><span class="code">BATCH-T02</span></td>
+                      <td><span class="tag tag-muted no-dot f10">补充试产</span></td>
+                      <td class="num mono">4</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v2</span></td>
+                      <td class="f11 t-sub">健身后油汗清洁</td>
+                      <td class="f11"><b class="t-ok">3</b> / <b class="t-mut">1</b></td>
+                      <td><span class="tag tag-ok">已完成</span></td>
+                      <td class="f11 t-mut">补验单一失败方向</td>
+                    </tr>
+                    <tr>
+                      <td><span class="code">BATCH-S01</span></td>
+                      <td><span class="tag tag-info no-dot f10">扩产</span></td>
+                      <td class="num mono">18</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v2</span></td>
+                      <td class="f11 t-sub">4 个方向</td>
+                      <td class="f11"><b class="t-ok">14</b> / <b class="t-mut">4</b></td>
+                      <td><span class="tag tag-ok">已完成</span></td>
+                      <td class="f11 t-mut">继承批准方案与风格</td>
+                    </tr>
+                    <tr>
+                      <td><span class="code">BATCH-S02</span></td>
+                      <td><span class="tag tag-info no-dot f10">扩产</span></td>
+                      <td class="num mono">10</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v3</span></td>
+                      <td class="f11 t-sub">3 个方向（比例调整）</td>
+                      <td class="f11"><b class="t-ok">8</b> / <b class="t-mut">2</b></td>
+                      <td><span class="tag tag-ok">已完成</span></td>
+                      <td class="f11 t-warn">比例调整仅影响后续批次</td>
+                    </tr>
+                    <tr>
+                      <td><span class="code code-purple">BATCH-B01</span></td>
+                      <td><span class="tag tag-purple no-dot f10">批产</span></td>
+                      <td class="num mono">50</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v3</span></td>
+                      <td class="f11 t-sub">4 个已验证方向</td>
+                      <td class="f11"><b class="t-ok">29</b> / <b class="t-mut">6</b> <span class="t-warn">· 15 待审</span></td>
+                      <td><span class="tag tag-warn">审核中</span></td>
+                      <td class="f11 t-mut">已生成完成，待人工确认</td>
+                    </tr>
+                    <tr class="tr-on">
+                      <td><span class="code code-purple">BATCH-B02</span></td>
+                      <td><span class="tag tag-purple no-dot f10">批产</span></td>
+                      <td class="num mono">50</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v3</span></td>
+                      <td class="f11 t-sub">4 个已验证方向</td>
+                      <td class="f11 t-mut">—</td>
+                      <td><span class="tag tag-running">生成中 32%</span></td>
+                      <td class="f11 t-mut">16/50 已完成</td>
+                    </tr>
+                    <tr class="tr-off">
+                      <td><span class="code">BATCH-B03</span></td>
+                      <td><span class="tag tag-purple no-dot f10">批产</span></td>
+                      <td class="num mono">30</td>
+                      <td><span class="code f10">BL-v3</span></td>
+                      <td><span class="code f10">PLAN-v3</span></td>
+                      <td class="f11 t-sub">4 个已验证方向</td>
+                      <td class="f11 t-mut">—</td>
+                      <td><span class="tag tag-muted">排队中</span></td>
+                      <td class="f11 t-mut">等待并发额度释放</td>
+                    </tr>
+                  </tbody>
+                </table></div></div>
+              </div>
+              <div class="cs-side">
+                <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-route"></i>链路要点</div>
+                <div class="col" style="gap:7px">
+                  <div class="row between f11"><span>生产基线</span><span class="mono">BL-v3</span></div>
+                  <div class="row between f11"><span>方案</span><span class="mono">v2 → v3</span></div>
+                </div>
+                <div class="divider"></div>
+                <div class="col" style="gap:7px">
+                  <div class="row between f11"><span>已完成</span><span class="mono t-ok">4 批</span></div>
+                  <div class="row between f11"><span>审核中</span><span class="mono t-warn">B01 待审 15</span></div>
+                  <div class="row between f11"><span>生成中</span><span class="mono">B02 16/50</span></div>
+                  <div class="row between f11"><span>排队中</span><span class="mono t-mut">B03</span></div>
+                </div>
+                <div class="note note-purple f11"><i class="fa-solid fa-circle-info"></i><div>回到试产不删除已有扩产内容；比例调整仅影响后续批次。</div></div>
+              </div>
+              </div>
+            </div>
+          </section>
+
+
+        </div>
+<div class="col" style="gap:14px">
+
+          <!-- 项目累计概览 -->
+          <div class="grid g2" data-stagger>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-boxes-stacked"></i>累计批次</div>
+              <div class="metric-value" data-count="5">0</div>
+              <div class="metric-foot">试产 1 · 扩产 2 · 批产 2</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-file-lines"></i>累计生成</div>
+              <div class="metric-value" data-count="88">0</div>
+              <div class="metric-foot">试产 10 + 扩产 28 + 批产 50</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-thumbs-up"></i>累计通过</div>
+              <div class="metric-value t-ok" data-count="61">0</div>
+              <div class="metric-foot">通过率 69.3%</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-hourglass-half"></i>排队中</div>
+              <div class="metric-value t-warn" data-count="2">0</div>
+              <div class="metric-foot t-warn">供应商并发上限 3</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-layer-group"></i>已验证方向</div>
+              <div class="metric-value t-ok" data-count="4">0</div>
+              <div class="metric-foot">1 个方向待验证</div>
+            </div>
+            <div class="card metric">
+              <div class="metric-label"><i class="fa-solid fa-wallet"></i>预算余额</div>
+              <div class="metric-value mono">¥1,062</div>
+              <div class="metric-foot">月度 ¥4,000 · 已用 73.4%</div>
+            </div>
+          </div>
+
+        </div>
+</div>
+
+<div class="grid g-3-2">
+<section class="card">
+            <div class="card-head">
+              <div class="row">
+                <i class="fa-solid fa-arrow-up-right-dots t-pur"></i>
+                <h3 class="card-title">步骤 6 · 新建扩产批次</h3>
+              </div>
+              <span class="tag tag-info no-dot">1—30 整数</span>
+            </div>
+            <div class="card-body p0">
+              <div class="card-pad">
+              <div class="row wrap" style="gap:14px">
+                <div class="field" style="flex:0 0 auto">
+                  <span class="label req">新增内容数量 <span class="hint">不含原试产内容</span></span>
+                  <div class="qbox">
+                    <button data-toast="演示环境：减少数量"><i class="fa-solid fa-minus"></i></button>
+                    <input value="18" />
+                    <button data-toast="演示环境：增加数量"><i class="fa-solid fa-plus"></i></button>
+                  </div>
+                  <span class="hint mt6">有效范围 1—30 · 仅接受整数</span>
+                </div>
+                <div class="field f1">
+                  <span class="label">继承配置</span>
+                  <div class="col" style="gap:7px">
+                    <div class="row" style="gap:8px;align-items:flex-start">
+                      <label class="check checked" style="margin-top:2px"><input type="checkbox" checked /><span></span></label>
+                      <span class="f12">继承批准方案 <span class="code f10">PLAN-v3</span></span>
+                    </div>
+                    <div class="row" style="gap:8px;align-items:flex-start">
+                      <label class="check checked" style="margin-top:2px"><input type="checkbox" checked /><span></span></label>
+                      <span class="f12">继承风格参考与媒体规格</span>
+                    </div>
+                    <div class="row" style="gap:8px;align-items:flex-start">
+                      <label class="check checked" style="margin-top:2px"><input type="checkbox" checked /><span></span></label>
+                      <span class="f12">继承生产基线 <span class="code f10">BL-v3</span>（不自动切换到最新知识）</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+
+              <div class="grid g-3-2 card-split">
+                <div class="cs-main">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-sliders"></i>提交前调整<span class="sec-sub">可在提交前调整方向比例，历史内容不受影响</span></div>
+              <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact">
+                <thead>
+                  <tr><th>方向</th><th style="width:110px">扩产通过样例</th><th style="width:86px">当前比例</th><th class="num" style="width:74px">本批条数</th><th style="width:100px">可否进入批产</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="strong">早八通勤急救</td>
+                    <td><span class="tag tag-ok no-dot f10">6 条已通过</span></td>
+                    <td><input class="input input-sm" style="width:66px" value="32" /></td>
+                    <td class="num mono">6</td>
+                    <td><span class="tag tag-ok no-dot f10">可进入</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">卸妆后二次清洁</td>
+                    <td><span class="tag tag-ok no-dot f10">5 条已通过</span></td>
+                    <td><input class="input input-sm" style="width:66px" value="28" /></td>
+                    <td class="num mono">5</td>
+                    <td><span class="tag tag-ok no-dot f10">可进入</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">健身后油汗清洁</td>
+                    <td><span class="tag tag-ok no-dot f10">2 条已通过</span></td>
+                    <td><input class="input input-sm" style="width:66px" value="22" /></td>
+                    <td class="num mono">4</td>
+                    <td><span class="tag tag-ok no-dot f10">可进入</span></td>
+                  </tr>
+                  <tr>
+                    <td class="strong">学生党性价比替换</td>
+                    <td><span class="tag tag-ok no-dot f10">3 条已通过</span></td>
+                    <td><input class="input input-sm" style="width:66px" value="18" /></td>
+                    <td class="num mono">3</td>
+                    <td><span class="tag tag-ok no-dot f10">可进入</span></td>
+                  </tr>
+                  <tr class="tr-warn">
+                    <td class="strong">敏感肌换季维稳</td>
+                    <td><span class="tag tag-danger no-dot f10">0 条已通过</span></td>
+                    <td><input class="input input-sm" style="width:66px" value="0" /></td>
+                    <td class="num mono t-mut">0</td>
+                    <td><span class="tag tag-danger no-dot f10">返回试产</span></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="2" class="fw6">合计</td><td><span class="tag tag-ok no-dot f10">100%</span></td><td class="num mono fw6">18</td><td><span class="f10 t-mut">4 / 5 方向</span></td></tr>
+                </tfoot>
+              </table></div></div></div></div>
+
+              <div class="note note-warn mt14">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div class="f11">
+                  <b>「敏感肌换季维稳」为新增未验证方向。</b>该方向无扩产通过内容，不能进入批产，需先回到试产验证（PRD §10）。<br />
+                  全部扩产内容淘汰时不能进入批产；每轮全部条目完成通过或淘汰处置后，运营才可批准可批量生产的方向。
+                </div>
+              </div>
+                </div>
+                <div class="cs-side">
+              <div class="sec-title" style="margin-top:0"><i class="fa-solid fa-triangle-exclamation"></i>输入校验演示</div>
+              <div class="col" style="gap:12px">
+                <div>
+                  <div class="qbox err mb6">
+                    <button><i class="fa-solid fa-minus"></i></button>
+                    <input value="0" />
+                    <button><i class="fa-solid fa-plus"></i></button>
+                  </div>
+                  <div class="f10 t-dan"><i class="fa-solid fa-xmark"></i> 数量必须 ≥ 1</div>
+                </div>
+                <div>
+                  <div class="qbox err mb6">
+                    <button><i class="fa-solid fa-minus"></i></button>
+                    <input value="35" />
+                    <button><i class="fa-solid fa-plus"></i></button>
+                  </div>
+                  <div class="f10 t-dan"><i class="fa-solid fa-xmark"></i> 扩产单批上限 30</div>
+                </div>
+                <div>
+                  <div class="qbox err mb6">
+                    <button><i class="fa-solid fa-minus"></i></button>
+                    <input value="12.5" />
+                    <button><i class="fa-solid fa-plus"></i></button>
+                  </div>
+                  <div class="f10 t-dan"><i class="fa-solid fa-xmark"></i> 仅接受整数</div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="sec-title"><i class="fa-solid fa-list-check"></i>校验规则</div>
+              <div class="col" style="gap:7px">
+                <div class="row between f11"><span>数量下限</span><span class="mono">≥ 1</span></div>
+                <div class="row between f11"><span>扩产单批上限</span><span class="mono">30</span></div>
+                <div class="row between f11"><span>数值类型</span><span class="mono">仅整数</span></div>
+                <div class="row between f11"><span>可进入批产方向</span><span class="mono t-ok">4 / 5</span></div>
+              </div>
+                </div>
+              </div>
+
+              <div class="card-pad" style="padding-top:2px">
+              <button class="btn btn-purple" style="width:100%" data-toast="演示环境：已创建扩产批次 BATCH-S03，18 条任务入队"><i class="fa-solid fa-play"></i>提交扩产 18 条（预估 ¥567.36）</button>
+              </div>
+            </div>
+          </section>
+<section class="card">
+          <div class="card-head">
+            <div class="row">
+              <i class="fa-solid fa-fingerprint t-pur"></i>
+              <h3 class="card-title">批次差异化检查</h3>
+              <span class="code">BATCH-B01 vs 项目已有 38 条</span>
+              <span class="tag tag-warn">4 项软提示</span>
+            </div>
+            <div class="row">
+              <button class="btn btn-sm btn-ghost" data-toast="演示环境：阈值可配置 —— 标题 65% / 开头 70% / 结尾 70% / 结构 75% / 图片 80%"><i class="fa-solid fa-sliders"></i>阈值配置</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="note note-purple mb14">
+              <i class="fa-solid fa-circle-info"></i>
+              <div class="f11">
+                第一版<b>作为软提示</b>，不以机械低相似度作为唯一质量标准。事实保持一致，<b>不为差异化编造参数或经历</b>（PRD §11.2）。
+              </div>
+            </div>
+
+            <div class="grid g-1-1-fix gap14 mb14">
+              <div>
+                <div class="sec-title"><i class="fa-solid fa-chart-simple"></i>六个维度重复度</div>
+                <div class="col" style="gap:13px">
+                  <div class="dif">
+                    <span class="f12">标题</span>
+                    <div class="dif-bar"><i style="width:48%;background:linear-gradient(90deg,#34d399,#34d399)"></i></div>
+                    <span class="f11 mono t-ok right">48%</span>
+                  </div>
+                  <div class="dif">
+                    <span class="f12">开头段</span>
+                    <div class="dif-bar"><i style="width:71%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></i></div>
+                    <span class="f11 mono t-warn right">71%</span>
+                  </div>
+                  <div class="dif">
+                    <span class="f12">结尾段</span>
+                    <div class="dif-bar"><i style="width:78%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></i></div>
+                    <span class="f11 mono t-warn right">78%</span>
+                  </div>
+                  <div class="dif">
+                    <span class="f12">正文结构</span>
+                    <div class="dif-bar"><i style="width:81%;background:linear-gradient(90deg,#fb7185,#f43f5e)"></i></div>
+                    <span class="f11 mono t-dan right">81%</span>
+                  </div>
+                  <div class="dif">
+                    <span class="f12">图片相似</span>
+                    <div class="dif-bar"><i style="width:62%;background:linear-gradient(90deg,#34d399,#34d399)"></i></div>
+                    <span class="f11 mono t-ok right">62%</span>
+                  </div>
+                  <div class="dif">
+                    <span class="f12">场景集中度</span>
+                    <div class="dif-bar"><i style="width:74%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></i></div>
+                    <span class="f11 mono t-warn right">74%</span>
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="sec-title"><i class="fa-solid fa-triangle-exclamation"></i>具体提醒</div>
+                <div class="col" style="gap:8px">
+                  <div class="list-item">
+                    <span class="li-icon danger"><i class="fa-solid fa-arrows-left-right"></i></span>
+                    <div class="li-main">
+                      <div class="li-title">正文结构重复 81%（超阈值 75%）</div>
+                      <div class="li-sub">32 条采用「痛点引入 → 使用记录 → 成分解释 → 结论」同一骨架。建议为部分条目改用问答式或对比式结构。</div>
+                    </div>
+                    <div class="li-right"><button class="btn btn-sm btn-ghost">查看 32 条</button></div>
+                  </div>
+                  <div class="list-item">
+                    <span class="li-icon warn"><i class="fa-solid fa-quote-right"></i></span>
+                    <div class="li-main">
+                      <div class="li-title">结尾段重复 78%（超阈值 70%）</div>
+                      <div class="li-sub">「洗完不紧绷，摸上去还是软的」及近似表述出现 19 次。</div>
+                    </div>
+                    <div class="li-right"><button class="btn btn-sm btn-ghost">查看 19 条</button></div>
+                  </div>
+                  <div class="list-item">
+                    <span class="li-icon warn"><i class="fa-solid fa-play"></i></span>
+                    <div class="li-main">
+                      <div class="li-title">开头段重复 71%（超阈值 70%）</div>
+                      <div class="li-sub">14 条以「卸妆之后总觉得…」或「早上出门前…」同型句式开场。</div>
+                    </div>
+                    <div class="li-right"><button class="btn btn-sm btn-ghost">查看 14 条</button></div>
+                  </div>
+                  <div class="list-item">
+                    <span class="li-icon warn"><i class="fa-solid fa-users"></i></span>
+                    <div class="li-main">
+                      <div class="li-title">场景集中度 74%（超阈值 70%）</div>
+                      <div class="li-sub">「早八通勤急救」+「卸妆后二次清洁」合计占 64%，其余两方向覆盖偏低。</div>
+                    </div>
+                    <div class="li-right"><button class="btn btn-sm btn-ghost">调整比例</button></div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="sec-title"><i class="fa-solid fa-file-invoice"></i>批次报告<span class="sec-sub">BATCH-B01 · 50 条</span></div>
+                <div class="grid g2 mb14">
+                  <div class="field"><span class="label">场景数</span><div class="f14 fw6 mono">4</div></div>
+                  <div class="field"><span class="label">卖点覆盖</span><div class="f14 fw6 mono">6 / 7</div></div>
+                </div>
+
+                <div class="sec-title"><i class="fa-solid fa-photo-film"></i>各形式数量</div>
+                <div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><div class="table-wrap"><table class="tbl tbl-compact mb14">
+                  <tbody>
+                    <tr><td>仅文案</td><td class="num mono">9</td><td class="num f11 t-mut">18%</td></tr>
+                    <tr><td>文案 + 静态图</td><td class="num mono">21</td><td class="num f11 t-mut">42%</td></tr>
+                    <tr><td>文案 + Live 图</td><td class="num mono">10</td><td class="num f11 t-mut">20%</td></tr>
+                    <tr><td>静态 + Live 混合</td><td class="num mono">10</td><td class="num f11 t-mut">20%</td></tr>
+                  </tbody>
+                </table></div></div></div></div></div></div></div>
+
+                <div class="sec-title"><i class="fa-solid fa-tags"></i>卖点覆盖</div>
+                <div class="col mb14" style="gap:9px">
+                  <div>
+                    <div class="row between f11 mb6"><span>氨基酸温和</span><span class="mono">34 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:68%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span>洗后不紧绷</span><span class="mono">28 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:56%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span>起泡绵密</span><span class="mono">19 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:38%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span>pH 5.5</span><span class="mono">15 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:30%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span>150g 大容量</span><span class="mono">11 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:22%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span>无皂基</span><span class="mono">8 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:16%"></div></div>
+                  </div>
+                  <div>
+                    <div class="row between f11 mb6"><span class="t-mut">敏感肌可用</span><span class="mono t-mut">0 条</span></div>
+                    <div class="bar"><div class="bar-fill" style="width:0"></div></div>
+                    <div class="f10 t-warn mt4">该卖点关联场景本批未启用</div>
+                  </div>
+                </div>
+
+                <div class="note note-ok f11">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <div>事实一致性校验通过：50 条中所有产品参数均与基线 <b>BL-v3</b> 事实清单一致，<b>无为差异化编造的参数或经历</b>。</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row wrap" style="gap:9px">
+              <button class="btn btn-primary" data-toast="演示环境：软提示已确认，可继续审核与交付"><i class="fa-solid fa-check"></i>确认软提示并继续</button>
+              <button class="btn btn-ghost" data-toast="演示环境：已导出差异化检查报告 CSV"><i class="fa-solid fa-download"></i>导出报告</button>
+              <button class="btn btn-ghost" data-toast="演示环境：对结构重复的 32 条创建局部重做任务"><i class="fa-solid fa-arrows-rotate"></i>对超阈值条目局部重做</button>
+              <span class="f11 t-fai" style="align-self:center">软提示不阻断推进；是否重做由运营判断。</span>
+            </div>
+          </div>
+        </section>
+</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  initPage({ active: 'scale-batch', crumb: ['项目中心', '素与 Su& 氨基酸洁面', '新建扩产批次'] });
+</script>
+</body>
+</html>
