@@ -1,25 +1,49 @@
-# 供应链：actions 固定到 commit SHA（checkout v4 / setup-python v5），不用浮动 tag。
-# checkout  = 11d5960a326750d5838078e36cf38b85af677262
-# setup-python = a26af69be951a213d495a4c3e4e4022e16d87065
-# Rednote 后端 CI —— 三道门
+# 公开快照 CI —— 只验「这堆公开产物能不能装、能不能跑、有没有夹带不该公开的东西」。
 #
-#   门 1  smoke      每次 push（任意分支）       health + contract，~10s，挡"根本跑不起来"
-#   门 2  full       pull_request / push main   全量 pytest + 契约门禁，挡"改坏了别的包"
-#   门 3  guard      push main（合并后）          cross_wp + regression 显式复跑 + 证据/一致性自检
+# ⚠️ 为什么本仓没有内部研发仓的三道门（2026-11-09，根因留档，不许悄悄删）
+#   本仓库是 `rednote-production` 的**脱敏白名单快照**，不是研发工作区。
+#   原仓 `.github/workflows/ci.yml` 的三道门被白名单一起复制了进来，
+#   但它的输入在公开快照里**根本不存在**：
+#     · 门 2 `pytest -m "not slow"`：3208 用例里有内部 fixture 硬编码本机角色
+#       与自建私有库，且 autouse 夹具无条件覆盖 DSN ⇒ 干净 runner 上必然
+#       `role ... does not exist` / `database ... does not exist`。
+#       本地新建干净私有库 + upgrade head 后实测：
+#       3194 passed / 1 failed / 10 errors in 478s（见发布审计目录 06 号文件第八节）。
+#       其中 1 failed 是脱敏把 `assert "<本机用户名>" not in got` 换成
+#       `assert "rednote" not in got`，而该用例的库名参数就叫 `rednote_x_1`
+#       ⇒ 恒假；10 errors 是 fixture 硬编码了本机角色。
+#       两处已在本次提交中真修（按 URL 组成对账 / 基准 DSN 派生），
+#       本地复跑 11 passed；但全量集仍含「必须存在自建私有库」的 fixture，
+#       CI runner 只有一个 postgres 库 ⇒ 结构性不可绿。
+#     · 门 3 的 40+ 条内部护栏：`evidence/**/*.log`（公开快照 0 个，
+#       84 个 tools 脚本引用它）、内部文档声明、离线 wheelhouse 真构建、
+#       docker daemon、私有库 createdb —— 输入全被移除，或根本不该在公开仓出网。
+#   把这套 CI 原样留着不跑 = ISS-95「声称有防线」；跑 = 永久红，
+#   且红的原因与公开产物质量无关。原仓无 remote，它从未在干净 Actions
+#   环境验证过 —— 公开后第一次真跑才把上述旧伤全部暴露出来。
+#   ⇒ 按本仓纪律，「不适用」必须写进 CI 文件本身，而不是悄悄删掉。
+#   完整的内部三道门仍保存在内部研发仓 `.github/workflows/ci.yml`，
+#   未开源、未删除、未改写。
 #
-# 约定（与本仓铁律一致）：
-#   · pytest 不再加 -q：pyproject addopts 已有 -q，叠加成 -qq 会吞掉汇总行（ISS-24）
-#   · 测试不 mock 数据库：services 起真 PG17 + pgvector，先建扩展再跑迁移
-#     （WP21 迁移刻意不代建扩展，见 20260924_1502_7a4c1e93b6d2）
-#   · 迁移、应用、测试三个 DSN 指向同一库，与本机默认口径一致（全量需在 postgres 库上跑）
+# 本 workflow 真跑的八件事（每一项都与公开快照的真实内容对应）：
+#   1 editable 安装依赖      2 起 PG17 + pgvector service
+#   3 alembic upgrade head   4 alembic single head
+#   5 openapi 契约门禁       6 pytest -m smoke（真连库）
+#   7 公开快照不变式判据     8 该判据的成对反向验证（注入违规必红）
+# 仓库外的 `verify_opensource_snapshot.py` 另守 PII / 中性身份 / 三方对账，
+# 不把「要找什么」的清单公开进仓库。
 #
-# ⚠️ 2026-11-09：jobs.<job_id>.env 位置不提供 env 上下文。GitHub Actions 官方校验
-#    对 `REDNOTE_*_DATABASE_URL: ${{ env.PG_DSN }}` 报
+# 供应链：actions 固定到 commit SHA，不用浮动 tag。
+#   checkout     = 11d5960a326750d5838078e36cf38b85af677262
+#   setup-python = a26af69be951a213d495a4c3e4e4022e16d87065
+# ⚠️ 2026-11-09：jobs.<job_id>.env 位置不提供 env 上下文。GitHub Actions
+#    官方校验对 `REDNOTE_*_DATABASE_URL: ${{ env.PG_DSN }}` 报
 #    "Unrecognized named-value: 'env'"，整个 workflow 连 job 都起不来（0 job）。
-#    三道门的 DSN 一律写字面值；顶层 env 不再放 PG_DSN，避免"看起来像唯一真值
-#    来源、实际没有引用者"的假防线。改 DSN 必须同步下面 6 处。
+#    DSN 一律写字面值；顶层 env 不再放 PG_DSN，避免「看起来像唯一真值来源、
+#    实际没有引用者」的假防线。`steps.with` 里的 `${{ env.PYTHON_VERSION }}`
+#    是唯一合法用法，由 `check_public_snapshot.py` 的 G09 机械守着。
 
-name: backend-ci
+name: public-snapshot-ci
 
 on:
   push:
@@ -38,11 +62,10 @@ env:
   PYTHONDONTWRITEBYTECODE: "1"
 
 jobs:
-  # ---------------------------------------------------------------- 门 1
-  smoke:
-    name: gate1-smoke
+  verify:
+    name: public-snapshot-verify
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     services:
       postgres:
         image: pgvector/pgvector:pg17
@@ -63,437 +86,25 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          # cache: pip 刻意关闭：本仓 pyproject.toml 位于 services/backend/，
-          # 仓库根没有 requirements.txt / pyproject.toml / setup.cfg，
-          # setup-python 算不出缓存键会直接失败并跳过后续测试步骤。
+          # cache: pip 刻意关闭：仓库根没有 requirements.txt / pyproject.toml，
+          # setup-python 算不出缓存键会直接失败并跳过后续步骤。
       - name: install backend
         run: pip install -e "services/backend[dev]"
       - name: create pgvector extension
         run: PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS vector;"
       - name: alembic upgrade head
         run: python -m alembic -c migrations/alembic.ini upgrade head
-      - name: pytest -m smoke
-        working-directory: services/backend
-        run: python -m pytest -p no:cacheprovider -m smoke
-
-  # ---------------------------------------------------------------- 门 2
-  full:
-    name: gate2-full
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    needs: smoke
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: pgvector/pgvector:pg17
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s --health-timeout 5s --health-retries 20
-    env:
-      # 字面值：jobs.<job_id>.env 不提供 env 上下文，见文件头说明。
-      REDNOTE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
-      REDNOTE_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          # cache: pip 刻意关闭：本仓 pyproject.toml 位于 services/backend/，
-          # 仓库根没有 requirements.txt / pyproject.toml / setup.cfg，
-          # setup-python 算不出缓存键会直接失败并跳过后续测试步骤。
-      - name: install backend
-        run: pip install -e "services/backend[dev]"
-      - name: create pgvector extension
-        run: PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS vector;"
-      - name: alembic upgrade head
-        run: python -m alembic -c migrations/alembic.ini upgrade head
-      - name: alembic single head (防分支并行导致 Multiple head)
+      - name: alembic single head
         run: |
           heads=$(python -m alembic -c migrations/alembic.ini heads | grep -c "(head)")
           echo "alembic heads = $heads"
           test "$heads" -eq 1
       - name: contract gate (openapi.json 与代码同步)
         run: python tools/contracts/export_openapi.py --check
-      - name: pytest full (排除 slow)
+      - name: pytest -m smoke
         working-directory: services/backend
-        run: python -m pytest -p no:cacheprovider -m "not slow" -rfE
-
-  # ---------------------------------------------------------------- 门 3
-  guard:
-    name: gate3-regression-guard
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: full
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: pgvector/pgvector:pg17
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s --health-timeout 5s --health-retries 20
-    env:
-      # 字面值：jobs.<job_id>.env 不提供 env 上下文，见文件头说明。
-      REDNOTE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
-      REDNOTE_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          # cache: pip 刻意关闭：本仓 pyproject.toml 位于 services/backend/，
-          # 仓库根没有 requirements.txt / pyproject.toml / setup.cfg，
-          # setup-python 算不出缓存键会直接失败并跳过后续测试步骤。
-      - name: install backend
-        run: pip install -e "services/backend[dev]"
-      - name: create pgvector extension
-        run: PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS vector;"
-      - name: alembic upgrade head
-        run: python -m alembic -c migrations/alembic.ini upgrade head
-      - name: regression + cross_wp + slow（护栏显式复跑，slow 只在此门跑）
-        working-directory: services/backend
-        run: python -m pytest -p no:cacheprovider -m "regression or cross_wp or slow" -rfE
-      - name: regression register 对账（登记册条目 == 带标记的测试）
-        run: python tools/regression/check_register.py
-      - name: evidence scripts self-check
-        # 静态自检全部证据脚本（含 tools/m1/rerun_all_evidence.py 本身）。
-        # 覆盖范围由磁盘决定（`tools/**/collect_wp*_evidence.py`），见 ISS-139。
-        run: python tools/m1/check_evidence_scripts.py
-      # ⚠️ `tools/m1/rerun_all_evidence.py`（收口第 11 步：真跑全部历史证据脚本）
-      # **刻意不放进本门**，理由必须写下来（否则就是 ISS-95「声称有防线」的空白）：
-      #   ① 它内含全量 pytest，本机实测约 30 分钟，放进 push 触发的门会让每次
-      #      提交都等半小时，最终被人绕过 —— 防线变成仪式。
-      #   ② 它要跑的是**历史包的证据再生成**，而本门已经在跑
-      #      `regression or cross_wp or slow`（上游第 148 行）+ 契约门禁 +
-      #      audit_consistency 的证据时效判据 —— 真被新包打破的等式判据
-      #      在 cross_wp 标记里基本都会现形。
-      #   ③ 因此它的定位是**收口时的强制手工步骤**，由 `check_evidence_scripts.py`
-      #      保证它**本身没坏**、由 `audit_consistency.py` §5 保证**证据不过期**。
-      # 结论：它不在本门里，但它的"没坏"与"跑过没"各有一条判据 —— 不是没人看着。
-      - name: test DB isolation self-check（不许硬编码 DSN，ISS-108）
-        run: python tools/quality/check_test_db_isolation.py
-      # ⚠️ 依赖声明一致性（ISS-144 / WP-DEBT-01）**刻意挂在门 3 而不是门 1**，
-      # 理由必须写下来（否则就是 ISS-95「声称有防线」的空白）：
-      #   · 门 1/门 2 判的是"**能不能跑**"（进程存活 / 全量测试），
-      #     而本判据判的是"**声明与代码是否一致**"——属合规自检，与门 3 定位同族
-      #     （门 3 已在此处挂 `check_test_db_isolation.py` / `audit_consistency.py`）。
-      #   · 它**纯静态、零数据库、秒级**，本可以放门 1；不放的原因是
-      #     本仓的交付流是"一个工作包一个提交、直接推 main"，
-      #     门 3 在 push main 后即执行 ⇒ 对真实流程是有效的。
-      #     （若将来改为 PR-only 流程，应把它**同时**提到门 1/门 2。）
-      - name: dependency declaration self-check（代码 import 的必须在 pyproject 声明）
-        run: python tools/quality/check_dependency_declarations.py
-      - name: dependency declaration 反向验证（把漏声明放回去，判据必须报红）
-        run: python tools/quality/collect_dependency_declaration_reverse_evidence.py
-      - name: dependency declaration code review evidence（三遍法，文档声称 = 待验证假设）
-        run: python tools/quality/collect_dependency_declaration_code_review.py
-      # ⚠️ 测试库可信度（ISS-145/146/147 / WP-DEBT-02）—— 三条判据 + 反向验证 + 三遍法。
-      # 挂门 3 的理由与上一条同族（合规自检，非"能不能跑"）；另有一处**必须挂这里**的理由：
-      #   · 判据 B（测试残留）与判据 C（迁移↔模型对账）都**需要真库**：
-      #     B 要跑 pytest、C 要建临时库。门 1 的定位是"便宜且早"，放它会破坏那一定位。
-      #   · 判据 C **自带 `pgvector` 扩展创建**（`_enable_vector`）⇒ 不依赖 runner 预装扩展。
-      #   · 反向验证只跑 `--fast`（判据 A 的纯静态变异）——完整版要 ~10 分钟，留本机收口跑。
-      # 注意：判据 B 在本门里跑的是**真 pytest**，若将来 CI 时间预算收紧，
-      #      应把它降级为"仅本机收口步骤"，而**不是**删掉它（删掉 = ISS-95 的空白）。
-      - name: test DB target self-check（默认 DSN 不许指向系统库，ISS-145）
-        run: python tools/quality/check_test_database_target.py
-      - name: migration↔model parity（迁移结构与模型结构全量对账，ISS-146）
-        run: python tools/quality/check_migration_model_parity.py
-      # ⚠️ ISS-79：`upgrade head` 一直被三道门覆盖，`downgrade` 却被**任何判据**覆盖过 ——
-      #    CI 只跑 `upgrade head`，于是 WP11/WP15 的 `downgrade` 把跨包共用函数
-      #    `rednote_reject_mutation()` 一起删掉、`alembic downgrade base` 直接
-      #    `DependentObjectsStillExist`，两个大包过去而无人发现（ADR-11 的
-      #    RPO ≤ 24h / RTO ≤ 8h 所依赖的"回滚链可用"因此是**无人守的空白**）。
-      #    本步骤补上"回滚路径存在"这条机械判据，静态（扫描全部迁移禁 DROP 共用函数）
-      #    + 动态（真库 `upgrade head → downgrade base → upgrade head` 往返）。
-      #    挂门 3 的理由与上面 migration↔model parity 同族：两者都要建一次性临时库，
-      #    属"重"操作，与门 1"便宜且早"的定位冲突（判据自带 `pgvector` 创建，不依赖 runner 预装）。
-      - name: migration round-trip（回滚路径必须存在：升级→回退到 base→再升级，ISS-79）
-        run: python tools/quality/check_migration_roundtrip.py
-      # ⚠️ WP47：备份恢复演练。挂门 3 的理由与 migration round-trip 同族 ——
-      #    它要 createdb ×2 + alembic upgrade head + pg_dump + pg_restore，属"重"操作。
-      #    为什么必须进 CI：只有 `backup_pg.py` 脚本而没人真恢复一遍逐项比对，
-      #    就是第 5 条纪律（ISS-143）说的"没跑与跑失败同形"。判据自带
-      #    注入破坏反向验证（DROP 触发器 / 删行），不是"比对恒真"的绿灯。
-      - name: backup-restore drill（备份必须能恢复出逐项相等的库，WP47）
-        run: python tools/quality/check_backup_restore_drill.py
-      # ⚠️ WP47④：队列对账判据的反向验证（异常矩阵第 ⑭ 项）。
-      #    登记它的**实质理由**：判据本体的 6 条 `queue:*` 条目形态是
-      #    "全绿时报出『队列逐列对账通过』"，而这一块**有过一次真实假绿** ——
-      #    2026-10-07 首跑只造 users / version_nodes 两张表，四张队列表全 0 行，
-      #    `0 == 0` 恒真，备份把队列内容全丢了照样报"行数相等"。
-      #    判据在自己的队列表上犯了它 docstring 里写下的 ISS-115。
-      #    ⇒ 光"跑一次绿了"不能证明这 6 条在干活，必须逐个注入破坏要求它们报红。
-      #    廉价（只跑单文件 pytest，秒级），故紧跟本体。
-      - name: queue-reconcile 反向验证（队列对账必须真会报红，WP47④）
-        run: python tools/quality/collect_queue_reconcile_reverse_evidence.py
-      # ⚠️ WP47 ⑤⑥：回滚演练。挂门 3 的理由与上面 backup-restore drill 同族 ——
-      #    它要 createdb + alembic upgrade/downgrade + 把一个"注定失败的升级"
-      #    真的跑一遍，并整份 copytree 迁移树到 /tmp 做 A/B（幕 6），属"重"操作。
-      #    为什么必须进 CI：WP47 计划里写明"演练要真跑" —— 只有
-      #    `check_rollback_drill.py` 脚本而没人真回退一次，就是第 5 条纪律
-      #    （ISS-143）说的"没跑与跑失败同形"。判据自带**注入破坏的反向验证**：
-      #    幕 2 删索引必须让指纹变、幕 6 翻转 `transaction_per_migration`
-      #    必须让落点不同 —— 不是"比完相等"就绿的恒真式。
-      #    与 backup-restore drill 的分工：那个证"备份能恢复"，这个证"升级失败
-      #    能退回已知良好版本"（ADR-11 的 RTO ≤ 8h 所依赖的另一半）。
-      - name: rollback drill（升级失败必须能回退到已知良好版本，WP47 ⑤⑥）
-        run: python tools/quality/check_rollback_drill.py
-      - name: test residue self-check（跑测试前后不得多出持久对象，ISS-147）
-        run: python tools/quality/check_test_residue.py
-      # ⚠️ 测试库数据体量（ISS-223 / WP-DEBT-05）——判据 B 只测结构残留，管不到
-      #    "表还是那些表、但行数一直在涨"。接在判据 B 后面，正好度量那次全量
-      #    pytest 留下的数据量。只读三个 count(*)，秒级，与门 3 的合规自检定位同族。
-      - name: test data volume（无主根表行数不许无界累积，ISS-223）
-        run: python tools/quality/check_test_data_volume.py
-      - name: test data volume 反向验证（把错误实现放回去，判据必须报红）
-        run: python tools/quality/collect_test_data_volume_reverse_evidence.py
-      - name: test data volume code review evidence（三遍法）
-        run: python tools/quality/collect_test_data_volume_code_review.py
-      - name: test DB credibility 反向验证（把错误实现放回去，判据必须报红）
-        run: python tools/quality/collect_test_db_credibility_reverse_evidence.py --fast
-      - name: test DB credibility code review evidence（三遍法，文档声称 = 待验证假设）
-        run: python tools/quality/collect_test_db_credibility_code_review.py
-      - name: cross-doc consistency audit
-        run: python tools/m1/audit_consistency.py
-      # ⚠️ 审计 §4「文档声明的证据文件必须存在」的**反向验证**（2026-10-08 M5 新增）。
-      #    触发事件：§4 的后缀白名单原先只有 `log` —— 于是文档里声明的 `.json`/`.jsonl`
-      #    证据**从来没有被 §4 看过**，而 §4 一直报"全部存在"。
-      #    「覆盖范围由后缀白名单（人写）决定」正是铁律 14 的形态：白名单一缩，
-      #    判据跟着缩，且缩的过程**静默**（报告仍然是绿的）。本脚本把这条补上。
-      #    为什么必须挂这里：
-      #      · 它**纯静态、零数据库、秒级**（本机实测 ~0.7s），与门 3 的合规自检定位同族；
-      #      · 它补的是 §4 **自己证明不了**的那半句 —— §4 只能证明"当前是绿的"，
-      #        证明不了"违规时它抓得住"（ISS-95：声称有防线 vs 真的有防线）。
-      #      · 13 条断言里含**成对证明**（注入一条假声明 → 必红；撤回 → 必回绿）
-      #        与白名单三档"声明数严格递增"，**不是**"比完相等"的恒真式。
-      #    ⚠️ 与 `check_all_exports.py` 一族不同，本判据**没有**三遍法
-      #       `collect_*_code_review.py`：它核对的"文档声称"就是审计 §4 那段源码本身，
-      #       已在上面那条步骤里被判（「不适用」写在这里，否则读 CI 的人会以为漏了）。
-      - name: declared evidence reverse verification（把 §4 的错误实现放回去，判据必须报红）
-        run: python tools/quality/collect_declared_evidence_reverse_evidence.py
-      # ⚠️ 审计 §2b 的反向验证（WP47① / ISS-206）。**必须挂门 3**，理由同上：
-      #    纯静态、零数据库、秒级；它守的是"判据自己的锚点没被收窄成死正则"。
-      #    挂这里的真实理由：§2b 那条判据的**唯一失效方向是"越收越死"** ——
-      #    每次假红都诱导人把锚再收一点，而"永不命中"的输出与"判过"完全同形
-      #    （ISS-95 / ISS-115）。没有反向验证时，这条判据的演化方向是**朝着失效走**的。
-      #    R④（删掉真声明整行 ⇒ 第 1 条来源命中数须归 0）是唯一能区分
-      #    「锚得对」与「锚得死」的手段 —— 在真实工作区里这两者长得一模一样。
-      - name: readme 声明锚点反向验证（收紧锚点不等于收成死正则）
-        run: python tools/quality/collect_readme_decl_anchor_reverse_evidence.py
-      # WP47② 告警规则（ADR-11 C6）。计划 §4.2 的验收原文是
-      # 「告警规则 promtool check 通过」，但本机实测（2026-10-08）：
-      #   $ promtool check rules <把指标名拼错的规则>
-      #     SUCCESS: 6 rules found      EXIT=0
-      # ⇒ promtool **只验 YAML 语法与表达式解析，不校验指标是否存在**；
-      #    而 Prometheus 对"引用不存在的指标"也不报错（表达式静默返回空），
-      #    告警永不触发且无任何日志。
-      # ⇒ 那条验收单独使用会给出假安全感，故本步挂的是**自建判据**，
-      #    它把规则引用的每个指标名与真实 /metrics 输出对账。
-      - name: 告警规则悬空指标名核对
-        run: python tools/quality/check_alerting_rules.py
-      - name: 告警规则判据反向验证（证明上一条真会报红）
-        run: python tools/quality/collect_alerting_rules_reverse_evidence.py
-      # ⚠️ 纪律判据化（WP-DEBT-03 / ISS-162）**刻意挂门 3 而不是门 1**，理由与上面
-      #    dependency declaration 同族（合规自检，非"能不能跑"），另有**两处必须在这里**：
-      #      · 判据 D 要**加载**两个载体模块（rerun_all_evidence / check_evidence_scripts），
-      #        它们与本门其它步骤共享同一份工作树 ⇒ 放在这里与它的输入同源；
-      #      · 反向验证（`--fast`）要整仓 copytree 到 /tmp 做变异，属"重"操作，
-      #        门 1 的定位是"便宜且早"，放它会破坏那一定位。
-      #    ⚠️ 判据 E（`check_shared_db_quiet.py`）**不进本门** —— 它在 CI 上 `--ci` 显式 SKIP
-      #       （runner 以 services: postgres 独占库，"有没有别人在用"无区分度）。
-      #       它的真实载体是收口期 `tools/m1/rerun_all_evidence.py` 里"任何子进程启动之前"
-      #       的那一次调用。**"不适用"必须写进 CI 文件**，否则读 CI 的人会以为它没人管。
-      - name: evidence scope 三方对账（覆盖范围由磁盘决定，铁律 14 / ISS-162）
-        run: python tools/quality/check_evidence_scope.py
-      # ⚠️ 判据 F（ISS-164）：`importlib` 按路径加载模块**必须**先注册 `sys.modules`。
-      #    为什么必须挂这里：`tools/m1/rerun_all_evidence.py`（收口第 11 步的载体）
-      #    曾因漏注册而**从未真正跑通一次**，且被 `except Exception` 谎报成
-      #    "目标库上有他人连接"（当时 PG 零连接）。那个载体**不在**本门里
-      #    （理由见上），因此它的"零件是否完好"必须由本判据在此处静态守。
-      #    纯静态、零数据库、秒级 ⇒ 与门 3 的合规自检定位同族。
-      - name: importlib 加载点必须注册 sys.modules（ISS-164）
-        run: python tools/quality/check_loader_registration.py
-      # ⚠️ `__all__` 一致性（2026-10-07 新增）。触发事件是 WP27 落
-      #    `modules/media/types.py` 时，`__all__` 里手写了**两个模块体从未定义**
-      #    的名字（其中一个是从别的模块转出的 `MAX_IMAGE_PIXELS`，另一个是
-      #    `REASON_` 前缀写错的常量名）。当场靠临时脚本才抓到。
-      #    为什么必须挂这里：
-      #      · 它是**纯 AST、零数据库、秒级**，与门 3 的合规自检定位同族；
-      #      · 它与已挂的 `check_undefined_globals.py`（symtable 判"被引用而
-      #        未定义"）**结构互补**，不是重复 —— `__all__` 里是**字符串**，
-      #        symtable 的符号表根本看不见它们（本机实测）。
-      #      · 全仓普查 172 个文件 / 2140 个条目 **A1 违规 0 例** ⇒ 这条缺陷
-      #        历史上从未发生过，因此从未有人写判据；今天发生了一次，今天补。
-      #    ⚠️ 本判据**刻意没有**第三件套（三遍法 `collect_*_code_review.py`）：
-      #       那个家族判的是"文档声称 vs 实现"（如依赖声明、测试库可信度），
-      #       本判据的四条断言全在代码里、没有需要核对的文档声称，
-      #       为一个空声称再建一套三遍法就是**为了对称而仪式化**。
-      #       「不适用」写在 CI 里（否则读 CI 的人会以为漏了）——这是本仓
-      #       对 `check_shared_db_quiet.py` 不在门 3 的同款处置。
-      # ⚠️ YAML 语法：`name:` 的值若以反引号开头，**必须**加引号 ——
-      #    plain scalar 不允许以 `` ` `` 起始（本机实测 `yaml.safe_load` 抛
-      #    ScannerError: found character '`' that cannot start any token）。
-      #    GitHub 自己的解析器也遵循同一 YAML 规范，故这**不是**工具差异。
-      - name: "`__all__` 条目必须真的存在（铁律 14 的公开面形态）"
-        run: python tools/quality/check_all_exports.py
-      - name: "`__all__` 判据反向验证（把错误实现放回去，必须报红）"
-        run: python tools/quality/collect_all_exports_reverse_evidence.py --fast
-      # ⚠️ `*_node_paired` 放行守卫（2026-10-07 新增）。触发事件是 WP27 落
-      #    `modules/media/ddl.py`（**第 6 个**挂 `version_nodes` 的配对触发器）时，
-      #    回头审查发现这条纪律**历史上被咬了两次**，且两次症状完全一样：
-      #      · WP25：第 5 个 `*_node_paired` 漏了「放行不归我管的节点」那一道；
-      #      · WP26：第一版同样漏（其文档 §1.6 R8 已把它列为"最容易漏的一条"）。
-      #    两次的**本包测试全绿，红的是 WP11 的既有用例** ⇒ 排障的人会先
-      #    怀疑"别的那个包最近改了什么"。而 WP27 之后还有 7 个包要挂这张表。
-      #    为什么必须挂这里：
-      #      · 它是**纯 AST、零数据库、秒级**，与门 3 的合规自检定位同族；
-      #      · 现有四个工具**结构上都抓不到**它（建判据前已逐个证明）：
-      #        `check_all_exports` 只看 `__all__` 名字、`check_undefined_globals`
-      #        看 symtable 的名字引用（`RETURN NULL` 是合法 plpgsql 字符串常量，
-      #        符号表里什么都没有）、`check_evidence_scope` 判脚本覆盖范围；
-      #        而 WP26 证据脚本的 C7/C8 是**运行期**探针，只覆盖它自己那一个。
-      #      · 判据 G5 用**两个独立来源对账**（A 名字约定 vs B 行为约定：函数体内
-      #        是否出现 `AFTER INSERT ON version_nodes`），落实铁律 14 ——
-      #        覆盖范围不许由「名字」单方面决定（改名会让它静默漏）。
-      #    ⚠️ 与 `check_all_exports.py` 一样，本判据**刻意没有**三遍法
-      #       `collect_*_code_review.py`：它的判据全在代码里、没有需要核对的
-      #       文档声称。但它**有**反向验证 —— 因为「漏守卫」正是
-      #       「声称有防线 vs 真的有防线」的典型（ISS-95）。
-      - name: "`*_node_paired` 必须有放行守卫且顺序正确（ISS-175 判据化）"
-        run: python tools/quality/check_node_paired_guard.py
-      - name: "`*_node_paired` 守卫判据反向验证（把 ISS-175 的错误实现放回去，必须报红）"
-        run: python tools/quality/collect_node_paired_guard_reverse_evidence.py --fast
-      # ⚠️ 素材可用性判定必须**只有一个拼点**（2026-10-07 新增）。这**不是**为了对称：
-      #    它是 ISS-177 的现场 —— `media/repository.py` 的模块 docstring 第 6 条
-      #    逐字写着"这条不是靠注释守的 —— `tools/quality/check_media_asset_usability_
-      #    single_source.py` 用 AST 核对…"，而**那个脚本当时并不存在**。
-      #    那条 docstring 于是成了"声称有防线"的本体（ISS-95）：
-      #    任何人读到它都会以为有人在看着，而实际上没有任何机械后果。
-      #    现在脚本已落地，且本门同时挂它的反向验证 —— 声称与实现两头都钉住。
-      #    为什么必须挂这里而不是别处：
-      #      · 它**纯 AST、零数据库**（本机实测约 40 秒，含 313 个 .py 的解析），
-      #        与门 3 的合规自检定位同族；
-      #      · "素材可用吗"的答案由**两列合起来**回答（`state` 登记动作 +
-      #        `supersedes_asset_id` 是否被接替）。少判后者 ⇒ 已被停用的素材
-      #        仍能被新图引用，而 AQ-03 的对照关系会**静默**指向一个已作废的
-      #        型号标注 —— 这类分叉**不报错**，只给错答案（ISS-115 同族）。
-      #      · 现有判据**结构上都抓不到**它：`check_all_exports` 只看 `__all__`、
-      #        `check_undefined_globals` 看名字引用、`check_evidence_scope` 判脚本
-      #        覆盖范围 —— 没有一条在问"这段 SQL 判断在几个地方被拼过"。
-      #    ⚠️ 与上面两条一样，本判据**刻意没有**三遍法 `collect_*_code_review.py`：
-      #       它的断言全在代码里、没有需要核对的文档声称（「不适用」写在这里，
-      #       否则读 CI 的人会以为漏了）。但它**有**反向验证 —— [1] 号变异就是
-      #       「加第二个拼点」，而那正是本判据存在的理由。
-      - name: "素材可用性判定只有一个拼点（ISS-177 判据化）"
-        run: python tools/quality/check_media_asset_usability_single_source.py
-      - name: "素材可用性判据反向验证（把 ISS-177 的错误实现放回去，必须报红）"
-        run: python tools/quality/collect_media_asset_usability_reverse_evidence.py --fast
-      # ⚠️ 迁移的 CHECK 文本不得**活引用**取值域（2026-10-08 新增）。
-      #    触发事件是 WP27 补登 `STATIC_IMAGE` 取值域时实测撞到的一个**判据盲区**：
-      #      · WP23 迁移用 import 委托拼 CHECK ——
-      #        `def _task_kind_sql(): return TASK_KIND_LIST_SQL`，
-      #        而 `sa.CheckConstraint` 里写的是 `f"task_kind IN ({_task_kind_sql()})"`；
-      #      · 于是**迁移文本跟着活常量走** ⇒ `check_migration_model_parity.py`
-      #        的「建两个空库、逐项对账」设计**恒绿** —— 两侧取的是同一个活常量，
-      #        它们同时移动，永远不可能分叉；
-      #      · 而真实世界里会分叉的是第三种库：**已执行过 WP23 的老库**，它的
-      #        CHECK 在建库那一刻就被固化，之后 `types.py` 怎么改它都不动。
-      #    净结果：「新库能过、老库过不了」而**没有任何判据会报红**。
-      #    为什么必须挂这里：
-      #      · 它**纯 AST、零数据库、秒级**，与门 3 的合规自检定位同族；
-      #      · 它补的是 `check_migration_model_parity.py`（已在本门）的**盲区** ——
-      #        那个判据的「两个空库」结构**决定**了它抓不到这一类，两者互补而非重复；
-      #      · 判据**做传递闭包**（WP23 的违规是"函数包一层 import"，只看 CHECK 文本
-      #        里的直接名字会漏，而漏的表现是**全绿** —— 和没有这条判据一样）。
-      #    ⚠️ 判据内有 **WP23 现存 3 处的豁免**。豁免不是后门：它被 G2a（失效即红）/
-      #      G2b（理由不得占位）/ G2c（只许减不许增）/ G7（违规与豁免双向对账）夹住，
-      #      并在此处**同时挂反向验证** —— 否则「有豁免」就是 ISS-95 的留后门形态。
-      #    ⚠️ 与 `check_all_exports.py` 同款，本判据**刻意没有**三遍法
-      #       `collect_*_code_review.py`：它的断言全在代码里、没有需要核对的文档声称。
-      #       但它**必须**有反向验证 —— 因为「判据抓不住它声称要抓的东西」正是 ISS-95。
-      - name: "迁移 CHECK 文本不得活引用取值域（parity 恒绿盲区判据化）"
-        run: python tools/quality/check_migration_value_domain_no_live_import.py
-      - name: "迁移取值域判据反向验证（把违规放回去，必须报红）"
-        run: python tools/quality/collect_migration_value_domain_reverse_evidence.py
-      - name: discipline 反向验证（把纪律判据的错误实现放回去，必须报红）
-        run: python tools/quality/collect_discipline_reverse_evidence.py --fast
-      - name: discipline code review evidence（三遍法，文档声称 = 待验证假设）
-        run: python tools/quality/collect_discipline_code_review.py
-      - name: regression guardrails evidence（标记注册/落点/可选择性/三道门）
-        run: python tools/regression/collect_regression_evidence.py
-      - name: regression guardrails 反向验证（把错误实现放回去，判据必须报红）
-        run: python tools/regression/collect_regression_reverse_evidence.py
-      - name: WP22 schema parity 反向验证（跨包 Schema 判据必须能报红）
-        run: python tools/m1/collect_schema_parity_reverse_evidence.py
-      # ⚠️ 跨会话共享文件的**写权边界**（WP-DEBT-04 后半 / V2.1 §7.1）。触发事件是
-      #    M4 并行线开工在即，而 §7.1 的四条并发纪律**此前全是自觉、没有一条判据**
-      #    （V2.1 §10.3 自己写明"这等价于 ISS-95 形态"）。
-      #    它判的是：**本次要提交的路径集合**有没有触碰 `docs/m4/M4并行开发接缝冻结.md`
-      #    §7.1 那 8 处共享文件（`README.md` / `migrations/env.py` / `main.py` /
-      #    `contracts/openapi.json` / `migrations/versions/*.py` / 登记册 / `evidence/**/*.log` /
-      #    `.workbuddy/memory/*.md`）。
-      #    ⚠️ **本步骤在 CI 上是显式 SKIP，不假装检查过**（`--ci`）：
-      #      CI 里没有"本次要提交的路径集合"这一输入（提交早已发生）⇒ 无区分度。
-      #      挂它的**唯一理由**是让"这条纪律有判据"在 CI 文件里**可见可读** ——
-      #      否则读 CI 的人会以为它没人管（与 `check_shared_db_quiet.py` 不在门 3 的
-      #      处置同款：**"不适用"必须写进 CI 文件**）。
-      #      它的**真实载体**是收口期的提交前步骤：
-      #        `python tools/quality/check_cross_session_shared_files.py --staged`
-      #      （或 `--paths <p...>`，与 `git commit -- <paths>` 同形）。
-      #    ⚠️ 与 `check_media_asset_usability_single_source.py` 一样，本判据**刻意没有**
-      #      三遍法 `collect_*_code_review.py`：断言全在代码里（清单从文档派生 + 双向对账），
-      #      没有需要核对的文档声称。「不适用」写在这里，否则读 CI 的人会以为漏了。
-      #      但**有**反向验证（下一条）—— 因为"纪律判据从没生效"与"纪律被遵守"
-      #      在它自己的 PASS 输出上完全同形（ISS-95 / ISS-143）。
-      - name: cross-session shared files 写权边界（WP-DEBT-04 / V2.1 §7.1）
-        run: python tools/quality/check_cross_session_shared_files.py --ci
-      - name: cross-session shared files 判据反向验证（把违规提交集放进去，必须报红）
-        run: python tools/quality/collect_cross_session_shared_files_reverse_evidence.py
-      # --- WP36：下载不计交付 / 替换是追加（AST 判据，零依赖、秒级）---
-      # 为什么必须是 AST 而不是 grep：`modules/exports/**` 的 docstring 原文就写着
-      # "deliveries 属 WP36"，文本搜索会把这句话误判成违规（见该脚本 docstring 的
-      # 「两个方向都会被文本搜索骗」表）。G5 额外核对"会改 deliveries 的仓储方法"
-      # 的名字约定集合与行为集合双向相等，防止 G3 的 denylist 被绕过。
-      - name: 下载不计交付 / 替换是追加（WP36 AST 判据）
-        run: python tools/quality/check_download_not_delivery.py
-      # --- WP46：内网离线安装包构建（真实产物，供下方两条判据核对）---
-      # ⚠️ 这一步是主 agent 2026-10-19 对 `check_sbom_coverage.py` docstring 里
-      #    「留给主会话拍板」一项的显式决定：**门 3 真构建，不加 --ci SKIP**。
-      #    取舍见该脚本 docstring「CI 侧要不要真构建 wheelhouse」——真构建会让门 3
-      #    变慢且依赖出网（本机实测 51 个 wheel / 64 MB / 38 秒），但不构建会让下面
-      #    两条判据 fail-closed 必红（它们的 docstring 明确写了"不许当 SKIP"）。
-      #    本门已有 `pip install -e` 这条出网先例，故选择真构建。
-      #    **只跑 wheelhouse/repo/sbom/manifest 四步，不跑 `images`**：`images` 子
-      #    步骤需要可达的 docker daemon，且 `deploy/prod/images.lock.json` 的 7 条
-      #    镜像引用里有 3 条 tag 仍是 PENDING（硬件/镜像仓库未选定，是产品数据缺口，
-      #    不是环境问题）⇒ 就算有 daemon 也拉不到；脚本自身文档写明该子步骤
-      #    "必须在可出网机器上跑"，且与本次构建目的（供判据核对，不是产出可安装的
-      #    离线包）无关。下面两条判据也**不读** `images` 子步骤的产物（已核对：
-      #    `check_offline_bundle.py` / `check_sbom_coverage.py` 均只读
-      #    `deploy/prod/images.lock.json` 静态文件，不读 `dist/bundle/images/*.tar`）。
-      - name: WP46 离线安装包构建（wheelhouse/repo/sbom/manifest；images 子步骤因产品数据缺口排除，见上）
-        run: |
-          python tools/ops/build_offline_bundle.py wheelhouse
-          python tools/ops/build_offline_bundle.py repo
-          python tools/ops/build_offline_bundle.py sbom
-          python tools/ops/build_offline_bundle.py manifest
-      # --- WP46：离线包与生产编排判据（docker compose config 自身不设防，见脚本 docstring）---
-      - name: 离线包与生产编排判据（WP46）
-        run: python tools/quality/check_offline_bundle.py
-      # --- WP46③：SBOM 覆盖判据（本包核心；闭包严格大于直接依赖，防「0==0」恒真同族）---
-      - name: SBOM 覆盖判据（WP46 ③）
-        run: python tools/quality/check_sbom_coverage.py
-      # --- WP46：SBOM/离线包判据的反向验证（逐个注入已知恒真路径，必须报红；
-      #    全部变异在仓库外的临时副本上做，不碰 `services/backend/pyproject.toml`）---
-      - name: SBOM 覆盖判据反向验证（必须报红）
-        run: python tools/quality/collect_sbom_coverage_reverse_evidence.py
+        run: python -m pytest -p no:cacheprovider -m smoke
+      - name: public snapshot invariants
+        run: python tools/quality/check_public_snapshot.py
+      - name: public snapshot 判据反向验证（注入违规必红，撤回回绿）
+        run: python tools/quality/check_public_snapshot.py --self-test

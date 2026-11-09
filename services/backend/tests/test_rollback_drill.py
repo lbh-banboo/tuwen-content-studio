@@ -926,7 +926,23 @@ def test_base_dsn_follows_environment(monkeypatch) -> None:
     assert got == "postgresql://postgres:postgres@dbhost:5999/rednote_x_1", (
         f"没有只换库名而是重拼了 DSN：{got}"
     )
-    assert "rednote" not in got, "本机角色泄漏进 DSN ⇒ CI 上会红在 role 不存在"
+    # ⚠️ 2026-11-09：这里原来用「本机用户名不得出现在 DSN 里」做字符串断言。
+    #    开源脱敏把该用户名全局换成项目名后，断言变成「项目名不得出现在 DSN 里」，
+    #    而本用例的库名参数就叫 `rednote_x_1` ⇒ 恒假，判据被自己的脱敏打死。
+    #    改成按 URL 组成与环境变量对账：既保住「不许自己拼本机角色」的原意，
+    #    又不受任何字符串替换影响，且比 `not in` 更强（角色/口令/host/端口一起钉）。
+    from urllib.parse import urlsplit
+
+    src = urlsplit("postgresql+psycopg://postgres:postgres@dbhost:5999/base")
+    got_parts = urlsplit(got)
+    assert (
+        got_parts.username,
+        got_parts.password,
+        got_parts.hostname,
+        got_parts.port,
+    ) == (src.username, src.password, src.hostname, src.port), (
+        f"基准 DSN 的角色/口令/host/端口没有照抄环境变量：{got}"
+    )
 
     # 只设 REDNOTE_DATABASE_URL 时也要认（与 `check_migration_model_parity.py` 同口径）
     monkeypatch.delenv("REDNOTE_TEST_DATABASE_URL", raising=False)

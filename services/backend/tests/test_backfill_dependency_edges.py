@@ -63,9 +63,29 @@ from rednote.platform.database import session_scope
 # 且只作用于本文件的用例（monkeypatch 自动还原，不污染同进程里的其它测试文件）。
 @pytest.fixture(autouse=True)
 def _private_backfill_database(monkeypatch: pytest.MonkeyPatch) -> None:
+    """只换库名，角色/口令/host/端口一律照抄调用方给的基准 DSN。
+
+    ⚠️ 2026-11-09：原实现把整串
+    `postgresql+psycopg://<本机角色>@localhost:5432/rednote_test_backfill_v2`
+    写死并**无条件覆盖**环境变量；开源脱敏把本机角色换成项目名后，本机与
+    干净 CI runner 上都不存在该 role ⇒ 本文件 10 条用例全部 setup error
+    `role ... does not exist`。这正是 ISS-108 的形状（本机口径被当通用口径），
+    与 `tools/ops/drill_db.py::dsn()` 的处置同口径。
+    """
+    import os
+
+    from sqlalchemy.engine import make_url
+
+    base = (
+        os.environ.get("REDNOTE_TEST_DATABASE_URL")
+        or os.environ.get("REDNOTE_DATABASE_URL")
+        or "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
+    )
     monkeypatch.setenv(
         "REDNOTE_TEST_DATABASE_URL",
-        "postgresql+psycopg://rednote@localhost:5432/rednote_test_backfill_v2",
+        make_url(base)
+        .set(database="rednote_test_backfill_v2")
+        .render_as_string(hide_password=False),
     )
 
 
