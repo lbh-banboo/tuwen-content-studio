@@ -4,6 +4,8 @@
 
 [MIT](LICENSE) · `Python >= 3.12` · `FastAPI` · `PostgreSQL 17 + pgvector` · `v0.1.1`
 
+> 我的其它项目：[ontology-kb](https://github.com/lbh-banboo/ontology-kb) · [chanlun-v051](https://github.com/lbh-banboo/chanlun-v051) · [skillhub](https://github.com/lbh-banboo/skillhub) · [interview-prompt-board](https://github.com/lbh-banboo/interview-prompt-board)
+
 面向图文内容生产全流程的 AI Native 系统 —— 后端服务与可交互前端原型，仓库标识 `tuwen-content-studio`。
 
 > **English**: Tuwen Content Studio is a public source snapshot of an AI-Native image-text content workflow — FastAPI + SQLAlchemy/Alembic on PostgreSQL with pgvector, plus a build-free static demo. Research in progress, not a production-ready product.
